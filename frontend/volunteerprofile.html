@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart NGO — My Profile</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #D82F2F; /* India Post red */
+            --secondary: #FFC107; /* Golden yellow */
+            --accent: #2196F3; /* Blue */
+            --light-bg: #F5F5F5;
+            --white: #FFFFFF;
+            --text: #333333;
+            --muted: #757575;
+            --border: #E0E0E0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-bg);
+            color: var(--text);
+        }
+
+        /* Enhanced Navbar */
+        nav {
+            background: var(--primary);
+            color: white;
+            padding: 0.8rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo span {
+            color: var(--secondary);
+            margin-left: 0.3rem;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-links li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-links li a:hover, .nav-links li a.active {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .hamburger span {
+            width: 25px;
+            height: 3px;
+            background: white;
+            border-radius: 3px;
+            transition: all 0.3s ease;
+        }
+
+        /* Profile Section */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .panel {
+            background: var(--white);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .panel-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid var(--secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .profile-info {
+            display: flex;
+            gap: 3rem;
+            align-items: flex-start;
+        }
+
+        .profile-picture {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            flex-shrink: 0;
+        }
+
+        .avatar {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--light-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.5rem;
+            color: var(--primary);
+            border: 4px solid var(--secondary);
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            border: 2px solid var(--white);
+            transition: all 0.3s ease;
+        }
+
+        .avatar-edit:hover {
+            transform: scale(1.1);
+            background: #1976D2;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            flex-grow: 1;
+        }
+
+        .detail-item {
+            background: var(--light-bg);
+            border-radius: 8px;
+            padding: 1.2rem;
+            border-left: 4px solid var(--primary);
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .btn-edit {
+            margin-top: 2rem;
+            padding: 0.8rem 1.8rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-edit:hover {
+            background: #C62828;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(216, 47, 47, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .profile-info {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .details-grid {
+                grid-template-columns: 1fr;
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 70px;
+                left: 0;
+                right: 0;
+                background: var(--primary);
+                flex-direction: column;
+                gap: 0;
+                padding: 1rem 0;
+            }
+
+            .nav-links li a {
+                padding: 1rem 2rem;
+                border-radius: 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            }
+
+            .nav-links.active {
+                display: flex;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .container {
+                padding: 0 1rem;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .detail-item {
+            animation: fadeIn 0.4s ease forwards;
+            opacity: 0;
+        }
+
+        .detail-item:nth-child(1) { animation-delay: 0.1s; }
+        .detail-item:nth-child(2) { animation-delay: 0.2s; }
+        .detail-item:nth-child(3) { animation-delay: 0.3s; }
+        .detail-item:nth-child(4) { animation-delay: 0.4s; }
+        .detail-item:nth-child(5) { animation-delay: 0.5s; }
+        .detail-item:nth-child(6) { animation-delay: 0.6s; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">⚡ Smart<span>NGO</span></div>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="volunteer.html">📍 Dashboard</a></li>
+            <li><a href="volunteertasks.html">📋 My Tasks</a></li>
+            <li><a href="volunteermap.html">🗺️ Map</a></li>
+            <li><a href="volunteerprofile.html" class="active">👤 Profile</a></li>
+            <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+        </ul>
+        <div class="hamburger" id="hamburger" onclick="toggleNav()">
+            <span></span><span></span><span></span>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Personal Info Panel -->
+        <div class="panel active" id="panel-info">
+            <div class="panel-title">👤 Personal Information</div>
+            <div class="profile-info">
+                <!-- Profile Picture -->
+                <div class="profile-picture">
+                    <div class="avatar" id="avatarDisplay">👤</div>
+                    <div class="avatar-edit" onclick="document.getElementById('avatarInput').click()">✏️</div>
+                    <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatar(event)">
+                </div>
+
+                <!-- Personal Details -->
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Full Name</span>
+                        <span class="detail-value" id="fullNameDisplay">John Doe</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Email Address</span>
+                        <span class="detail-value" id="emailDisplay">john@example.com</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Phone Number</span>
+                        <span class="detail-value" id="phoneDisplay">+91 98765 43210</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Location</span>
+                        <span class="detail-value" id="locationDisplay">Bengaluru</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Role</span>
+                        <span class="detail-value" id="roleDisplay">Volunteer</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Availability</span>
+                        <span class="detail-value" id="availabilityDisplay">Full-time</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn-edit" onclick="enableEditing()">✏️ Edit Profile</button>
+        </div>
+    </div>
+
+<script>
+    async function loadProfile() {
+    try {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        if (!token) {
+            showToast('⚠️ Please login first');
+            setTimeout(() => window.location.href = 'login.html', 1500);
+            return;
+        }
+
+        const response = await fetch('http://localhost:5000/api/profile', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch profile');
+        }
+
+        const profileData = await response.json();
+        console.log('Profile data:', profileData); // Debug log
+
+        // Update Profile Details
+        document.getElementById('fullNameDisplay').textContent = profileData.fullName || 'User';
+        document.getElementById('emailDisplay').textContent = profileData.email || 'Not provided';
+        document.getElementById('phoneDisplay').textContent = profileData.phoneNumber || 'Not provided';
+        document.getElementById('cityDisplay').textContent = profileData.location || 'Not provided';
+
+        // Update NGO-specific fields if role is NGO
+        if (profileData.role === 'ngo') {
+            document.getElementById('ngoFields').style.display = 'block';
+            document.getElementById('ngoDescField').style.display = 'block';
+            document.getElementById('ngoRegField').style.display = 'block';
+            document.getElementById('organizationNameDisplay').textContent = profileData.organizationName || 'Not provided';
+            document.getElementById('ngoDescriptionDisplay').textContent = profileData.ngoDescription || 'Not provided';
+            document.getElementById('registrationNumberDisplay').textContent = profileData.registrationNumber || 'Not provided';
+        }
+
+        showToast('✅ Profile loaded successfully');
+
+    } catch (error) {
+        console.error('Error loading profile:', error);
+        showToast('❌ Failed to load profile');
+    }
+}
+
+ function toggleNav() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+            
+            const hamburger = document.getElementById('hamburger');
+            hamburger.classList.toggle('active');
+        }
+
+        function logout() {
+            localStorage.clear();
+            sessionStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        function handleAvatar(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = e => {
+                const avatar = document.getElementById('avatarDisplay');
+                avatar.innerHTML = `<img src="${e.target.result}" alt="Profile Picture">`;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function enableEditing() {
+            // Redirect to edit page or show edit form
+            window.location.href = 'edit-profile.html';
+        }
+
+        // Load profile data when page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add your profile loading logic here
+            console.log('Profile page loaded');
+        });
+
+loadProfile();
+</script>
+</body>
+</html>
+
+

@@ -1,0 +1,17 @@
+
+.register-link,
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.register-link a,
+.login-link a {
+  color: #3498db;
+  text-decoration: none;
+}
+
+.register-link a:hover,
+.login-link a:hover {
+  text-decoration: underline;
+}

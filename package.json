@@ -1,0 +1,31 @@
+{
+  "dependencies": {
+    "@getbrevo/brevo": "^5.0.4",
+    "@google/genai": "^1.50.1",
+    "@google/generative-ai": "^0.24.1",
+    "apos-to-lex-form": "^1.0.5",
+    "axios": "^1.15.2",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.3",
+    "body-parser": "^2.2.2",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^8.3.2",
+    "express-validator": "^7.3.2",
+    "helmet": "^8.1.0",
+    "hpp": "^0.2.3",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.1.1",
+    "mongoose": "^9.4.1",
+    "multer": "^2.1.1",
+    "natural": "^8.1.1",
+    "node": "^24.15.0",
+    "nodemailer": "^8.0.5",
+    "nodemon": "^3.1.14",
+    "resend": "^6.12.2",
+    "twilio": "^6.0.0",
+    "xss-clean": "^0.1.4"
+  }
+}

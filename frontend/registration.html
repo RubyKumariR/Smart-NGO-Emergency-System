@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart NGO Registration</title>
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  /* Only background changed to very light pink - matching login page */
+  background: #ffe4e9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: 100%;
+  max-width: 600px;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  border-top: 8px solid #cc0000;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  color: #cc0000;
+}
+
+.back-btn {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.back-btn a {
+  text-decoration: none;
+  padding: 8px 15px;
+  background: #cc0000;
+  color: white;
+  border-radius: 6px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+label {
+  font-weight: 600;
+}
+
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+}
+
+.role-specific {
+  display: none;
+  background: #fff5e6;
+  padding: 10px;
+  border-left: 4px solid #ff3300;
+  border-radius: 6px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(to right, #cc0000, #ff3300);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:disabled {
+  background: gray;
+  cursor: not-allowed;
+}
+
+/* Checkbox fix */
+.terms-group {
+  display: flex;
+  align-items: center;
+}
+
+.terms-group input {
+  width: auto;
+  margin-right: 8px;
+}
+
+#openTerms {
+  color: #cc0000;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+}
+
+.modal-content {
+  background: white;
+  margin: 8% auto;
+  padding: 20px;
+  width: 90%;
+  max-width: 420px;
+  border-radius: 12px;
+}
+
+.terms-text {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 10px 0;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.close-btn {
+  background: gray;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 12px;
+}
+
+/* Login link */
+.login-link {
+  margin-top: 8px;
+}
+
+.login-link a {
+  color: #cc0000;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Smart NGO Registration</h2>
+
+<form id="registrationForm">
+
+<!-- ROLE -->
+<div class="form-group">
+  <label>Role</label>
+  <select id="role" required>
+    <option value="">Select</option>
+    <option value="ngo">NGO</option>
+    <option value="volunteer">Volunteer</option>
+  </select>
+</div>
+
+<!-- COMMON -->
+<input type="text" id="fullName" placeholder="Full Name" required>
+<input type="email" id="email" placeholder="Email" required>
+<input type="tel" id="phoneNumber" placeholder="Phone" required>
+
+<input type="password" id="password" placeholder="Password" required>
+<input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+<div id="passwordError" style="color:red;"></div>
+
+<input type="text" id="location" placeholder="Location" required>
+
+<!-- NGO -->
+<div id="ngoFields" class="role-specific">
+  <input type="text" id="organizationName" placeholder="Organization Name">
+  <input type="text" id="registrationNumber" placeholder="Registration Number">
+  <textarea id="ngoDescription" placeholder="NGO Description"></textarea>
+</div>
+
+<!-- VOLUNTEER -->
+<div id="volunteerFields" class="role-specific">
+  <input type="text" id="skills" placeholder="Skills">
+  <select id="availability">
+    <option value="">Availability</option>
+    <option value="part-time">Part-time</option>
+    <option value="full-time">Full-time</option>
+  </select>
+</div>
+
+<button type="submit">Register</button>
+
+</form>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+const API_BASE = "http://localhost:5000/api/auth";
+
+const role = document.getElementById("role");
+const ngo = document.getElementById("ngoFields");
+const vol = document.getElementById("volunteerFields");
+
+const password = document.getElementById("password");
+const confirmPassword = document.getElementById("confirmPassword");
+const passwordError = document.getElementById("passwordError");
+
+const form = document.getElementById("registrationForm");
+
+// SHOW FIELDS
+role.onchange = () => {
+    ngo.style.display = role.value === "ngo" ? "block" : "none";
+    vol.style.display = role.value === "volunteer" ? "block" : "none";
+};
+
+// PASSWORD CHECK
+confirmPassword.addEventListener("input", () => {
+    passwordError.textContent =
+        password.value !== confirmPassword.value ? "Passwords do not match" : "";
+});
+
+// SUBMIT
+form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    if (password.value !== confirmPassword.value) {
+        passwordError.textContent = "Passwords do not match";
+        return;
+    }
+
+    const data = {
+        role: role.value,
+        fullName: document.getElementById("fullName").value,
+        email: document.getElementById("email").value,
+        phoneNumber: document.getElementById("phoneNumber").value,
+        password: password.value,
+        location: document.getElementById("location").value,
+    };
+
+    // NGO
+    if (role.value === "ngo") {
+        data.organizationName = document.getElementById("organizationName").value;
+        data.registrationNumber = document.getElementById("registrationNumber").value;
+        data.ngoDescription = document.getElementById("ngoDescription").value;
+    }
+
+    // VOLUNTEER
+    if (role.value === "volunteer") {
+        data.skills = document.getElementById("skills").value;
+        data.availability = document.getElementById("availability").value;
+    }
+
+    console.log("Sending:", data);
+
+    try {
+        const res = await fetch(`${API_BASE}/register`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data)
+        });
+
+        const result = await res.json();
+        console.log(result);
+
+        if (!res.ok) {
+            alert(result.error || "Failed");
+            return;
+        }
+
+        alert("✅ Registered Successfully!");
+        window.location.href = "login.html";
+
+    } catch (err) {
+        console.error(err);
+        alert("Server error");
+    }
+});
+
+});
+</script>
+
+</body>
+</html>

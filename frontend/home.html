@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Smart NGO | AI-Powered Humanitarian Aid — Post Office Colors</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fef9f0;
+            color: #1a1a2e;
+            overflow-x: hidden;
+        }
+
+        /* POST OFFICE INSPIRED COLORS — Royal Blue + Crimson Red + Gold accents */
+        :root {
+            --post-red: #da291c;      /* USPS / classic postal red */
+            --post-blue: #004b87;     /* deep royal postal blue */
+            --post-gold: #ffcd00;     /* golden yellow for accents */
+            --post-white: #ffffff;
+            --post-light-bg: #f0f4fc;
+            --vibrant-orange: #ff7b2c;
+            --vibrant-pink: #ff2c7b;
+            --vibrant-purple: #8b5cf6;
+            --vibrant-cyan: #06b6d4;
+            --glass-white: rgba(255, 255, 255, 0.94);
+            --shadow-glow: 0 20px 35px -12px rgba(0, 0, 0, 0.2);
+            --gradient-hero: linear-gradient(135deg, #004b87 0%, #da291c 100%);
+            --gradient-card: linear-gradient(145deg, #ffffff 0%, #fff5eb 100%);
+            --gradient-alert: linear-gradient(95deg, #fff2e0 0%, #ffe6d5 100%);
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        /* navbar with postal elegance */
+        .navbar {
+            position: fixed;
+            width: 100%;
+            padding: 18px 0;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(16px);
+            box-shadow: 0 4px 20px rgba(0, 75, 135, 0.1);
+            z-index: 1000;
+            transition: all 0.3s;
+            border-bottom: 2px solid var(--post-gold);
+        }
+
+        .navbar-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* ========== CREATIVE LOGO DESIGN ========== */
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            position: relative;
+        }
+
+        .logo-icon-wrapper {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(145deg, var(--post-blue), var(--post-red));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 16px rgba(0, 75, 135, 0.3);
+            transition: transform 0.3s ease;
+            animation: softGlow 2s infinite alternate;
+        }
+
+        .logo-icon-wrapper:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes softGlow {
+            0% { box-shadow: 0 4px 12px rgba(218, 41, 28, 0.2); }
+            100% { box-shadow: 0 8px 24px rgba(0, 75, 135, 0.5); }
+        }
+
+        .logo-icon-wrapper i {
+            font-size: 1.8rem;
+            color: white;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+        }
+
+        /* decorative stamp corner */
+        .logo-icon-wrapper::before {
+            content: "✉️";
+            position: absolute;
+            font-size: 18px;
+            top: -8px;
+            right: -10px;
+            background: var(--post-gold);
+            border-radius: 30px;
+            padding: 2px 5px;
+            font-size: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        .logo-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+        }
+
+        .logo-main {
+            font-size: 1.7rem;
+            font-weight: 800;
+            background: linear-gradient(125deg, var(--post-blue), var(--post-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        /* Removed the logo-tag line as requested */
+        .logo-tag {
+            display: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+            font-size: 0.95rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--post-blue);
+            color: white;
+            box-shadow: 0 8px 18px rgba(0, 75, 135, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: #003566;
+            transform: scale(1.02);
+        }
+
+        .btn-secondary {
+            background: var(--post-red);
+            color: white;
+            box-shadow: 0 8px 18px rgba(218, 41, 28, 0.3);
+        }
+
+        .btn-secondary:hover {
+            background: #b81f13;
+            transform: scale(1.02);
+        }
+
+        .btn-success {
+            background: var(--post-blue);
+            color: white;
+            font-weight: 800;
+        }
+
+        .btn-success:hover {
+            background: #002d54;
+            transform: translateY(-3px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--post-red);
+            color: var(--post-red);
+        }
+
+        .btn-outline:hover {
+            background: var(--post-red);
+            color: white;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--post-blue);
+        }
+
+        /* Hero Section — postal tribute */
+        .hero {
+            padding: 160px 0 100px;
+            background: radial-gradient(circle at 10% 30%, rgba(0, 75, 135, 0.08), rgba(218, 41, 28, 0.05));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: center;
+        }
+
+        .hero-title {
+            font-size: 3.8rem;
+            font-weight: 800;
+            background: linear-gradient(125deg, var(--post-blue), var(--post-red), var(--post-gold));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        /* Removed hero-subtitle line completely as requested (Post Office Speed · AI Precision) */
+        .hero-subtitle {
+            display: none;
+        }
+
+        .hero-description {
+            font-size: 1.1rem;
+            color: #2c3e66;
+            margin-bottom: 35px;
+            line-height: 1.6;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .hero-image {
+            filter: drop-shadow(0 25px 20px rgba(0, 75, 135, 0.2));
+            animation: float 5s infinite;
+            border-radius: 42px;
+            border: 3px solid var(--post-gold);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-18px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* section titles postal flair */
+        .section-title {
+            font-size: 2.8rem;
+            font-weight: 800;
+            text-align: center;
+            background: linear-gradient(115deg, var(--post-blue), var(--post-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 16px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: #2c3e66;
+            max-width: 680px;
+            margin: 0 auto 50px;
+            font-size: 1.2rem;
+        }
+
+        /* feature cards with postal accents */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+            gap: 32px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: var(--gradient-card);
+            border-radius: 40px;
+            padding: 36px 24px;
+            text-align: center;
+            transition: all 0.35s;
+            box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(218, 41, 28, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: "✉️";
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            font-size: 80px;
+            opacity: 0.05;
+            pointer-events: none;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 30px 40px -15px rgba(0, 75, 135, 0.25);
+            border-color: var(--post-gold);
+        }
+
+        .feature-icon {
+            font-size: 3.8rem;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .feature-title {
+            font-size: 1.7rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--post-blue);
+        }
+
+        /* steps with postal stamp style */
+        .steps {
+            display: flex;
+            justify-content: space-between;
+            gap: 30px;
+            margin-top: 40px;
+            flex-wrap: wrap;
+        }
+
+        .step {
+            flex: 1;
+            background: white;
+            border-radius: 32px;
+            padding: 28px 20px;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.05);
+            border-bottom: 5px solid var(--post-gold);
+            position: relative;
+        }
+
+        .step-number {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(145deg, var(--post-blue), var(--post-red));
+            color: white;
+            font-size: 1.9rem;
+            font-weight: 800;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px;
+            box-shadow: 0 8px 14px rgba(0, 75, 135, 0.3);
+        }
+
+        /* impact cards postal */
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 28px;
+        }
+
+        .impact-card {
+            background: linear-gradient(125deg, #fff7ed, #ffffff);
+            border-radius: 32px;
+            padding: 30px;
+            text-align: center;
+            transition: all 0.25s;
+            border: 1px solid #ffe0c4;
+        }
+
+        .impact-icon {
+            font-size: 2.5rem;
+            color: var(--post-red);
+            margin-bottom: 16px;
+        }
+
+        /* Alert section with postal urgency */
+        .alert-section {
+            background: var(--gradient-alert);
+            border-radius: 60px;
+            margin: 50px 0;
+            padding: 40px 24px;
+            box-shadow: 0 30px 35px -20px rgba(218, 41, 28, 0.2);
+            border: 1px solid var(--post-gold);
+        }
+
+        .alert-box {
+            background: white;
+            border-radius: 50px;
+            padding: 24px 32px;
+            display: inline-block;
+            animation: pulseGlow 1.8s infinite;
+            box-shadow: 0 12px 25px rgba(218, 41, 28, 0.25);
+            border-left: 8px solid var(--post-red);
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(218, 41, 28, 0.4); }
+            70% { box-shadow: 0 0 0 18px rgba(218, 41, 28, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(218, 41, 28, 0); }
+        }
+
+        /* AI Section postal */
+        .ai-section {
+            background: linear-gradient(125deg, #eef2ff, #fff2e0);
+            border-radius: 56px;
+            padding: 50px 30px;
+            margin: 50px 0;
+            text-align: center;
+            border: 1px solid var(--post-gold);
+        }
+
+        .ai-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--post-blue);
+            margin-bottom: 20px;
+        }
+
+        .ai-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 80px;
+            padding: 12px 28px;
+            font-weight: 600;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05);
+            color: #1e293b;
+            border-left: 3px solid var(--post-red);
+        }
+
+        /* Map preview postal */
+        .map-preview {
+            background: #ffffffdd;
+            backdrop-filter: blur(4px);
+            border-radius: 48px;
+            padding: 28px;
+            box-shadow: var(--shadow-glow);
+            margin: 50px 0;
+            border: 1px solid var(--post-gold);
+        }
+
+        .map-placeholder {
+            height: 320px;
+            background: radial-gradient(circle at 30% 40%, #ffe2c1, #ffd6b3);
+            border-radius: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 18px;
+            color: var(--post-red);
+            font-weight: 600;
+        }
+
+        /* CTA postal theme */
+        .cta {
+            background: linear-gradient(105deg, var(--post-blue), var(--post-red));
+            border-radius: 60px;
+            padding: 70px 40px;
+            text-align: center;
+            color: white;
+            margin: 60px 0;
+            box-shadow: 0 25px 30px -12px rgba(0, 75, 135, 0.4);
+        }
+
+        .cta-title {
+            font-size: 2.6rem;
+            font-weight: 800;
+        }
+
+        .cta-button {
+            background: var(--post-gold);
+            color: var(--post-blue);
+            padding: 14px 40px;
+            border-radius: 60px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            border: none;
+            margin-top: 20px;
+            transition: 0.2s;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+            background: #ffdb4d;
+        }
+
+        /* footer postal */
+        .footer {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 50px 0 30px;
+            border-radius: 40px 40px 0 0;
+            border-top: 4px solid var(--post-gold);
+        }
+
+        .footer-logo {
+            font-size: 1.7rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--post-gold), var(--post-red));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .toast-notify {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--post-blue);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 60px;
+            z-index: 1100;
+            transform: translateX(450px);
+            transition: 0.3s;
+            backdrop-filter: blur(12px);
+            font-weight: 500;
+            border-left: 6px solid var(--post-gold);
+        }
+
+        .toast-notify.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 992px) {
+            .hero-container { grid-template-columns: 1fr; text-align: center; }
+            .hero-buttons { justify-content: center; }
+            .steps { flex-direction: column; }
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-btn { display: block; }
+            .hero-title { font-size: 2.5rem; }
+            .section-title { font-size: 2.2rem; }
+            .logo-icon-wrapper { width: 40px; height: 40px; }
+            .logo-icon-wrapper i { font-size: 1.4rem; }
+            .logo-main { font-size: 1.3rem; }
+        }
+
+        .animate-on-scroll {
+            opacity: 0;
+            transform: translateY(35px);
+            transition: all 0.7s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .animate-on-scroll.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toastMsg" class="toast-notify">
+        <i class="fas fa-envelope"></i> <span id="toastText">Postal speed · Reliable delivery</span>
+    </div>
+
+    <nav class="navbar">
+        <div class="container navbar-container">
+            <!-- CREATIVE LOGO (UPDATED) - tagline removed -->
+            <a href="#" class="logo">
+                <div class="logo-icon-wrapper">
+                    <i class="fas fa-hands-helping"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-main">SmartNGO</span>
+                    <!-- logo-tag completely removed -->
+                </div>
+            </a>
+            <div class="nav-buttons">
+                <button class="btn btn-primary" id="loginBtn"><i class="fas fa-key"></i> Login</button>
+                <button class="mobile-menu-btn"><i class="fas fa-stamp"></i></button>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="container hero-container">
+            <div class="hero-content">
+                <h1 class="hero-title">Smart NGO Resource System</h1>
+                <!-- hero-subtitle removed as requested (Post Office Speed · AI Precision is gone) -->
+                <p class="hero-description">
+                    Helping communities faster and smarter using intelligent prioritization and real-time volunteer matching — with the reliability of a postal network.
+                </p>
+                <div class="hero-buttons">
+                    <button class="btn btn-success" id="ngoBtn"><i class="fas fa-building"></i> I am NGO</button>
+                    <button class="btn btn-secondary" id="volunteerBtn"><i class="fas fa-heart"></i> I am Volunteer</button>
+                </div>
+            </div>
+            <div class="hero-image">
+                <img src="https://img.freepik.com/premium-photo/happy-international-womens-day-around-world-illustration-image-generated-by-ai_349001-5008.jpg?semt=ais_hybrid&w=740&q=80" style="border-radius: 48px;">
+            </div>
+        </div>
+    </section>
+
+    <section class="features section">
+        <div class="container">
+            <h2 class="section-title">Key Features</h2>
+            <p class="section-subtitle">Revolutionary tools for humanitarian action — postal inspired efficiency</p>
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll"><div class="feature-icon">🧠✉️</div><h3 class="feature-title">AI-Based Priority</h3><p class="feature-description">Automatically detects urgency from text and assigns intelligent priority scores.</p></div>
+                <div class="feature-card animate-on-scroll"><div class="feature-icon">⚡📬</div><h3 class="feature-title">Smart Matching</h3><p class="feature-description">Matches volunteers based on skills, location, and availability.</p></div>
+                <div class="feature-card animate-on-scroll"><div class="feature-icon">📡🔔</div><h3 class="feature-title">Real-Time Alerts</h3><p class="feature-description">Instant notifications for urgent needs and live updates.</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works section">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-subtitle">Simple steps to make a big impact — like sending priority mail</p>
+            <div class="steps">
+                <div class="step animate-on-scroll"><div class="step-number">1</div><h3>NGO Submits Need</h3><p>NGOs report their requirements through our platform</p></div>
+                <div class="step animate-on-scroll"><div class="step-number">2</div><h3>AI Analyzes Urgency</h3><p>Our AI evaluates and prioritizes the request</p></div>
+                <div class="step animate-on-scroll"><div class="step-number">3</div><h3>System Matches Volunteers</h3><p>Best-fit volunteers are identified automatically</p></div>
+                <div class="step animate-on-scroll"><div class="step-number">4</div><h3>Help Reaches Faster</h3><p>Resources and volunteers are deployed efficiently</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="impact section">
+        <div class="container">
+            <h2 class="section-title">Our Impact</h2>
+            <p class="section-subtitle">Transforming communities worldwide with postal reliability</p>
+            <div class="impact-grid">
+                <div class="impact-card animate-on-scroll"><div class="impact-icon"><i class="fas fa-bolt"></i></div><h3>Faster Response</h3><p>Reduce response times by up to 70% with our intelligent prioritization</p></div>
+                <div class="impact-card animate-on-scroll"><div class="impact-icon"><i class="fas fa-chart-line"></i></div><h3>Better Resource Utilization</h3><p>Optimize volunteer and resource allocation with data-driven matching</p></div>
+                <div class="impact-card animate-on-scroll"><div class="impact-icon"><i class="fas fa-sync-alt"></i></div><h3>Real-Time Coordination</h3><p>Keep everyone updated with live tracking and communication</p></div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="alert-section">
+            <h2 class="section-title" style="color:#da291c;">Emergency Alert System</h2>
+            <p class="section-subtitle">Instant notifications for urgent situations — priority delivery</p>
+            <div class="alert-box" id="liveAlertBox">
+                <h3 style="color:#004b87;">🚨 New urgent need nearby!</h3>
+                <p id="alertMessage" style="font-weight:500;">Flood relief volunteers needed in Downtown area - Medical skills preferred</p>
+            </div>
+            <button class="btn btn-outline" id="simulateAlertBtn" style="margin-top:24px; background:#fff2e6;"><i class="fas fa-bell"></i> Simulate New Alert</button>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="ai-section">
+            <div class="ai-container">
+                <h2 class="ai-title"><i class="fas fa-microchip"></i> Powered by AI — Postal Intelligence</h2>
+                <p>Our system uses AI to analyze NGO reports, prioritize emergencies, and recommend the best volunteers instantly — like a smart postal routing system.</p>
+                <div class="ai-stats">
+                    <div class="stat-card"><i class="fas fa-chart-simple"></i> Urgency accuracy: <strong>94%</strong></div>
+                    <div class="stat-card"><i class="fas fa-stopwatch"></i> Avg response: <strong id="responseTime">2.4 min</strong></div>
+                </div>
+                <button class="btn btn-primary" id="aiLearnBtn"><i class="fas fa-brain"></i> Explore AI Tech</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="map-preview">
+            <h2 style="font-size:1.9rem; font-weight:800; color:#004b87;"><i class="fas fa-map-marked-alt"></i> Live Map Tracking — Postal Zones</h2>
+            <div class="map-placeholder" id="interactiveMap">
+                <i class="fas fa-map-marker-alt fa-3x" style="color:#da291c;"></i>
+                <span>📍 3 active requests • 12 volunteers nearby</span>
+                <div class="live-marker">
+                    <span><i class="fas fa-water"></i> Flood zone: 2km</span>
+                    <span><i class="fas fa-people-arrows"></i> Shelter support active</span>
+                </div>
+                <button class="btn btn-secondary" id="refreshMapBtn" style="background:#004b87;">Refresh Location Data</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="cta">
+            <h2 class="cta-title">Ready to Make a Difference? ✉️🚀</h2>
+            <p style="font-size:1.2rem; margin:20px 0; opacity:0.95;">Join hundreds of NGOs and volunteers already transforming communities with our platform — fast as airmail, reliable as ground post.</p>
+            <button class="cta-button" id="getStartedBtn">Get Started 🚀</button>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-container" style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:30px;">
+                <div><div class="footer-logo"><i class="fas fa-envelope"></i> SmartNGO</div><p style="margin-top:12px; max-width:260px;">Helping communities faster with intelligent resource management — postal spirit.</p></div>
+                <div><h3 style="color:#ffcd00;">Resources</h3><ul style="list-style:none; margin-top:12px;"><li>Help Center</li><li>Support</li><li>Community</li></ul></div>
+                <div><h3 style="color:#ffcd00;">Legal</h3><ul style="list-style:none; margin-top:12px;"><li>Privacy</li><li>Terms</li><li>Cookies</li></ul></div>
+            </div>
+            <div class="footer-bottom" style="text-align:center; margin-top:40px; padding-top:20px; border-top:1px solid #334155;">© 2026 Smart NGO Resource System. All rights reserved. <i class="fas fa-heart" style="color:#da291c;"></i> AI for Good — Postal Colors Edition</div>
+        </div>
+    </footer>
+
+    <script>
+        // scroll & navbar
+        window.addEventListener('scroll', () => {
+            const navbar = document.querySelector('.navbar');
+            if(window.scrollY > 30) navbar.style.background = "rgba(255, 255, 255, 0.98)";
+            else navbar.style.background = "rgba(255, 255, 255, 0.96)";
+        });
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastMsg');
+            document.getElementById('toastText').innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2800);
+        }
+
+        document.querySelector('.mobile-menu-btn')?.addEventListener('click', () => showToast("✉️ Postal menu — coming soon"));
+
+        // scroll animation
+        const animateElements = document.querySelectorAll('.animate-on-scroll');
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if(entry.isIntersecting) entry.target.classList.add('visible');
+            });
+        }, { threshold: 0.2 });
+        animateElements.forEach(el => scrollObserver.observe(el));
+
+        // Alert rotation postal
+        const alerts = ["🚨 Critical: Medical supplies needed at Central Shelter - Urgent!", "⚠️ Flash flood warning: Volunteers with boats required near Riverbank", "🔥 Wildfire evacuation support: 20 volunteers needed ASAP", "🏥 Blood donation camp: O-negative urgently required"];
+        let idx = 0;
+        function rotateAlertMsg() {
+            idx = (idx + 1) % alerts.length;
+            const msgP = document.getElementById('alertMessage');
+            if(msgP) msgP.innerText = alerts[idx];
+            showToast("📬 Priority alert: " + alerts[idx].substring(0, 55));
+        }
+        document.getElementById('simulateAlertBtn')?.addEventListener('click', rotateAlertMsg);
+        setInterval(rotateAlertMsg, 11000);
+
+        let respTime = 2.4;
+        setInterval(() => {
+            respTime = Math.max(1.1, respTime - 0.025);
+            document.getElementById('responseTime').innerText = respTime.toFixed(1) + " min";
+        }, 5000);
+
+        // map refresh postal style
+        const mapDiv = document.getElementById('interactiveMap');
+        function attachMapRefresh() {
+            const refreshBtn = document.getElementById('refreshMapBtn');
+            if(refreshBtn) refreshBtn.onclick = () => {
+                const activeCount = Math.floor(Math.random() * 9) + 3;
+                const volCount = Math.floor(Math.random() * 24) + 8;
+                if(mapDiv) {
+                    mapDiv.innerHTML = `<i class="fas fa-map-marker-alt fa-3x" style="color:#da291c;"></i><span>📍 ${activeCount} active requests • ${volCount} volunteers nearby</span>
+                    <div class="live-marker"><span><i class="fas fa-water"></i> Real-time incident sync</span><span><i class="fas fa-people-arrows"></i> AI matched ${Math.floor(volCount/2)} volunteers</span></div>
+                    <button class="btn btn-secondary" id="refreshMapBtn" style="background:#004b87;">Refresh Location Data</button>`;
+                    attachMapRefresh();
+                }
+                showToast("🗺️ Postal map updated — fresh coordinates");
+            };
+        }
+        attachMapRefresh();
+
+        document.getElementById('loginBtn')?.addEventListener('click', () => { showToast("🔐 Secure login portal — postal security"); setTimeout(() => window.location.href='login.html', 500); });
+        document.getElementById('ngoBtn')?.addEventListener('click', () => { showToast("🏢 NGO dashboard loading"); setTimeout(() => window.location.href='login.html?role=ngo', 400); });
+        document.getElementById('volunteerBtn')?.addEventListener('click', () => { showToast("🤝 Volunteer hub loading — ready to deliver"); setTimeout(() => window.location.href='login.html?role=volunteer', 400); });
+        document.getElementById('getStartedBtn')?.addEventListener('click', () => { showToast("✨ Redirecting to registration — postal welcome"); setTimeout(() => window.location.href='both.html', 500); });
+        document.getElementById('aiLearnBtn')?.addEventListener('click', () => { showToast("🧠 AI engine: NLP urgency + smart geolocation — postal AI"); });
+
+        setTimeout(() => showToast("📮 SmartNGO | Creative Logo — reliable & fast humanitarian aid"), 800);
+    </script>
+</body>
+</html>

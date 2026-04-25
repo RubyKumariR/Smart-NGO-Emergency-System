@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart NGO - Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffe4e9; --surface: #fff5f7; --card: #ffffff; --card-2: #fff0f3;
+  --border: rgba(0,0,0,0.08); --border-lg: rgba(204,0,0,0.15);
+  --accent: #cc0000; --accent-2: #ff3300; --danger: #dc2626;
+  --success: #16a34a; --warn: #f59e0b; --text: #1e1b4b; --muted: #7c6b8f;
+  --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+  --radius: 14px; --radius-lg: 20px; --shadow: 0 4px 20px rgba(0,0,0,0.06);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body); background: var(--bg); color: var(--text);
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 72px;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 8px; z-index: 100;
+}
+.sidebar-logo {
+  width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 12px; box-shadow: 0 0 20px rgba(204,0,0,0.25);
+}
+.nav-item {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 20px; color: var(--muted);
+  border: 1px solid transparent; transition: all 0.2s; position: relative;
+}
+.nav-item:hover, .nav-item.active { background: rgba(204,0,0,0.08); border-color: rgba(204,0,0,0.2); color: var(--accent); }
+.nav-item .tooltip {
+  position: absolute; left: 60px; background: var(--card-2); border: 1px solid var(--border);
+  color: var(--text); font-size: 12px; padding: 6px 10px; border-radius: 8px;
+  white-space: nowrap; opacity: 0; pointer-events: none; transform: translateX(-4px);
+  transition: all 0.2s;
+}
+.nav-item:hover .tooltip { opacity: 1; transform: translateX(0); }
+.sidebar-spacer { flex: 1; }
+.logout-btn {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 18px; color: var(--muted);
+  transition: all 0.2s;
+}
+.logout-btn:hover { background: rgba(220,38,38,0.1); color: var(--danger); }
+.main { margin-left: 72px; padding: 32px; min-height: 100vh; position: relative; z-index: 1; }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+.page-title { font-family: var(--font-head); font-size: 26px; font-weight: 700; color: var(--text); }
+.page-title span { color: var(--accent); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.status-pill {
+  display: flex; align-items: center; gap: 6px; background: rgba(22,163,74,0.1);
+  border: 1px solid rgba(22,163,74,0.2); color: var(--success); font-size: 12px;
+  padding: 6px 12px; border-radius: 99px;
+}
+.status-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse-dot 2s ease infinite; }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: white;
+}
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; position: relative; overflow: hidden; transition: transform 0.2s;
+}
+.stat-card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2)); opacity: 0; transition: opacity 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.stat-card:hover::before { opacity: 1; }
+.stat-icon { font-size: 22px; margin-bottom: 12px; display: block; }
+.stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.stat-value { font-family: var(--font-head); font-size: 28px; font-weight: 700; color: var(--text); }
+.stat-delta { font-size: 11px; margin-top: 4px; color: var(--success); }
+.dashboard-grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; }
+.card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 24px; }
+.card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.card-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; }
+.card-badge { font-size: 11px; padding: 4px 10px; border-radius: 99px; background: rgba(204,0,0,0.08); color: var(--accent); border: 1px solid rgba(204,0,0,0.15); }
+.activity-list { display: flex; flex-direction: column; gap: 12px; }
+.activity-item {
+  display: flex; align-items: flex-start; gap: 12px; padding: 14px;
+  background: var(--card-2); border-radius: 12px; border: 1px solid var(--border);
+}
+.act-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+.act-icon.red { background: rgba(220,38,38,0.1); }
+.act-icon.amber { background: rgba(245,158,11,0.1); }
+.act-icon.green { background: rgba(22,163,74,0.1); }
+.act-icon.blue { background: rgba(59,130,246,0.1); }
+.act-body { flex: 1; }
+.act-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.act-sub { font-size: 11px; color: var(--muted); }
+.badge { font-size: 10px; padding: 3px 8px; border-radius: 99px; font-weight: 500; white-space: nowrap; align-self: center; }
+.badge.high { background: rgba(220,38,38,0.12); color: #b91c1c; border: 1px solid rgba(220,38,38,0.2); }
+.badge.medium { background: rgba(245,158,11,0.12); color: #b45309; border: 1px solid rgba(245,158,11,0.2); }
+.badge.low { background: rgba(22,163,74,0.12); color: #15803d; border: 1px solid rgba(22,163,74,0.2); }
+.quick-actions { display: flex; flex-direction: column; gap: 10px; }
+.qa-btn {
+  display: flex; align-items: center; gap: 12px; background: var(--card-2);
+  border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
+  cursor: pointer; color: var(--text); font-size: 13px; transition: all 0.2s;
+  text-align: left; width: 100%;
+}
+.qa-btn:hover { background: rgba(204,0,0,0.05); border-color: rgba(204,0,0,0.2); transform: translateX(3px); }
+.qa-icon { font-size: 18px; flex-shrink: 0; }
+.qa-text { display: flex; flex-direction: column; }
+.qa-label { font-weight: 500; font-size: 13px; }
+.qa-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
+.qa-arrow { margin-left: auto; color: var(--muted); font-size: 14px; }
+
+/* Chatbot Styles */
+.chat-fab {
+  position: fixed; bottom: 28px; right: 28px; width: 60px; height: 60px;
+  border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 24px; z-index: 999; box-shadow: 0 4px 24px rgba(204,0,0,0.4);
+  transition: transform 0.2s; animation: fab-pulse 3s ease infinite; color: white;
+}
+.chat-fab:hover { transform: scale(1.1); }
+@keyframes fab-pulse { 0%, 100% { box-shadow: 0 4px 24px rgba(204,0,0,0.4), 0 0 0 0 rgba(204,0,0,0.4); } 50% { box-shadow: 0 4px 24px rgba(204,0,0,0.4), 0 0 0 12px rgba(204,0,0,0); } }
+.chat-panel {
+  position: fixed; bottom: 100px; right: 28px; width: 380px; height: 560px;
+  background: var(--surface); border: 1px solid var(--border-lg); border-radius: 22px;
+  display: flex; flex-direction: column; z-index: 998; box-shadow: 0 24px 80px rgba(0,0,0,0.2);
+  overflow: hidden; opacity: 0; transform: translateY(20px) scale(0.95);
+  pointer-events: none; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.chat-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: all; }
+.chat-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.5); }
+.chat-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; }
+.chat-header-info { flex: 1; }
+.chat-header-info h4 { font-family: var(--font-head); font-size: 14px; font-weight: 600; }
+.chat-header-info p { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+.online-dot { width: 6px; height: 6px; background: var(--success); border-radius: 50%; animation: pulse-dot 2s ease infinite; }
+.chat-close { width: 30px; height: 30px; border-radius: 8px; background: var(--card-2); border: 1px solid var(--border); color: var(--muted); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.chips-wrap { padding: 10px 16px 4px; display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font-size: 11px; padding: 5px 10px; border-radius: 99px; background: rgba(204,0,0,0.08); border: 1px solid rgba(204,0,0,0.15); color: #b91c1c; cursor: pointer; }
+.chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.msg { display: flex; gap: 8px; max-width: 100%; }
+.msg.user { flex-direction: row-reverse; }
+.msg-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; align-self: flex-end; }
+.msg.bot .msg-avatar { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: white; }
+.msg.user .msg-avatar { background: var(--card-2); border: 1px solid var(--border); }
+.msg-bubble { max-width: 82%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.55; }
+.msg.bot .msg-bubble { background: var(--card); border: 1px solid var(--border); border-bottom-left-radius: 4px; color: var(--text); }
+.msg.user .msg-bubble { background: linear-gradient(135deg, #cc0000, #ff3300); border-bottom-right-radius: 4px; color: white; }
+.typing-indicator { display: none; align-items: center; gap: 8px; }
+.typing-indicator.show { display: flex; }
+.typing-bubble { background: var(--card); border: 1px solid var(--border); padding: 12px 16px; border-radius: 16px; border-bottom-left-radius: 4px; display: flex; gap: 4px; }
+.typing-dot { width: 6px; height: 6px; background: var(--muted); border-radius: 50%; animation: bounce 1.4s ease infinite; }
+@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
+.chat-input-area { padding: 12px 16px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-end; }
+.chat-input { flex: 1; background: var(--card-2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; color: var(--text); font-size: 13px; outline: none; resize: none; min-height: 42px; }
+.chat-send { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; }
+.chat-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 997; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+.chat-backdrop.open { opacity: 1; pointer-events: all; }
+@media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .dashboard-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .main { padding: 16px; } .chat-panel { width: calc(100vw - 24px); right: 12px; bottom: 90px; } }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">🚨</div>
+  <a href="ngo.html" class="nav-item active">🏠<span class="tooltip">Dashboard</span></a>
+  <a href="create-need.html" class="nav-item">➕<span class="tooltip">Create Need</span></a>
+  <a href="map.html" class="nav-item">🗺️<span class="tooltip">Map</span></a>
+  <a href="profile.html" class="nav-item">👤<span class="tooltip">Profile</span></a>
+  <div class="sidebar-spacer"></div>
+  <div class="logout-btn" onclick="logout()" title="Logout">🚪</div>
+</nav>
+
+<main class="main">
+  <div class="topbar">
+    <h1 class="page-title">Dashboard <span>Overview</span></h1>
+    <div class="topbar-right"><div class="status-pill"><div class="status-dot"></div> System Online</div><div class="avatar">🧑</div></div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><span class="stat-icon">🆘</span><div class="stat-label">Active Emergencies</div><div class="stat-value">12</div><div class="stat-delta">↑ 3 since yesterday</div></div>
+    <div class="stat-card"><span class="stat-icon">🤝</span><div class="stat-label">Volunteers Deployed</div><div class="stat-value">48</div><div class="stat-delta">↑ 8 this week</div></div>
+    <div class="stat-card"><span class="stat-icon">📦</span><div class="stat-label">Resources Allocated</div><div class="stat-value">230</div><div class="stat-delta">↑ 15% this month</div></div>
+    <div class="stat-card"><span class="stat-icon">✅</span><div class="stat-label">Resolved Today</div><div class="stat-value">7</div><div class="stat-delta" style="color:var(--success)">↑ 2 more than avg</div></div>
+  </div>
+  <div class="dashboard-grid">
+    <div class="card"><div class="card-header"><span class="card-title">Recent Emergency Requests</span><span class="card-badge">Live</span></div>
+      <div class="activity-list" id="activityList">
+        <div class="activity-item"><div class="act-icon red">🔥</div><div class="act-body"><div class="act-title">Flood relief needed — Assam district</div><div class="act-sub">250 people affected · 20 min ago</div></div><span class="badge high">High</span></div>
+        <div class="activity-item"><div class="act-icon amber">⚡</div><div class="act-body"><div class="act-title">Medical supplies shortage — Bihar</div><div class="act-sub">80 people affected · 45 min ago</div></div><span class="badge medium">Medium</span></div>
+        <div class="activity-item"><div class="act-icon green">🍱</div><div class="act-body"><div class="act-title">Food distribution — Tamil Nadu camp</div><div class="act-sub">400 people affected · 1h ago</div></div><span class="badge low">Low</span></div>
+        <div class="activity-item"><div class="act-icon blue">🏕️</div><div class="act-body"><div class="act-title">Shelter required — Odisha coast</div><div class="act-sub">130 people affected · 2h ago</div></div><span class="badge medium">Medium</span></div>
+      </div>
+    </div>
+    <div class="card"><div class="card-header"><span class="card-title">Quick Actions</span></div>
+      <div class="quick-actions">
+        <a href="create-need.html" class="qa-btn"><span class="qa-icon">➕</span><span class="qa-text"><span class="qa-label">Create Emergency Need</span><span class="qa-desc">Log a new resource request</span></span><span class="qa-arrow">›</span></a>
+        <a href="map.html" class="qa-btn"><span class="qa-icon">🗺️</span><span class="qa-text"><span class="qa-label">View Resource Map</span><span class="qa-desc">See all active locations</span></span><span class="qa-arrow">›</span></a>
+        <a href="profile.html" class="qa-btn"><span class="qa-icon">👤</span><span class="qa-text"><span class="qa-label">View Profile</span><span class="qa-desc">Manage your account</span></span><span class="qa-arrow">›</span></a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- Gemini AI Chatbot - Direct API Integration -->
+<div class="chat-backdrop" id="chatBackdrop" onclick="closeChat()"></div>
+<div class="chat-panel" id="chatPanel">
+  <div class="chat-header"><div class="chat-avatar">🤖</div><div class="chat-header-info"><h4>Gemini AI Assistant</h4><p><span class="online-dot"></span> Powered by Google Gemini</p></div><div class="chat-close" onclick="closeChat()">✕</div></div>
+  <div class="chips-wrap" id="chips">
+    <button class="chip" onclick="sendChip('Emergency help needed')">🆘 Emergency help</button>
+    <button class="chip" onclick="sendChip('How to find volunteers?')">🤝 Find volunteers</button>
+    <button class="chip" onclick="sendChip('Resource allocation tips')">📦 Resources</button>
+    <button class="chip" onclick="sendChip('Find nearby NGOs')">📍 Nearby NGOs</button>
+    <button class="chip" onclick="sendChip('How to prioritize emergencies?')">⚡ Prioritization</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"><div class="msg bot"><div class="msg-avatar">🤖</div><div class="msg-bubble">👋 Hello! I'm your Gemini AI Assistant. I can help you manage emergencies, allocate resources, find volunteers, and more. How can I help you today?</div></div></div>
+  <div class="typing-indicator" id="typingIndicator"><div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
+  <div class="chat-input-area"><textarea class="chat-input" id="chatInput" placeholder="Ask Gemini about NGO resources..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea><button class="chat-send" onclick="sendMessage()">➤</button></div>
+</div>
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">🤖</button>
+
+<script>
+const GEMINI_API_KEY = 'AIzaSyCurEz2dJ_wFxNIaxK8tpOx6HLvPWF4wNE';
+
+async function loadRecentCases() {
+  const container = document.getElementById("activityList");
+  try {
+    const res = await fetch("http://localhost:5000/api/cases");
+    if (!res.ok) throw new Error();
+    const cases = await res.json();
+    if (!cases || cases.length === 0) { container.innerHTML = '<div class="empty-state"><span>No emergency cases found</span></div>'; return; }
+    container.innerHTML = "";
+    cases.slice().reverse().forEach(c => {
+      const text = c.text || "No description", people = c.people_affected || 0, urgency = c.urgency_level || "Low";
+      let colorClass = "blue", badgeClass = "low";
+      if (urgency === "High") { colorClass = "red"; badgeClass = "high"; }
+      else if (urgency === "Medium") { colorClass = "amber"; badgeClass = "medium"; }
+      else { colorClass = "green"; badgeClass = "low"; }
+      container.innerHTML += `<div class="activity-item"><div class="act-icon ${colorClass}">🚨</div><div class="act-body"><div class="act-title">${text}</div><div class="act-sub">${people} people affected</div></div><span class="badge ${badgeClass}">${urgency}</span></div>`;
+    });
+  } catch { container.innerHTML = '<div class="empty-state"><span>Unable to load emergencies</span></div>'; }
+}
+loadRecentCases();
+
+function logout() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
+
+// ========================================
+// GEMINI AI CHATBOT - DIRECT API INTEGRATION
+// ========================================
+let chatOpen = false;
+let chatHistory = [];
+const CHAT_KEY = 'ngo_chat_history';
+
+function toggleChat() { chatOpen ? closeChat() : openChat(); }
+
+function openChat() {
+  chatOpen = true;
+  document.getElementById('chatPanel').classList.add('open');
+  document.getElementById('chatBackdrop').classList.add('open');
+  document.getElementById('chatFab').classList.add('open');
+  document.getElementById('chatFab').innerText = '✕';
+  restoreHistory();
+  setTimeout(() => document.getElementById('chatInput').focus(), 350);
+}
+
+function closeChat() {
+  chatOpen = false;
+  document.getElementById('chatPanel').classList.remove('open');
+  document.getElementById('chatBackdrop').classList.remove('open');
+  document.getElementById('chatFab').classList.remove('open');
+  document.getElementById('chatFab').innerText = '🤖';
+}
+
+function appendMsg(text, role) {
+  const wrap = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = 'msg ' + role;
+  const av = document.createElement('div');
+  av.className = 'msg-avatar';
+  av.innerText = role === 'bot' ? '🤖' : '🧑';
+  const bub = document.createElement('div');
+  bub.className = 'msg-bubble';
+  bub.innerText = text;
+  div.appendChild(av);
+  div.appendChild(bub);
+  wrap.appendChild(div);
+  wrap.scrollTop = wrap.scrollHeight;
+  return div;
+}
+
+function showTyping() { document.getElementById('typingIndicator').classList.add('show'); }
+function hideTyping() { document.getElementById('typingIndicator').classList.remove('show'); }
+
+function saveHistory(messages) { try { localStorage.setItem(CHAT_KEY, JSON.stringify(messages)); } catch(e) {} }
+
+function restoreHistory() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(CHAT_KEY) || '[]');
+    if (stored.length > 0) {
+      document.getElementById('chatMessages').innerHTML = '';
+      stored.forEach(m => appendMsg(m.text, m.role));
+    }
+  } catch(e) {}
+}
+
+async function callGeminiAPI(message) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
+  
+  const requestBody = {
+    contents: [{
+      parts: [{ text: `You are a helpful NGO assistant for SmartNGO. Provide concise, helpful responses about emergency management, resource allocation, volunteer coordination, and disaster relief. Keep responses friendly and practical.\n\nUser: ${message}` }]
+    }]
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody)
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Gemini API Error:', errorData);
+      throw new Error(`API Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
+      return data.candidates[0].content.parts[0].text;
+    } else {
+      return "I'm here to help with NGO management! Could you please rephrase your question?";
+    }
+  } catch (error) {
+    console.error('Error calling Gemini API:', error);
+    return "⚠️ I'm having trouble connecting right now. Please try again in a moment.";
+  }
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  input.value = '';
+  input.style.height = 'auto';
+  document.getElementById('chips').style.display = 'none';
+
+  appendMsg(text, 'user');
+  chatHistory.push({ role: 'user', text: text });
+  showTyping();
+
+  const reply = await callGeminiAPI(text);
+  hideTyping();
+  appendMsg(reply, 'bot');
+  chatHistory.push({ role: 'bot', text: reply });
+
+  const flat = chatHistory.map(m => ({ text: m.text, role: m.role }));
+  saveHistory(flat);
+}
+
+function sendChip(text) { document.getElementById('chatInput').value = text; sendMessage(); }
+function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+</script>
+</body>
+</html>

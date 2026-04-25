@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Volunteer Task Portal - Smart NGO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+/* INDIA POST STYLE */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f5f5f5;
+}
+
+/* HEADER */
+.header {
+    background: #8B0000;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+/* NAV BAR */
+.navbar {
+    background: #c62828;
+    display: flex;
+    justify-content: space-around;
+    padding: 10px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.navbar button {
+    background: #ffcc00;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s;
+    border-radius: 5px;
+}
+
+.navbar button:hover {
+    transform: scale(1.05);
+}
+
+.container {
+    padding: 20px;
+}
+
+/* CARD */
+.card {
+    background: white;
+    padding: 15px;
+    margin-bottom: 15px;
+    border-left: 5px solid #c62828;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    transition: transform 0.2s;
+    border-radius: 8px;
+}
+
+.card:hover {
+    transform: translateX(5px);
+}
+
+.task-meta {
+    display: flex;
+    gap: 15px;
+    margin: 10px 0;
+    flex-wrap: wrap;
+}
+
+.badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+/* BUTTON */
+.btn {
+    background: #c62828;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    margin-top: 10px;
+    margin-right: 10px;
+    border-radius: 5px;
+    transition: background 0.2s;
+}
+
+.btn:hover {
+    background: #8b0000;
+}
+
+.btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+}
+
+/* LEADERBOARD */
+.leaderboard {
+    background: white;
+    padding: 15px;
+    margin-top: 20px;
+    border-top: 5px solid green;
+    border-radius: 10px;
+}
+
+.leaderboard ul {
+    list-style: none;
+    padding: 0;
+}
+
+.leaderboard li {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    font-weight: bold;
+}
+
+.match-badge {
+    display: inline-block;
+    background: #4caf50;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.priority-High {
+    border-left-color: #f44336;
+}
+
+.priority-Medium {
+    border-left-color: #ff9800;
+}
+
+.priority-Low {
+    border-left-color: #4caf50;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.status-open { background: #e3f2fd; color: #1976d2; }
+.status-accepted { background: #fff3e0; color: #f57c00; }
+.status-in-progress { background: #e8f5e9; color: #388e3c; }
+.status-completed { background: #e0e0e0; color: #616161; }
+
+.loading {
+    text-align: center;
+    padding: 40px;
+    font-size: 18px;
+    color: #666;
+}
+
+.error {
+    background: #ffebee;
+    color: #c62828;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+/* =========================
+   POST OFFICE STYLE NAVBAR
+========================= */
+
+:root {
+    --post-red: #b71c1c;
+    --post-dark-red: #8b0000;
+    --post-yellow: #ffcc00;
+    --post-light-yellow: #ffe082;
+    --white: #ffffff;
+}
+
+/* NAVBAR CONTAINER */
+nav {
+    background: linear-gradient(90deg, var(--post-dark-red), var(--post-red));
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-bottom: 3px solid var(--post-yellow);
+}
+
+/* LOGO */
+.logo {
+    color: var(--white);
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+.logo span {
+    color: var(--post-yellow);
+}
+
+/* NAV LINKS */
+.nav-links {
+    list-style: none;
+    display: flex;
+    gap: 18px;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: var(--white);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: all 0.25s ease;
+    border: 1px solid transparent;
+}
+
+/* HOVER EFFECT */
+.nav-links li a:hover {
+    background: var(--post-yellow);
+    color: #000;
+    border: 1px solid var(--post-yellow);
+    transform: translateY(-2px);
+}
+
+/* ACTIVE LINK */
+.nav-links li a.active {
+    background: var(--post-yellow);
+    color: #000;
+    font-weight: 700;
+}
+
+/* HAMBURGER */
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    cursor: pointer;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background: var(--post-yellow);
+    border-radius: 2px;
+}
+
+/* MOBILE VIEW */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 0;
+        right: 0;
+        background: var(--post-dark-red);
+        flex-direction: column;
+        padding: 10px 0;
+        border-top: 2px solid var(--post-yellow);
+        z-index: 1000;
+    }
+
+    .nav-links li a {
+        padding: 12px 20px;
+        border-radius: 0;
+    }
+
+    .nav-links.active {
+        display: flex;
+    }
+
+    .hamburger {
+        display: flex;
+    }
+    
+    .navbar button {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+</style>
+</head>
+
+<body>
+<nav>
+    <div class="logo">⚡ Smart<span>NGO</span></div>
+    <ul class="nav-links" id="navLinks">
+        <li><a href="volunteer.html">📍 Dashboard</a></li>
+        <li><a href="volunteertasks.html" class="active">📋 My Tasks</a></li>
+        <li><a href="volunteermap.html">🗺️ Map</a></li>
+        <li><a href="volunteerprofile.html">👤 Profile</a></li>
+        <li><a href="#" onclick="logout()">🚪 Logout</a></li>
+    </ul>
+    <div class="hamburger" id="hamburger" onclick="toggleNav()">
+        <span></span><span></span><span></span>
+    </div>
+</nav>
+
+<div class="header">
+     SMART NGO TASK SYSTEM 
+</div>
+
+<div class="navbar">
+    <button onclick="showMyTasks()">📋 My Assigned Tasks</button>
+    <button onclick="showAvailableTasks()">🎯 Available Tasks</button>
+    <button onclick="showLeaderboard()">🏆 Leaderboard</button>
+</div>
+
+<div class="container">
+    <div id="message" style="display:none;" class="error"></div>
+    <div id="tasks"></div>
+    <div id="leaderboard" class="leaderboard" style="display:none">
+        <h3>🏆 Top Volunteers</h3>
+        <ul id="leaderboardList"></ul>
+    </div>
+</div>
+
+<script>
+// API Configuration
+const API_URL = 'http://localhost:5000/api';
+let token = localStorage.getItem('token');
+let currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+let currentView = 'my-tasks';
+
+// Check authentication and log user info
+if (!token) {
+    alert('Please login first');
+    window.location.href = 'login.html';
+} else {
+    console.log('✅ User logged in:', currentUser.fullName || currentUser.email);
+    console.log('👤 Role:', currentUser.role);
+    console.log('🔧 Skills:', currentUser.skills);
+}
+
+// Show loading state
+function showLoading() {
+    document.getElementById('tasks').innerHTML = '<div class="loading">⏳ Loading tasks...</div>';
+}
+
+// Show error message
+function showMessage(msg, isError = true) {
+    const msgDiv = document.getElementById('message');
+    msgDiv.textContent = msg;
+    msgDiv.style.display = 'block';
+    msgDiv.style.backgroundColor = isError ? '#ffebee' : '#e8f5e9';
+    msgDiv.style.color = isError ? '#c62828' : '#2e7d32';
+    setTimeout(() => {
+        msgDiv.style.display = 'none';
+    }, 5000);
+}
+
+// Show My Assigned Tasks
+async function showMyTasks() {
+    currentView = 'my-tasks';
+    showLoading();
+    document.getElementById('leaderboard').style.display = 'none';
+    
+    try {
+        const response = await fetch(`${API_URL}/tasks/my-tasks`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            alert('Session expired. Please login again.');
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        if (!response.ok) throw new Error('Failed to fetch tasks');
+        
+        const tasks = await response.json();
+        renderMyTasks(tasks);
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('tasks').innerHTML = '<div class="error">❌ Error loading tasks. Please try again.</div>';
+    }
+}
+
+// Show Available Tasks
+async function showAvailableTasks() {
+    currentView = 'available';
+    showLoading();
+    document.getElementById('leaderboard').style.display = 'none';
+    
+    try {
+        const response = await fetch(`${API_URL}/tasks/open-tasks`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.status === 401) {
+            localStorage.removeItem('token');
+            alert('Session expired. Please login again.');
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        if (!response.ok) throw new Error('Failed to fetch tasks');
+        
+        const tasks = await response.json();
+        console.log('Available tasks with match %:', tasks);
+        renderAvailableTasks(tasks);
+    } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('tasks').innerHTML = '<div class="error">❌ Error loading available tasks.</div>';
+    }
+}
+
+// Render My Assigned Tasks
+function renderMyTasks(tasks) {
+    const container = document.getElementById('tasks');
+    
+    if (!tasks || tasks.length === 0) {
+        container.innerHTML = '<div class="loading">📭 No tasks assigned to you yet.<br>🔍 Check "Available Tasks" to find opportunities!</div>';
+        return;
+    }
+    
+    let html = '<h3>📋 My Assigned Tasks</h3>';
+    
+    tasks.forEach(task => {
+        const priorityClass = `priority-${task.urgency_level}`;
+        const statusClass = `status-${task.status}`;
+        
+        html += `
+            <div class="card ${priorityClass}">
+                <h4>${escapeHtml(task.text)}</h4>
+                <div class="task-meta">
+                    <span class="badge ${statusClass}">${task.status}</span>
+                    <span>🔥 ${task.urgency_level} Priority</span>
+                    <span>👥 ${task.people_affected || 0} affected</span>
+                </div>
+                <p><strong>Type:</strong> ${task.type || 'General'}</p>
+                <p><strong>Skills Required:</strong> ${task.skills_required?.join(', ') || 'None'}</p>
+                ${task.summary ? `<p><strong>Summary:</strong> ${task.summary}</p>` : ''}
+                <div class="task-actions">
+                    ${task.status === 'accepted' ? `<button class="btn" onclick="updateTaskStatus('${task._id}', 'in-progress')">▶️ Start Working</button>` : ''}
+                    ${task.status === 'in-progress' ? `<button class="btn" onclick="updateTaskStatus('${task._id}', 'completed')">✅ Mark Complete</button>` : ''}
+                    ${task.status === 'completed' ? `<span style="color: green; margin-left: 10px;">✓ Task Completed! Great job! 🎉</span>` : ''}
+                </div>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// Render Available Tasks
+function renderAvailableTasks(tasks) {
+    const container = document.getElementById('tasks');
+    
+    if (!tasks || tasks.length === 0) {
+        container.innerHTML = '<div class="loading">🎯 No available tasks at the moment.<br>💡 Check back later for new opportunities!</div>';
+        return;
+    }
+    
+    let html = '<h3>🎯 Available Tasks (Based on Your Skills)</h3>';
+    
+    tasks.forEach(task => {
+        const priorityClass = `priority-${task.urgency_level}`;
+        const matchPercent = task.matchPercentage || 0;
+        
+        let matchMessage = '';
+        if (matchPercent >= 70) matchMessage = '🎉 Excellent match for your skills!';
+        else if (matchPercent >= 50) matchMessage = '👍 Good match for your skills!';
+        else if (matchPercent > 0) matchMessage = '⚠️ Partial skill match - you can still help!';
+        
+        html += `
+            <div class="card ${priorityClass}">
+                <h4>${escapeHtml(task.text)}</h4>
+                ${matchPercent > 0 ? `<span class="match-badge">🎯 ${matchPercent}% Match</span>` : '<span class="match-badge" style="background: #ff9800;">⭐ New Opportunity</span>'}
+                ${matchMessage ? `<p style="color: #666; font-size: 12px; margin-top: 5px;">${matchMessage}</p>` : ''}
+                <div class="task-meta">
+                    <span>🔥 ${task.urgency_level} Priority</span>
+                    <span>👥 ${task.people_affected || 0} affected</span>
+                </div>
+                <p><strong>Type:</strong> ${task.type || 'General'}</p>
+                <p><strong>Skills Required:</strong> ${task.skills_required?.join(', ') || 'None'}</p>
+                ${task.matchedSkills && task.matchedSkills.length > 0 ? `<p><strong>✅ Your Matching Skills:</strong> ${task.matchedSkills.join(', ')}</p>` : ''}
+                ${task.summary ? `<p><strong>Summary:</strong> ${task.summary}</p>` : ''}
+                <button class="btn" onclick="acceptTask('${task._id}')">✅ Accept Task</button>
+            </div>
+        `;
+    });
+    
+    container.innerHTML = html;
+}
+
+// ==================== FIXED ACCEPT TASK FUNCTION ====================
+// Accept a task - Using the dedicated POST endpoint
+async function acceptTask(taskId) {
+    if (!confirm('Are you sure you want to accept this task? You will receive email and SMS confirmation.')) {
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_URL}/tasks/${taskId}/accept`, {  // CHANGED: /accept instead of /status
+            method: 'POST',  // CHANGED: POST instead of PUT
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+            // No body needed
+        });
+        
+        if (response.ok) {
+            showMessage('✅ Task accepted! Check your email and SMS for details.', false);
+            showMyTasks();
+        } else {
+            const error = await response.json();
+            showMessage('❌ Failed to accept task: ' + (error.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('❌ Error accepting task');
+    }
+}
+
+// Update task status
+async function updateTaskStatus(taskId, status) {
+    let message = '';
+    if (status === 'in-progress') message = 'Start working on this task?';
+    if (status === 'completed') message = 'Mark this task as completed?';
+    
+    if (!confirm(message)) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/tasks/${taskId}/accept`, {
+            method: 'POST',  // Using POST for status updates as well 
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ status })
+        });
+        
+        if (response.ok) {
+            showMessage(`✅ Task status updated to ${status}!`, false);
+            showMyTasks(); // Refresh
+        } else {
+            const error = await response.json();
+            showMessage('❌ Failed to update status: ' + (error.error || 'Unknown error'));
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showMessage('❌ Error updating status');
+    }
+}
+
+// Show Leaderboard
+async function showLeaderboard() {
+    document.getElementById('tasks').innerHTML = '';
+    document.getElementById('leaderboard').style.display = 'block';
+    
+    const leaderboardList = document.getElementById('leaderboardList');
+    leaderboardList.innerHTML = '<li>🏆 Loading leaderboard...</li>';
+    
+    try {
+        const response = await fetch(`${API_URL}/volunteers`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+            const volunteers = await response.json();
+            leaderboardList.innerHTML = '';
+            
+            volunteers.forEach((vol, index) => {
+                leaderboardList.innerHTML += `
+                    <li>
+                        ${index + 1}. 🏅 ${vol.fullName} - ${vol.skills?.length || 0} skills
+                        <br><small style="color: #666;">📍 ${vol.location || 'Location not set'}</small>
+                    </li>
+                `;
+            });
+        } else {
+            leaderboardList.innerHTML = '<li>💪 Keep completing tasks to appear on leaderboard!</li>';
+            leaderboardList.innerHTML += `<li>🌟 Complete tasks and earn recognition!</li>`;
+        }
+    } catch (error) {
+        leaderboardList.innerHTML = '<li>🏆 Feature coming soon - Track your points!</li>';
+        leaderboardList.innerHTML += `<li>💪 Keep completing tasks to earn points!</li>`;
+    }
+}
+
+// Helper function to escape HTML
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// Logout function
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    window.location.href = 'login.html';
+}
+
+// Toggle mobile navigation
+function toggleNav() {
+    const navLinks = document.getElementById('navLinks');
+    navLinks.classList.toggle('active');
+}
+
+// Load initial view - My Tasks
+showMyTasks();
+
+// Refresh tasks every 30 seconds
+setInterval(() => {
+    if (currentView === 'my-tasks') {
+        showMyTasks();
+    } else if (currentView === 'available') {
+        showAvailableTasks();
+    }
+}, 30000);
+</script>
+</body>
+</html>

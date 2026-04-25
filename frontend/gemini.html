@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NGO AI Assistant</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: linear-gradient(135deg, #0f172a, #1e293b);
+    color: white;
+    display: flex;
+    height: 100vh;
+}
+
+/* SIDEBAR */
+.sidebar {
+    width: 250px;
+    background: #020617;
+    padding: 20px;
+    border-right: 1px solid #1e293b;
+}
+
+.sidebar h2 {
+    color: #60a5fa;
+}
+
+.prompt {
+    background: #1e293b;
+    padding: 10px;
+    border-radius: 8px;
+    margin: 10px 0;
+    cursor: pointer;
+}
+
+.prompt:hover {
+    background: #3b82f6;
+}
+
+/* MAIN CHAT */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* HEADER */
+.header {
+    padding: 15px;
+    background: rgba(30,41,59,0.7);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid #334155;
+}
+
+/* CHAT AREA */
+.chat {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+/* MESSAGE */
+.message {
+    margin: 10px 0;
+    padding: 10px 15px;
+    border-radius: 12px;
+    max-width: 70%;
+    animation: fadeIn 0.3s ease;
+}
+
+.user {
+    background: linear-gradient(45deg, #3b82f6, #9333ea);
+    margin-left: auto;
+}
+
+.bot {
+    background: #1e293b;
+}
+
+/* INPUT */
+.input-area {
+    display: flex;
+    padding: 10px;
+    background: #020617;
+}
+
+.input-area input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+}
+
+.input-area button {
+    margin-left: 10px;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(45deg, #3b82f6, #9333ea);
+    color: white;
+    cursor: pointer;
+}
+
+/* ANIMATION */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+</style>
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>🤖 NGO AI</h2>
+
+    <div class="prompt" onclick="quickAsk('What to do during flood?')">
+        Flood Help
+    </div>
+
+    <div class="prompt" onclick="quickAsk('List emergency resources')">
+        Resources
+    </div>
+
+    <div class="prompt" onclick="quickAsk('How can volunteers help?')">
+        Volunteers Help
+    </div>
+
+    <div class="prompt" onclick="quickAsk('Safety tips during disaster')">
+        Safety Tips
+    </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+    <div class="header">
+        🚀 Smart NGO Assistant (Powered by Gemini)
+    </div>
+
+    <div id="chat" class="chat"></div>
+
+    <div class="input-area">
+        <input id="input" placeholder="Ask anything..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+
+</div>
+
+<script>
+const chat = document.getElementById("chat");
+
+// ADD MESSAGE
+function addMessage(text, type) {
+    const msg = document.createElement("div");
+    msg.className = "message " + type;
+    msg.innerText = text;
+
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+// QUICK PROMPTS
+function quickAsk(text) {
+    document.getElementById("input").value = text;
+    sendMessage();
+}
+
+// SEND MESSAGE
+async function sendMessage() {
+    const input = document.getElementById("input");
+    const text = input.value;
+
+    if (!text) return;
+
+    addMessage("🧑 " + text, "user");
+    input.value = "";
+
+    // Typing effect
+    const typing = document.createElement("div");
+    typing.className = "message bot";
+    typing.innerText = "🤖 typing...";
+    chat.appendChild(typing);
+
+    try {
+        const res = await fetch("http://localhost:5000/api/gemini", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ message: text })
+        });
+
+        const data = await res.json();
+
+        typing.remove();
+        addMessage("🤖 " + data.reply, "bot");
+
+    } catch (err) {
+        typing.remove();
+        addMessage("❌ Error connecting to AI", "bot");
+    }
+}
+
+// ENTER KEY SUPPORT
+document.getElementById("input").addEventListener("keypress", function(e) {
+    if (e.key === "Enter") sendMessage();
+});
+
+// WELCOME MESSAGE
+window.onload = () => {
+    addMessage("👋 Welcome! I can help with emergencies, NGO resources, and volunteer coordination.", "bot");
+};
+</script>
+
+</body>
+</html>
