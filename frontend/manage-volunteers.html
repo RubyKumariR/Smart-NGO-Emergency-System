@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart NGO - Manage Volunteers</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffe4e9; --surface: #fff5f7; --card: #ffffff; --card-2: #fff0f3;
+  --border: rgba(0,0,0,0.08); --border-lg: rgba(204,0,0,0.15);
+  --accent: #cc0000; --accent-2: #ff3300; --danger: #dc2626;
+  --success: #16a34a; --text: #1e1b4b; --muted: #7c6b8f;
+  --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+  --radius: 14px; --radius-lg: 20px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body); background: var(--bg); color: var(--text);
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 72px;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 8px; z-index: 100;
+}
+.sidebar-logo {
+  width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 12px; box-shadow: 0 0 20px rgba(204,0,0,0.25);
+  cursor: pointer;
+}
+.nav-item {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 20px; color: var(--muted);
+  border: 1px solid transparent; transition: all 0.2s; position: relative;
+}
+.nav-item:hover, .nav-item.active { background: rgba(204,0,0,0.08); border-color: rgba(204,0,0,0.2); color: var(--accent); }
+.nav-item .tooltip {
+  position: absolute; left: 60px; background: var(--card-2); border: 1px solid var(--border);
+  color: var(--text); font-size: 12px; padding: 6px 10px; border-radius: 8px;
+  white-space: nowrap; opacity: 0; pointer-events: none; transform: translateX(-4px);
+  transition: all 0.2s;
+}
+.nav-item:hover .tooltip { opacity: 1; transform: translateX(0); }
+.sidebar-spacer { flex: 1; }
+.logout-btn {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 18px; color: var(--muted);
+  transition: all 0.2s;
+}
+.logout-btn:hover { background: rgba(220,38,38,0.1); color: var(--danger); }
+.main { margin-left: 72px; padding: 32px; min-height: 100vh; position: relative; z-index: 1; }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+.page-title { font-family: var(--font-head); font-size: 26px; font-weight: 700; color: var(--text); }
+.page-title span { color: var(--accent); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.status-pill {
+  display: flex; align-items: center; gap: 6px; background: rgba(22,163,74,0.1);
+  border: 1px solid rgba(22,163,74,0.2); color: var(--success); font-size: 12px;
+  padding: 6px 12px; border-radius: 99px;
+}
+.status-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse-dot 2s ease infinite; }
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: white;
+}
+
+/* Stats Bar */
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.stat-card {
+  flex: 1;
+  text-align: center;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+/* Filters */
+.filters {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-box {
+  flex: 1;
+  min-width: 200px;
+  padding: 12px 16px;
+  background: var(--card-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 13px;
+}
+.filter-btn {
+  padding: 8px 18px;
+  border-radius: 40px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.filter-btn:hover { background: rgba(204,0,0,0.08); border-color: var(--accent); }
+.filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* Volunteers Grid */
+.volunteers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 20px;
+}
+.volunteer-card {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+}
+.volunteer-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+.volunteer-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+.volunteer-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  color: white;
+}
+.volunteer-info h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.volunteer-info p {
+  font-size: 12px;
+  color: var(--muted);
+}
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 12px 0;
+}
+.skill-tag {
+  background: var(--card-2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  color: var(--text);
+}
+.volunteer-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--muted);
+  margin: 10px 0;
+  flex-wrap: wrap;
+}
+.assign-btn {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+.assign-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(204,0,0,0.3);
+}
+.assign-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Modal */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(4px);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+.modal.show { display: flex; }
+.modal-content {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  max-width: 500px;
+  width: 90%;
+}
+.modal-content h3 {
+  font-family: var(--font-head);
+  margin-bottom: 20px;
+}
+.modal-content select {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card-2);
+  font-size: 14px;
+}
+.modal-buttons {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+.modal-buttons button {
+  flex: 1;
+  padding: 12px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+.modal-assign { background: var(--accent); color: white; }
+.modal-cancel { background: var(--card-2); color: var(--text); }
+
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--accent);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  z-index: 1100;
+  transform: translateX(400px);
+  transition: 0.3s;
+  font-size: 13px;
+}
+.toast.show { transform: translateX(0); }
+
+/* Server Status */
+.server-status {
+  position: fixed;
+  bottom: 20px;
+  left: 100px;
+  background: rgba(0,0,0,0.7);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+}
+.status-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.status-led.online { background: #22c55e; animation: pulse 2s infinite; }
+.status-led.offline { background: #ef4444; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.empty-state { text-align: center; padding: 60px; color: var(--muted); }
+.empty-state .icon { font-size: 48px; margin-bottom: 15px; }
+
+@media (max-width: 768px) {
+  .sidebar { width: 60px; }
+  .main { margin-left: 60px; padding: 16px; }
+  .stats-bar { flex-wrap: wrap; }
+  .volunteers-grid { grid-template-columns: 1fr; }
+  .server-status { left: 80px; font-size: 9px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo" onclick="navigateTo('home.html')">🚨</div>
+  <a href="ngo.html" class="nav-item">🏠<span class="tooltip">Dashboard</span></a>
+  <a href="create-need.html" class="nav-item">➕<span class="tooltip">Create Need</span></a>
+  <a href="manage-volunteers.html" class="nav-item active">🤝<span class="tooltip">Volunteers</span></a>
+  <a href="map.html" class="nav-item">🗺️<span class="tooltip">Map</span></a>
+  <a href="profile.html" class="nav-item">👤<span class="tooltip">Profile</span></a>
+  <div class="sidebar-spacer"></div>
+  <div class="logout-btn" onclick="logout()" title="Logout">🚪</div>
+</nav>
+
+<main class="main">
+  <div class="topbar">
+    <h1 class="page-title">Manage <span>Volunteers</span></h1>
+    <div class="topbar-right">
+      <div class="status-pill" id="statusPill"><div class="status-dot"></div> Checking...</div>
+      <div class="avatar" id="userAvatar">🧑</div>
+    </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-value" id="totalVolunteers">0</div><div class="stat-label">Total Volunteers</div></div>
+    <div class="stat-card"><div class="stat-value" id="activeVolunteers">0</div><div class="stat-label">Active Volunteers</div></div>
+    <div class="stat-card"><div class="stat-value" id="availableVolunteers">0</div><div class="stat-label">Available Now</div></div>
+    <div class="stat-card"><div class="stat-value" id="avgSkillMatch">0%</div><div class="stat-label">Avg Skill Match</div></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search by name, skills, or location...">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="full-time">🟢 Full-time</button>
+    <button class="filter-btn" data-filter="part-time">🟡 Part-time</button>
+    <button class="filter-btn" data-filter="weekends">🔵 Weekends</button>
+    <button class="filter-btn" onclick="loadVolunteers()">🔄 Refresh</button>
+  </div>
+
+  <!-- Volunteers Grid -->
+  <div class="volunteers-grid" id="volunteersGrid">
+    <div class="empty-state"><div class="icon">📡</div><p>Loading volunteers...</p></div>
+  </div>
+</main>
+
+<!-- Assign Task Modal -->
+<div class="modal" id="assignModal">
+  <div class="modal-content">
+    <h3>Assign Task to Volunteer</h3>
+    <select id="taskSelect">
+      <option value="">Select a task...</option>
+    </select>
+    <div class="modal-buttons">
+      <button class="modal-cancel" onclick="closeAssignModal()">Cancel</button>
+      <button class="modal-assign" onclick="confirmAssignment()">Assign Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Server Status -->
+<div class="server-status" id="serverStatus">
+  <div class="status-led" id="statusLed"></div>
+  <span id="statusText">Checking server...</span>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// API Configuration
+const API_BASE = 'http://localhost:5000/api';
+let token = localStorage.getItem('token');
+let allVolunteers = [];
+let selectedVolunteerId = null;
+
+// Check if token exists
+if (!token) {
+    showToast('Please login first', 'error');
+    setTimeout(() => window.location.href = 'login.html', 1500);
+}
+
+// Navigation
+function navigateTo(page) {
+    window.location.href = page;
+}
+
+// Show toast
+function showToast(message, type = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.style.background = type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#cc0000';
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Check server health
+async function checkServerHealth() {
+    const statusLed = document.getElementById('statusLed');
+    const statusText = document.getElementById('statusText');
+    const statusPill = document.getElementById('statusPill');
+    
+    try {
+        const response = await fetch(`${API_BASE}/health`);
+        if (response.ok) {
+            statusLed.className = 'status-led online';
+            statusText.innerHTML = '✅ Connected';
+            statusPill.innerHTML = '<div class="status-dot"></div> ✅ Online';
+            return true;
+        }
+    } catch (error) {
+        statusLed.className = 'status-led offline';
+        statusText.innerHTML = '⚠️ Offline';
+        statusPill.innerHTML = '<div style="background:#ff4444; width:7px; height:7px; border-radius:50%;"></div> Offline';
+        return false;
+    }
+    return false;
+}
+
+// Load volunteers - FIXED ENDPOINT
+async function loadVolunteers() {
+    const grid = document.getElementById('volunteersGrid');
+    grid.innerHTML = '<div class="empty-state"><div class="icon">📡</div><p>Loading volunteers...</p></div>';
+    
+    try {
+        // CORRECT ENDPOINT - using /auth/volunteers
+        const response = await fetch(`${API_BASE}/auth/volunteers`, {
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.status === 401) {
+            showToast('Session expired. Please login again.', 'error');
+            localStorage.clear();
+            setTimeout(() => window.location.href = 'login.html', 1500);
+            return;
+        }
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to fetch volunteers');
+        }
+        
+        const volunteers = await response.json();
+        allVolunteers = volunteers;
+        
+        if (volunteers.length === 0) {
+            grid.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No volunteers registered yet</p><p style="font-size: 12px; margin-top: 10px;">Volunteers will appear here after they register.</p></div>';
+            updateStats([]);
+            return;
+        }
+        
+        renderVolunteers(volunteers);
+        updateStats(volunteers);
+        showToast(`✅ Loaded ${volunteers.length} volunteers`, 'success');
+        
+    } catch (error) {
+        console.error('Error loading volunteers:', error);
+        grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Failed to load volunteers</p><p style="font-size: 12px; margin-top: 10px;">${error.message}</p></div>`;
+        showToast(error.message, 'error');
+    }
+}
+
+// Render volunteers
+function renderVolunteers(volunteers) {
+    const grid = document.getElementById('volunteersGrid');
+    const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+    const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+    
+    let filtered = [...volunteers];
+    
+    // Search filter
+    if (searchTerm) {
+        filtered = filtered.filter(v => 
+            (v.fullName && v.fullName.toLowerCase().includes(searchTerm)) ||
+            (v.skills && v.skills.some(s => s.toLowerCase().includes(searchTerm))) ||
+            (v.location && v.location.toLowerCase().includes(searchTerm))
+        );
+    }
+    
+    // Availability filter
+    if (activeFilter !== 'all') {
+        filtered = filtered.filter(v => 
+            v.availability && v.availability.toLowerCase() === activeFilter
+        );
+    }
+    
+    if (filtered.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>No volunteers match your filters</p></div>';
+        return;
+    }
+    
+    grid.innerHTML = filtered.map(volunteer => `
+        <div class="volunteer-card">
+            <div class="volunteer-header">
+                <div class="volunteer-avatar">${getAvatarInitial(volunteer.fullName)}</div>
+                <div class="volunteer-info">
+                    <h3>${escapeHtml(volunteer.fullName || 'Volunteer')}</h3>
+                    <p>📍 ${escapeHtml(volunteer.location || 'Location not set')}</p>
+                </div>
+            </div>
+            <div class="volunteer-meta">
+                <span>⏰ ${volunteer.availability || 'Availability not set'}</span>
+                <span>📧 ${escapeHtml(volunteer.email || 'No email')}</span>
+                ${volunteer.phoneNumber ? `<span>📞 ${volunteer.phoneNumber}</span>` : ''}
+            </div>
+            ${volunteer.skills && volunteer.skills.length > 0 ? `
+                <div class="skills-list">
+                    ${volunteer.skills.map(skill => `<span class="skill-tag">${escapeHtml(skill)}</span>`).join('')}
+                </div>
+            ` : '<div class="skills-list"><span class="skill-tag">No skills listed</span></div>'}
+            <button class="assign-btn" onclick="openAssignModal('${volunteer._id}', '${escapeHtml(volunteer.fullName)}')">
+                📋 Assign Task
+            </button>
+        </div>
+    `).join('');
+}
+
+// Get avatar initial
+function getAvatarInitial(name) {
+    if (!name) return '👤';
+    return name.charAt(0).toUpperCase();
+}
+
+// Update statistics
+function updateStats(volunteers) {
+    const total = volunteers.length;
+    const active = volunteers.filter(v => v.status === 'active').length;
+    const fullTime = volunteers.filter(v => v.availability === 'Full-time').length;
+    const partTime = volunteers.filter(v => v.availability === 'Part-time').length;
+    
+    document.getElementById('totalVolunteers').textContent = total;
+    document.getElementById('activeVolunteers').textContent = active;
+    document.getElementById('availableVolunteers').textContent = fullTime + partTime;
+    
+    // Calculate average skills per volunteer
+    const totalSkills = volunteers.reduce((sum, v) => sum + (v.skills?.length || 0), 0);
+    const avgSkills = volunteers.length > 0 ? Math.round(totalSkills / volunteers.length) : 0;
+    document.getElementById('avgSkillMatch').textContent = `${avgSkills * 15}%`; // Rough estimate
+}
+
+// Open assign modal
+async function openAssignModal(volunteerId, volunteerName) {
+    selectedVolunteerId = volunteerId;
+    const modal = document.getElementById('assignModal');
+    const taskSelect = document.getElementById('taskSelect');
+    
+    taskSelect.innerHTML = '<option value="">Loading tasks...</option>';
+    modal.classList.add('show');
+    
+    try {
+        const response = await fetch(`${API_BASE}/ai/cases`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (response.ok) {
+            const tasks = await response.json();
+            const openTasks = tasks.filter(t => t.status === 'open');
+            
+            if (openTasks.length === 0) {
+                taskSelect.innerHTML = '<option value="">No open tasks available</option>';
+            } else {
+                taskSelect.innerHTML = '<option value="">Select a task...</option>' +
+                    openTasks.map(task => `<option value="${task._id}">${task.type || 'Emergency'} - ${task.location_name || 'Unknown location'}</option>`).join('');
+            }
+        } else {
+            taskSelect.innerHTML = '<option value="">Error loading tasks</option>';
+        }
+    } catch (error) {
+        console.error('Error loading tasks:', error);
+        taskSelect.innerHTML = '<option value="">Error loading tasks</option>';
+    }
+}
+
+// Close assign modal
+function closeAssignModal() {
+    document.getElementById('assignModal').classList.remove('show');
+    selectedVolunteerId = null;
+}
+
+// Confirm assignment
+async function confirmAssignment() {
+    const taskId = document.getElementById('taskSelect').value;
+    
+    if (!taskId) {
+        showToast('Please select a task', 'error');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/tasks/${taskId}/accept`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ volunteerId: selectedVolunteerId })
+        });
+        
+        if (response.ok) {
+            showToast('✅ Task assigned successfully!', 'success');
+            closeAssignModal();
+            loadVolunteers();
+        } else {
+            const error = await response.json();
+            throw new Error(error.error || 'Assignment failed');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showToast(error.message || 'Failed to assign task', 'error');
+    }
+}
+
+// Escape HTML
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// Logout
+function logout() {
+    localStorage.clear();
+    showToast('Logged out', 'success');
+    setTimeout(() => window.location.href = 'login.html', 500);
+}
+
+// Initialize
+async function init() {
+    await checkServerHealth();
+    await loadVolunteers();
+    
+    document.getElementById('searchBox').addEventListener('input', () => renderVolunteers(allVolunteers));
+    
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            if (this.textContent.includes('Refresh')) return;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            renderVolunteers(allVolunteers);
+        });
+    });
+    
+    const userEmail = localStorage.getItem('userEmail') || 'NGO';
+    const initial = userEmail.charAt(0).toUpperCase();
+    document.getElementById('userAvatar').innerText = initial;
+    
+    // Auto-refresh every 30 seconds
+    setInterval(async () => {
+        if (document.getElementById('statusLed').classList.contains('online')) {
+            await loadVolunteers();
+        }
+    }, 30000);
+}
+
+init();
+</script>
+</body>
+</html>

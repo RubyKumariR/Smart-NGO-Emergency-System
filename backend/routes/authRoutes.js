@@ -227,4 +227,47 @@ router.put('/skills', authMiddleware, async (req, res) => {
     }
 });
 
+// Get all volunteers (for NGO dashboard)
+router.get('/volunteers', authMiddleware, async (req, res) => {
+    try {
+        // Only NGOs can access this endpoint
+        const requestingUser = await User.findById(req.user.id);
+        if (requestingUser.role !== 'ngo') {
+            return res.status(403).json({ error: 'Access denied. Only NGOs can view volunteers.' });
+        }
+        
+        // Find all users with role 'volunteer'
+        const volunteers = await User.find({ role: 'volunteer' }).select('-password');
+        
+        res.json(volunteers);
+    } catch (error) {
+        console.error('Error fetching volunteers:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get volunteers with filtering options
+router.get('/volunteers/filter', authMiddleware, async (req, res) => {
+    try {
+        const { skill, location, availability } = req.query;
+        let query = { role: 'volunteer' };
+        
+        if (skill) {
+            query.skills = { $in: [new RegExp(skill, 'i')] };
+        }
+        if (location) {
+            query.location = new RegExp(location, 'i');
+        }
+        if (availability) {
+            query.availability = availability;
+        }
+        
+        const volunteers = await User.find(query).select('-password');
+        res.json(volunteers);
+    } catch (error) {
+        console.error('Error filtering volunteers:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 module.exports = router;
