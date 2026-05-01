@@ -8,6 +8,9 @@ const fs = require('fs');
 
 // Import routes
 const apiRoutes = require('./routes');
+const aiRoutes = require('./routes/aiRoutes');
+// Add this line - Import AI Task Routes
+const aiTaskRoutes = require('./routes/aiTaskRoutes');
 
 const app = express();
 
@@ -35,10 +38,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
     storage: storage,
-    limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+    limits: { fileSize: 10 * 1024 * 1024 }
 });
 
-// Make upload available globally in routes
 app.locals.upload = upload;
 console.log('✅ File upload system ready');
 
@@ -48,11 +50,39 @@ mongoose.connect(process.env.DB_CONNECT_STRING || 'mongodb://127.0.0.1:27017/hac
     .catch(err => console.error('❌ MongoDB Connection Error:', err));
 
 // ==================== ROUTES ====================
-app.use('/api', apiRoutes);
+// Mount all routes under /api
+app.use('/api', apiRoutes);  // This handles /api/auth, /api/ai, /api/tasks, etc.
+app.use('/api/ai', aiRoutes); // Additional AI routes (if needed)
+app.use('/api/ai-tasks', aiTaskRoutes); // ADD THIS - AI-powered task management routes
+
+// ==================== HEALTH CHECK ENDPOINT ====================
+app.get('/api/health', (req, res) => {
+    res.json({ 
+        status: 'ok', 
+        message: 'Server is running',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            health: '/api/health',
+            auth: '/api/auth (login, register, profile)',
+            tasks: '/api/tasks',
+            'ai-tasks': '/api/ai-tasks (recommendations, insights, smart-assign)',
+            ai: '/api/ai',
+            cases: '/api/ai/cases',
+            predict: '/api/ai/predict'
+        }
+    });
+});
 
 // ==================== START SERVER ====================
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
     console.log(`📁 Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`📍 API endpoints:`);
+    console.log(`   - Health: http://localhost:${PORT}/api/health`);
+    console.log(`   - Auth: http://localhost:${PORT}/api/auth`);
+    console.log(`   - Tasks: http://localhost:${PORT}/api/tasks`);
+    console.log(`   - AI Tasks: http://localhost:${PORT}/api/ai-tasks`);
+    console.log(`   - AI Cases: http://localhost:${PORT}/api/ai/cases`);
+    console.log(`   - AI Predict: http://localhost:${PORT}/api/ai/predict`);
 });

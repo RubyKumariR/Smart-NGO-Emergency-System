@@ -3,127 +3,216 @@ const router = express.Router();
 const Case = require('../models/Case');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/authMiddleware');
-const { sendTaskAssignmentEmail, sendTaskAssignmentSMS, calculateSkillMatch, autoAssignTask } = require('../services/notificationService');
+const { notifyVolunteer } = require('../services/notificationService');
 
-// Create Task (NGO only)
-router.post('/tasks', authMiddleware, async (req, res) => {
+// Get tasks assigned to the logged-in volunteer
+router.get('/my-tasks', authMiddleware, async (req, res) => {
     try {
-        const { text, type, urgency_level, people_affected, skills_required, summary } = req.body;
-        
         const user = await User.findById(req.user.id);
-        if (user.role !== 'ngo') {
-            return res.status(403).json({ error: 'Only NGOs can create tasks' });
-        }
         
-        const newTask = new Case({
-            text, type: type || 'Other', urgency_level: urgency_level || 'Medium',
-            people_affected: people_affected || 0, skills_required: skills_required || [],
-            summary, status: 'open', createdBy: req.user.id, createdAt: new Date()
+        // Get tasks assigned to this volunteer
+        const tasks = await Case.find({
+            assignedTo: req.user.id,
+            status: { $ne: 'completed' }
+        }).sort({ createdAt: -1 });
+        
+        res.json(tasks);
+    } catch (error) {
+        console.error('Error fetching my tasks:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Get open tasks (available for volunteers) with skill matching
+router.get('/open-tasks', authMiddleware, async (req, res) => {
+    try {
+        const user = await User.findById(req.user.id);
+        const volunteerSkills = user.skills || [];
+        
+        // Get open tasks
+        const tasks = await Case.find({
+            status: 'open',
+            assignedTo: null
+        }).sort({ priority_score: -1, createdAt: 1 });
+        
+        // Calculate match percentage for each task
+        const tasksWithMatch = tasks.map(task => {
+            const requiredSkills = task.skills_required || [];
+            
+            if (requiredSkills.length === 0) {
+                return { ...task.toObject(), matchPercentage: 50 };
+            }
+            
+            const matchingSkills = requiredSkills.filter(skill => 
+                volunteerSkills.some(vSkill => 
+                    vSkill.toLowerCase().includes(skill.toLowerCase()) ||
+                    skill.toLowerCase().includes(vSkill.toLowerCase())
+                )
+            );
+            
+            const matchPercentage = Math.round((matchingSkills.length / requiredSkills.length) * 100);
+            
+            return {
+                ...task.toObject(),
+                matchPercentage,
+                matchedSkills: matchingSkills,
+                suggested: matchPercentage >= 70
+            };
         });
-        await newTask.save();
         
-        const assignmentResult = await autoAssignTask(newTask._id, user);
-        res.status(201).json({ message: 'Task created successfully', task: newTask, assignments: assignmentResult });
-    } catch (error) {
-        console.error('Create task error:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Get My Assigned Tasks (Volunteer)
-router.get('/tasks/my-tasks', authMiddleware, async (req, res) => {
-    try {
-        const tasks = await Case.find({ assignedTo: req.user.id }).sort({ createdAt: -1 });
-        res.json(tasks);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Get Open Tasks (Available for volunteers)
-router.get('/tasks/open-tasks', authMiddleware, async (req, res) => {
-    try {
-        const tasks = await Case.find({ status: 'open', assignedTo: null }).sort({ urgency_level: -1, createdAt: -1 });
-        const user = await User.findById(req.user.id);
+        // Sort by match percentage (highest first)
+        tasksWithMatch.sort((a, b) => b.matchPercentage - a.matchPercentage);
         
-        if (user.role === 'volunteer') {
-            const tasksWithMatch = tasks.map(task => ({ ...task.toObject(), ...calculateSkillMatch(user.skills, task.skills_required) }));
-            return res.json(tasksWithMatch.sort((a, b) => b.matchPercentage - a.matchPercentage));
-        }
-        res.json(tasks);
+        res.json(tasksWithMatch);
     } catch (error) {
+        console.error('Error fetching open tasks:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Update Task Status
-router.put('/tasks/:taskId/status', authMiddleware, async (req, res) => {
+// Auto-assign task to best matching volunteer
+async function autoAssignTask(taskId) {
     try {
-        const { taskId } = req.params;
-        const { status } = req.body;
         const task = await Case.findById(taskId);
-        if (!task) return res.status(404).json({ error: 'Task not found' });
+        if (!task || task.status !== 'open') return null;
         
-        const user = await User.findById(req.user.id);
-        if (user.role === 'volunteer' && task.assignedTo?.toString() !== req.user.id) {
+        // Find all volunteers
+        const volunteers = await User.find({ 
+            role: 'volunteer',
+            skills: { $exists: true, $ne: [] }
+        });
+        
+        if (volunteers.length === 0) return null;
+        
+        // Calculate match scores
+        const scores = volunteers.map(vol => {
+            const requiredSkills = task.skills_required || [];
+            const volunteerSkills = vol.skills || [];
+            
+            const matchedSkills = requiredSkills.filter(reqSkill =>
+                volunteerSkills.some(vSkill =>
+                    vSkill.toLowerCase().includes(reqSkill.toLowerCase()) ||
+                    reqSkill.toLowerCase().includes(vSkill.toLowerCase())
+                )
+            );
+            
+            const score = matchedSkills.length;
+            return { volunteer: vol, score, matchedSkills };
+        });
+        
+        // Get top 3 matches
+        const topMatches = scores.sort((a, b) => b.score - a.score).slice(0, 3);
+        
+        if (topMatches.length === 0 || topMatches[0].score === 0) return null;
+        
+        // Notify top matches
+        for (const match of topMatches) {
+            await notifyVolunteer(match.volunteer, {
+                ...task.toObject(),
+                matchPercentage: (match.matchedSkills.length / (task.skills_required?.length || 1)) * 100
+            });
+        }
+        
+        return topMatches;
+    } catch (error) {
+        console.error('Auto-assign error:', error);
+        return null;
+    }
+}
+
+// Accept a task (volunteer accepts assignment)
+router.post('/:taskId/accept', authMiddleware, async (req, res) => {
+    try {
+        const task = await Case.findById(req.params.taskId);
+        
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        if (task.status !== 'open') {
+            return res.status(400).json({ error: 'Task already assigned' });
+        }
+        
+        // Assign task to volunteer
+        task.status = 'accepted';
+        task.assignedTo = req.user.id;
+        await task.save();
+        
+        // Send confirmation
+        const volunteer = await User.findById(req.user.id);
+        const notificationMessage = `
+✅ Task Accepted Successfully!
+
+Task: ${task.type || 'Emergency Task'}
+Location: ${task.location_name || 'Unknown'}
+
+Instructions will be provided shortly.
+
+Thank you for your service! 🙏
+        `;
+        
+        await notifyVolunteer(volunteer, { ...task.toObject(), matchPercentage: 100 });
+        
+        res.json({ success: true, message: 'Task accepted successfully' });
+    } catch (error) {
+        console.error('Error accepting task:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Update task status (start working, complete)
+router.put('/:taskId/status', authMiddleware, async (req, res) => {
+    try {
+        const { status } = req.body;
+        const task = await Case.findById(req.params.taskId);
+        
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        // Verify volunteer owns this task
+        if (task.assignedTo !== req.user.id) {
             return res.status(403).json({ error: 'Not authorized' });
         }
+        
+        const validStatuses = ['accepted', 'in-progress', 'completed'];
+        if (!validStatuses.includes(status)) {
+            return res.status(400).json({ error: 'Invalid status' });
+        }
+        
         task.status = status;
         await task.save();
-        res.json({ message: 'Task status updated', task });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+        
+        // Send completion notification
+        if (status === 'completed') {
+            const volunteer = await User.findById(req.user.id);
+            const completionMessage = `
+🎉 Congratulations! You've completed a task!
 
-// Manual Assign Task (NGO only)
-router.post('/tasks/assign', authMiddleware, async (req, res) => {
-    try {
-        const { taskId, volunteerId } = req.body;
-        const user = await User.findById(req.user.id);
-        if (user.role !== 'ngo') {
-            return res.status(403).json({ error: 'Only NGOs can assign tasks' });
+Task: ${task.type || 'Emergency Task'}
+Location: ${task.location_name || 'Unknown'}
+
+Your contribution helped ${task.people_affected || 0} people.
+
+✨ You've earned 100 points!
+            `;
+            await notifyVolunteer(volunteer, { ...task.toObject(), completion: true });
         }
         
-        const task = await Case.findById(taskId);
-        const volunteer = await User.findById(volunteerId);
-        if (!task || !volunteer) {
-            return res.status(404).json({ error: 'Task or volunteer not found' });
-        }
-        
-        task.assignedTo = volunteerId;
-        task.status = 'accepted';
-        await task.save();
-        await sendTaskAssignmentEmail(volunteer, task, user);
-        await sendTaskAssignmentSMS(volunteer, task);
-        res.json({ message: 'Task assigned successfully', task });
+        res.json({ success: true, task });
     } catch (error) {
+        console.error('Error updating task status:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Get All Volunteers (NGO only)
-router.get('/volunteers', authMiddleware, async (req, res) => {
+// Auto-assign endpoint (for testing/admin)
+router.post('/:taskId/auto-assign', authMiddleware, async (req, res) => {
     try {
-        const user = await User.findById(req.user.id);
-        if (user.role !== 'ngo') {
-            return res.status(403).json({ error: 'Only NGOs can view volunteers' });
-        }
-        const volunteers = await User.find({ role: 'volunteer' }).select('fullName email phoneNumber location skills availability');
-        res.json(volunteers);
+        const matches = await autoAssignTask(req.params.taskId);
+        res.json({ success: true, matches });
     } catch (error) {
         res.status(500).json({ error: error.message });
-    }
-});
-
-// Get all cases
-router.get('/cases', async (req, res) => {
-    try {
-        const cases = await Case.find().sort({ createdAt: -1 });
-        res.json(cases);
-    } catch (err) {
-        console.log("Fetch cases error:", err);
-        res.status(500).json({ error: "Server error" });
     }
 });
 

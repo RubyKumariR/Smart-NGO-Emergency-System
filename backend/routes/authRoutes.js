@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/authMiddleware');
 
-// Login route
+// ==================== LOGIN ROUTE ====================
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -13,20 +13,18 @@ router.post('/login', async (req, res) => {
 
         const user = await User.findOne({ email });
         if (!user) {
-            console.log('User not found:', email);
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log('Password match:', isMatch);
         if (!isMatch) {
             return res.status(400).json({ error: 'Invalid credentials' });
         }
 
         const token = jwt.sign(
-            { id: user._id, email: user.email, role: user.role },
+            { userId: user._id, email: user.email, role: user.role },
             process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: '1h' }
+            { expiresIn: '7d' }
         );
 
         return res.json({
@@ -44,7 +42,7 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// Registration route
+// ==================== REGISTRATION ROUTE ====================
 router.post('/register', async (req, res) => {
     try {
         const {
@@ -61,6 +59,7 @@ router.post('/register', async (req, res) => {
             availability
         } = req.body;
 
+        // Validation
         if (!role || !fullName || !email || !phoneNumber || !password || !location) {
             return res.status(400).json({ error: 'Required fields missing' });
         }
@@ -90,24 +89,30 @@ router.post('/register', async (req, res) => {
             phoneNumber,
             password: hashedPassword,
             location,
-            organizationName,
-            ngoDescription,
-            registrationNumber,
+            organizationName: organizationName || '',
+            ngoDescription: ngoDescription || '',
+            registrationNumber: registrationNumber || '',
             skills: skills ? skills.split(',').map(skill => skill.trim()) : [],
-            availability
+            availability: availability || ''
         });
 
         await user.save();
 
         const token = jwt.sign(
-            { id: user._id, email: user.email, role: user.role },
+            { userId: user._id, email: user.email, role: user.role },
             process.env.JWT_SECRET || 'your-secret-key',
-            { expiresIn: '1h' }
+            { expiresIn: '7d' }
         );
 
         return res.status(201).json({
             message: 'User registered successfully',
-            token
+            token,
+            user: {
+                id: user._id,
+                email: user.email,
+                role: user.role,
+                fullName: user.fullName
+            }
         });
     } catch (error) {
         console.error('Registration error:', error);
@@ -115,19 +120,109 @@ router.post('/register', async (req, res) => {
     }
 });
 
-// Update volunteer skills
+// ==================== GET PROFILE (FETCH REAL DATA FROM DATABASE) ====================
+router.get('/profile', authMiddleware, async (req, res) => {
+    try {
+        console.log('Fetching profile for user ID:', req.user.id);
+        
+        const user = await User.findById(req.user.id).select('-password');
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        const profileData = {
+            fullName: user.fullName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            location: user.location,
+            role: user.role,
+            organization: user.organizationName || '',
+            bio: user.role === 'ngo' ? (user.ngoDescription || '') : (user.skills ? `Skills: ${user.skills.join(', ')}` : ''),
+            skills: user.skills || [],
+            availability: user.availability || '',
+            createdAt: user.createdAt
+        };
+        
+        console.log('✅ Profile fetched successfully for:', user.email);
+        res.json(profileData);
+    } catch (error) {
+        console.error('Profile fetch error:', error);
+        res.status(500).json({ error: 'Failed to fetch profile' });
+    }
+});
+
+// ==================== UPDATE PROFILE ====================
+router.put('/profile', authMiddleware, async (req, res) => {
+    try {
+        console.log('Updating profile for user ID:', req.user.id);
+        
+        const { fullName, phoneNumber, location, organization, bio, skills, availability } = req.body;
+        
+        const user = await User.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
+        // Update common fields
+        if (fullName) user.fullName = fullName;
+        if (phoneNumber) user.phoneNumber = phoneNumber;
+        if (location) user.location = location;
+        
+        // Update role-specific fields
+        if (user.role === 'ngo') {
+            if (organization) user.organizationName = organization;
+            if (bio) user.ngoDescription = bio;
+        } else if (user.role === 'volunteer') {
+            if (skills) {
+                user.skills = typeof skills === 'string' ? skills.split(',').map(s => s.trim()) : skills;
+            }
+            if (availability) user.availability = availability;
+        }
+        
+        await user.save();
+        
+        const updatedProfile = {
+            fullName: user.fullName,
+            email: user.email,
+            phoneNumber: user.phoneNumber,
+            location: user.location,
+            role: user.role,
+            organization: user.organizationName || '',
+            bio: user.role === 'ngo' ? (user.ngoDescription || '') : (user.skills ? user.skills.join(', ') : ''),
+            skills: user.skills || [],
+            availability: user.availability || '',
+            createdAt: user.createdAt
+        };
+        
+        console.log('✅ Profile updated successfully for:', user.email);
+        res.json(updatedProfile);
+    } catch (error) {
+        console.error('Profile update error:', error);
+        res.status(500).json({ error: 'Failed to update profile' });
+    }
+});
+
+// ==================== UPDATE SKILLS (Volunteer only) ====================
 router.put('/skills', authMiddleware, async (req, res) => {
     try {
         const { skills } = req.body;
         const user = await User.findById(req.user.id);
+        
+        if (!user) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+        
         if (user.role !== 'volunteer') {
             return res.status(403).json({ error: 'Only volunteers can update skills' });
         }
         
-        user.skills = skills;
+        user.skills = typeof skills === 'string' ? skills.split(',').map(s => s.trim()) : skills;
         await user.save();
+        
         res.json({ message: 'Skills updated successfully', skills: user.skills });
     } catch (error) {
+        console.error('Skills update error:', error);
         res.status(500).json({ error: error.message });
     }
 });

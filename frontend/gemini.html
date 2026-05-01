@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NGO AI Assistant</title>
+<title>NGO AI Assistant - Gemini Powered</title>
 
 <style>
 body {
@@ -17,26 +17,59 @@ body {
 
 /* SIDEBAR */
 .sidebar {
-    width: 250px;
+    width: 280px;
     background: #020617;
     padding: 20px;
     border-right: 1px solid #1e293b;
+    overflow-y: auto;
 }
 
 .sidebar h2 {
     color: #60a5fa;
+    margin-bottom: 20px;
 }
 
 .prompt {
     background: #1e293b;
-    padding: 10px;
+    padding: 12px;
     border-radius: 8px;
     margin: 10px 0;
     cursor: pointer;
+    transition: all 0.2s;
+    font-size: 14px;
 }
 
 .prompt:hover {
     background: #3b82f6;
+    transform: translateX(5px);
+}
+
+.prompt-category {
+    color: #60a5fa;
+    font-size: 12px;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.status {
+    margin-top: 20px;
+    padding: 10px;
+    background: #1e293b;
+    border-radius: 8px;
+    font-size: 12px;
+    text-align: center;
+}
+
+.status.online {
+    color: #22c55e;
+    border-left: 3px solid #22c55e;
+}
+
+.status.offline {
+    color: #ef4444;
+    border-left: 3px solid #ef4444;
 }
 
 /* MAIN CHAT */
@@ -48,10 +81,24 @@ body {
 
 /* HEADER */
 .header {
-    padding: 15px;
+    padding: 15px 20px;
     background: rgba(30,41,59,0.7);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid #334155;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h3 {
+    margin: 0;
+}
+
+.header-badge {
+    background: #3b82f6;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
 }
 
 /* CHAT AREA */
@@ -59,55 +106,154 @@ body {
     flex: 1;
     padding: 20px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 /* MESSAGE */
 .message {
     margin: 10px 0;
-    padding: 10px 15px;
+    padding: 12px 18px;
     border-radius: 12px;
-    max-width: 70%;
+    max-width: 75%;
     animation: fadeIn 0.3s ease;
+    line-height: 1.5;
 }
 
 .user {
     background: linear-gradient(45deg, #3b82f6, #9333ea);
     margin-left: auto;
+    border-bottom-right-radius: 4px;
 }
 
 .bot {
     background: #1e293b;
+    margin-right: auto;
+    border-bottom-left-radius: 4px;
 }
 
-/* INPUT */
+.bot.error {
+    background: #7f1d1d;
+    color: #fecaca;
+}
+
+/* TYPING INDICATOR */
+.typing {
+    background: #1e293b;
+    padding: 12px 18px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.typing span {
+    width: 8px;
+    height: 8px;
+    background: #60a5fa;
+    border-radius: 50%;
+    display: inline-block;
+    animation: bounce 1.4s infinite ease-in-out;
+}
+
+.typing span:nth-child(1) { animation-delay: 0s; }
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+}
+
+/* INPUT AREA */
 .input-area {
     display: flex;
-    padding: 10px;
+    padding: 15px;
     background: #020617;
+    gap: 10px;
+    border-top: 1px solid #1e293b;
 }
 
 .input-area input {
     flex: 1;
-    padding: 12px;
-    border-radius: 10px;
+    padding: 14px;
+    border-radius: 12px;
     border: none;
     outline: none;
+    background: #1e293b;
+    color: white;
+    font-size: 14px;
+}
+
+.input-area input::placeholder {
+    color: #64748b;
 }
 
 .input-area button {
-    margin-left: 10px;
-    padding: 12px 15px;
+    padding: 14px 24px;
     border: none;
-    border-radius: 10px;
+    border-radius: 12px;
     background: linear-gradient(45deg, #3b82f6, #9333ea);
     color: white;
     cursor: pointer;
+    font-weight: bold;
+    transition: transform 0.2s;
 }
 
-/* ANIMATION */
+.input-area button:hover {
+    transform: scale(1.02);
+}
+
+.input-area button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.clear-btn {
+    background: #475569 !important;
+}
+
+/* ANIMATIONS */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px);}
     to { opacity: 1; transform: translateY(0);}
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #3b82f6;
+    border-radius: 4px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 80px;
+        padding: 15px 10px;
+    }
+    
+    .sidebar h2 {
+        font-size: 16px;
+        text-align: center;
+    }
+    
+    .prompt {
+        font-size: 10px;
+        text-align: center;
+        padding: 8px;
+    }
+    
+    .message {
+        max-width: 85%;
+    }
 }
 </style>
 </head>
@@ -117,92 +263,270 @@ body {
 <!-- SIDEBAR -->
 <div class="sidebar">
     <h2>🤖 NGO AI</h2>
-
-    <div class="prompt" onclick="quickAsk('What to do during flood?')">
-        Flood Help
+    
+    <div class="prompt-category">🚨 EMERGENCY</div>
+    <div class="prompt" onclick="quickAsk('What to do during flood? Give step by step guide')">
+        🌊 Flood Response
     </div>
-
-    <div class="prompt" onclick="quickAsk('List emergency resources')">
-        Resources
+    <div class="prompt" onclick="quickAsk('Earthquake safety tips and evacuation procedures')">
+        🌍 Earthquake Safety
     </div>
-
-    <div class="prompt" onclick="quickAsk('How can volunteers help?')">
-        Volunteers Help
+    <div class="prompt" onclick="quickAsk('Fire emergency: what to do immediately?')">
+        🔥 Fire Emergency
     </div>
-
-    <div class="prompt" onclick="quickAsk('Safety tips during disaster')">
-        Safety Tips
+    
+    <div class="prompt-category">📋 RESOURCES</div>
+    <div class="prompt" onclick="quickAsk('List essential emergency relief resources and supplies needed')">
+        Emergency Resources
     </div>
+    <div class="prompt" onclick="quickAsk('How to set up a temporary shelter?')">
+        Shelter Setup
+    </div>
+    <div class="prompt" onclick="quickAsk('Medical first aid kit contents list')">
+        Medical Kit
+    </div>
+    
+    <div class="prompt-category">🤝 VOLUNTEERS</div>
+    <div class="prompt" onclick="quickAsk('How can volunteers help during disasters? List roles')">
+        Volunteer Roles
+    </div>
+    <div class="prompt" onclick="quickAsk('What training do disaster volunteers need?')">
+        Training Needed
+    </div>
+    <div class="prompt" onclick="quickAsk('Best practices for volunteer coordination')">
+        Coordination Tips
+    </div>
+    
+    <div class="prompt-category">📍 EMERGENCIES</div>
+    <div class="prompt" onclick="quickAsk('Show me recent emergencies from database')">
+        Recent Emergencies
+    </div>
+    <div class="prompt" onclick="quickAsk('How to report an emergency? Give format')">
+        Report Format
+    </div>
+    
+    <div class="status" id="status">🟡 Checking connection...</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
     <div class="header">
-        🚀 Smart NGO Assistant (Powered by Gemini)
+        <h3>🚀 Smart NGO Assistant</h3>
+        <div class="header-badge">Powered by Google Gemini AI</div>
     </div>
 
     <div id="chat" class="chat"></div>
 
     <div class="input-area">
-        <input id="input" placeholder="Ask anything..." />
+        <input id="input" placeholder="Ask anything about emergencies, resources, or disaster response..." />
         <button onclick="sendMessage()">Send</button>
+        <button class="clear-btn" onclick="clearChat()">Clear</button>
     </div>
 
 </div>
 
 <script>
+// API Configuration
+const API_BASE_URL = 'http://localhost:5000/api';
+let chatHistory = [];
+let isTyping = false;
+
 const chat = document.getElementById("chat");
 
-// ADD MESSAGE
-function addMessage(text, type) {
-    const msg = document.createElement("div");
-    msg.className = "message " + type;
-    msg.innerText = text;
+// Check backend health
+async function checkBackendHealth() {
+    const statusDiv = document.getElementById('status');
+    try {
+        const response = await fetch(`${API_BASE_URL}/health`);
+        if (response.ok) {
+            statusDiv.innerHTML = '🟢 Backend Connected';
+            statusDiv.className = 'status online';
+            console.log('✅ Backend is reachable');
+            return true;
+        }
+    } catch (error) {
+        statusDiv.innerHTML = '🔴 Backend Offline - Start server.js';
+        statusDiv.className = 'status offline';
+        console.error('❌ Backend unreachable:', error);
+        return false;
+    }
+    return false;
+}
 
+// Add message to chat
+function addMessage(text, type, isError = false) {
+    const msg = document.createElement("div");
+    msg.className = `message ${type}`;
+    if (isError) msg.classList.add('error');
+    msg.innerText = text;
     chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+    return msg;
+}
+
+// Show typing indicator
+function showTyping() {
+    if (isTyping) return;
+    isTyping = true;
+    
+    const typingDiv = document.createElement("div");
+    typingDiv.className = "typing";
+    typingDiv.id = "typingIndicator";
+    typingDiv.innerHTML = '<span></span><span></span><span></span>';
+    chat.appendChild(typingDiv);
     chat.scrollTop = chat.scrollHeight;
 }
 
-// QUICK PROMPTS
+// Hide typing indicator
+function hideTyping() {
+    const typingDiv = document.getElementById("typingIndicator");
+    if (typingDiv) typingDiv.remove();
+    isTyping = false;
+}
+
+// Quick prompt function
 function quickAsk(text) {
     document.getElementById("input").value = text;
     sendMessage();
 }
 
-// SEND MESSAGE
+// Clear chat
+function clearChat() {
+    chat.innerHTML = '';
+    chatHistory = [];
+    addMessage("👋 Chat cleared! How can I help you with emergency response today?", "bot");
+}
+
+// Get recent emergencies from database
+async function getRecentEmergencies() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/ai/cases`);
+        if (response.ok) {
+            const emergencies = await response.json();
+            if (emergencies.length > 0) {
+                const recent = emergencies.slice(0, 5);
+                let reply = "📋 **Recent emergencies from database:**\n\n";
+                recent.forEach((e, i) => {
+                    reply += `${i + 1}. 🚨 ${e.type || 'Emergency'}\n`;
+                    reply += `   📍 ${e.location_name || 'Location unknown'}\n`;
+                    reply += `   👥 ${e.people_affected || 0} people affected\n`;
+                    reply += `   ⚡ Priority: ${e.urgency_level || 'N/A'}\n\n`;
+                });
+                reply += "Want more details about any of these? Just ask!";
+                return reply;
+            }
+        }
+        return "No emergencies found in database. You can report one through the Create Need page!";
+    } catch (error) {
+        console.error('Error fetching emergencies:', error);
+        return "Unable to fetch emergencies. Make sure backend is running.";
+    }
+}
+
+// Send message to Gemini API
 async function sendMessage() {
     const input = document.getElementById("input");
-    const text = input.value;
-
+    const text = input.value.trim();
+    
     if (!text) return;
-
+    
+    // Check for special commands
+    let queryText = text;
+    if (text.toLowerCase().includes('recent emergencies') || 
+        text.toLowerCase().includes('show emergencies') ||
+        text.toLowerCase().includes('database emergencies')) {
+        const emergencies = await getRecentEmergencies();
+        addMessage(emergencies, "bot");
+        input.value = "";
+        return;
+    }
+    
     addMessage("🧑 " + text, "user");
     input.value = "";
-
-    // Typing effect
-    const typing = document.createElement("div");
-    typing.className = "message bot";
-    typing.innerText = "🤖 typing...";
-    chat.appendChild(typing);
-
+    
+    // Add to history
+    chatHistory.push({ role: "user", text: text });
+    
+    showTyping();
+    
     try {
-        const res = await fetch("http://localhost:5000/api/gemini", {
+        const response = await fetch(`${API_BASE_URL}/gemini`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ message: text })
+            body: JSON.stringify({ 
+                message: queryText,
+                context: "You are an expert NGO disaster response assistant. Provide helpful, accurate, and actionable advice for emergency situations."
+            })
         });
-
-        const data = await res.json();
-
-        typing.remove();
-        addMessage("🤖 " + data.reply, "bot");
-
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        hideTyping();
+        
+        const reply = data.reply || "I'm here to help! Please ask me about emergency response, disaster management, or NGO coordination.";
+        addMessage("🤖 " + reply, "bot");
+        
+        // Add to history
+        chatHistory.push({ role: "bot", text: reply });
+        
+        // Keep history limited
+        if (chatHistory.length > 20) {
+            chatHistory = chatHistory.slice(-20);
+        }
+        
     } catch (err) {
-        typing.remove();
-        addMessage("❌ Error connecting to AI", "bot");
+        console.error('Gemini API Error:', err);
+        hideTyping();
+        
+        let errorMsg = "❌ Could not connect to AI service. ";
+        
+        if (err.message.includes('Failed to fetch')) {
+            errorMsg += "Make sure backend is running on port 5000.\n\n";
+            errorMsg += "Run: cd backend && node server.js";
+        } else {
+            errorMsg += err.message;
+        }
+        
+        addMessage(errorMsg, "bot", true);
+        
+        // Show offline help
+        addMessage("💡 While offline, you can:\n• Check emergency resources from the sidebar\n• Report emergencies through the Create Need page\n• View map of emergencies", "bot");
+    }
+}
+
+// Send feedback/rating (optional feature)
+function sendFeedback(rating) {
+    console.log('Feedback received:', rating);
+    addMessage("Thanks for your feedback! 🙏", "bot");
+}
+
+// Auto-save chat to localStorage
+function saveChat() {
+    const messages = [];
+    const messageElements = document.querySelectorAll('.message');
+    messageElements.forEach(msg => {
+        messages.push({
+            text: msg.innerText,
+            type: msg.classList.contains('user') ? 'user' : 'bot'
+        });
+    });
+    localStorage.setItem('chat_history', JSON.stringify(messages));
+}
+
+// Load saved chat
+function loadSavedChat() {
+    const saved = localStorage.getItem('chat_history');
+    if (saved) {
+        const messages = JSON.parse(saved);
+        messages.forEach(msg => {
+            addMessage(msg.text, msg.type);
+        });
     }
 }
 
@@ -212,9 +536,20 @@ document.getElementById("input").addEventListener("keypress", function(e) {
 });
 
 // WELCOME MESSAGE
-window.onload = () => {
-    addMessage("👋 Welcome! I can help with emergencies, NGO resources, and volunteer coordination.", "bot");
+window.onload = async () => {
+    // Check backend connection
+    const isConnected = await checkBackendHealth();
+    
+    if (isConnected) {
+        addMessage("👋 Hello! I'm your AI assistant for emergency response and NGO coordination.\n\n", "bot");
+        addMessage("I can help you with:\n• 🚨 Emergency response procedures\n• 📋 Resource management\n• 🤝 Volunteer coordination\n• 📍 Emergency data from database\n\n**Try asking:** 'Show me recent emergencies' or 'What to do during flood?'", "bot");
+    } else {
+        addMessage("⚠️ **Backend not connected**\n\nPlease start your backend server:\n```\ncd backend\nnode server.js\n```\n\nOnce started, refresh the page.", "bot", true);
+    }
 };
+
+// Auto-save chat every 30 seconds
+setInterval(saveChat, 30000);
 </script>
 
 </body>

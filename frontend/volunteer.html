@@ -1,899 +1,706 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart NGO — Volunteer Dashboard</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #D32F2F; /* India Post Red */
-            --secondary: #B71C1C; /* Darker Red */
-            --accent: #FF5252; /* Bright Red */
-            --bg: #FFF3E0; /* Light Orange Background */
-            --surface: #FFFFFF; /* White */
-            --text: #333333; /* Dark Gray */
-            --muted: #666666; /* Gray */
-            --nav-height: 70px;
-        }
-
-        body {
-            font-family: 'Roboto', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-            margin: 0;
-            padding: 0;
-            padding-top: var(--nav-height); /* Space for fixed navbar */
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Enhanced Navbar */
-        nav {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            background: var(--primary);
-            padding: 0 2rem;
-            height: var(--nav-height);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            transition: all 0.3s ease;
-        }
-
-        .nav-scrolled {
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-            height: 60px;
-        }
-
-        .logo {
-            font-family: 'Open Sans', sans-serif;
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: white;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .logo span {
-            color: var(--accent);
-        }
-
-        .logo-icon {
-            font-size: 2rem;
-            transform: rotate(-15deg);
-            animation: bounce 2s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0) rotate(-15deg); }
-            50% { transform: translateY(-5px) rotate(-15deg); }
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 1.5rem;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .nav-links a {
-            position: relative;
-            text-decoration: none;
-            color: rgba(255, 255, 255, 0.9);
-            font-size: 1rem;
-            font-weight: 500;
-            transition: all 0.3s;
-            padding: 0.5rem 0;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: white;
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover, .nav-links a.active {
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .nav-links a:hover::after, .nav-links a.active::after {
-            width: 100%;
-        }
-
-        .nav-links a .nav-icon {
-            font-size: 1.2rem;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            cursor: pointer;
-            position: relative;
-        }
-
-        .profile-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid white;
-            transition: all 0.3s;
-        }
-
-        .profile-img:hover {
-            transform: scale(1.1);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
-        }
-
-        .profile-dropdown {
-            position: absolute;
-            top: calc(100% + 10px);
-            right: 0;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            width: 200px;
-            opacity: 0;
-            visibility: hidden;
-            transform: translateY(-10px);
-            transition: all 0.3s;
-            z-index: 100;
-        }
-
-        .profile-dropdown.active {
-            opacity: 1;
-            visibility: visible;
-            transform: translateY(0);
-        }
-
-        .dropdown-item {
-            padding: 0.75rem 1rem;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            transition: all 0.2s;
-        }
-
-        .dropdown-item:hover {
-            background: rgba(0, 0, 0, 0.05);
-            color: var(--primary);
-        }
-
-        .dropdown-item .icon {
-            font-size: 1.1rem;
-        }
-
-        .dropdown-divider {
-            height: 1px;
-            background: rgba(0, 0, 0, 0.1);
-            margin: 0.25rem 0;
-        }
-
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            gap: 5px;
-            cursor: pointer;
-            padding: 0.5rem;
-            z-index: 101;
-        }
-
-        .hamburger span {
-            width: 25px;
-            height: 3px;
-            background: white;
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-
-        .hamburger.active span:nth-child(1) {
-            transform: translateY(8px) rotate(45deg);
-        }
-
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .hamburger.active span:nth-child(3) {
-            transform: translateY(-8px) rotate(-45deg);
-        }
-
-        /* Hero Section */
-        .hero {
-            background: var(--primary);
-            color: white;
-            padding: 4rem 0;
-            text-align: center;
-            margin-top: calc(-1 * var(--nav-height));
-            padding-top: calc(var(--nav-height) + 2rem);
-        }
-
-        .hero h1 {
-            font-family: 'Open Sans', sans-serif;
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-        }
-
-        .hero h1 span {
-            color: var(--accent);
-        }
-
-        .hero p {
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            opacity: 0.9;
-        }
-
-        .btn-primary {
-            background: var(--accent);
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .btn-primary:hover {
-            background: var(--secondary);
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Stats Section */
-        .stats {
-            padding: 2rem 0;
-        }
-
-        .stat-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .stat-card {
-            background: var(--surface);
-            border-radius: 12px;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        .stat-icon {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-            color: var(--primary);
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary);
-        }
-
-        .stat-label {
-            font-size: 0.9rem;
-            color: var(--muted);
-        }
-
-        /* Cases Section */
-        .cases {
-            padding: 2rem 0 4rem;
-        }
-
-        .filters {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .search-box {
-            flex: 1;
-            min-width: 260px;
-            padding: 0.7rem 1.2rem;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            transition: all 0.3s;
-        }
-
-        .search-box:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(211, 47, 47, 0.2);
-        }
-
-        .filter-btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background: var(--surface);
-            font-size: 0.85rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .filter-btn:hover {
-            background: #f5f5f5;
-        }
-
-        .filter-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-
-        .filter-btn.refresh {
-            background: transparent;
-            margin-left: auto;
-            border: none;
-            font-size: 1rem;
-        }
-
-        .cases-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .case-card {
-            background: var(--surface);
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
-            border-left: 4px solid var(--primary);
-        }
-
-        .case-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-        }
-
-        .card-top {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 1rem;
-        }
-
-        .case-type-badge {
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 0.35rem 0.85rem;
-            border-radius: 6px;
-            background: rgba(59, 130, 246, 0.15);
-            color: #3b82f6;
-        }
-
-        .urgency-dot {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            font-size: 0.78rem;
-            font-weight: 600;
-        }
-
-        .urgency-dot::before {
-            content: '';
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .urgency-dot.high {
-            color: #ef4444;
-        }
-        .urgency-dot.high::before {
-            background: #ef4444;
-        }
-
-        .urgency-dot.medium {
-            color: #eab308;
-        }
-        .urgency-dot.medium::before {
-            background: #eab308;
-        }
-
-        .urgency-dot.low {
-            color: #22c55e;
-        }
-        .urgency-dot.low::before {
-            background: #22c55e;
-        }
-
-        .case-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-            color: var(--primary);
-        }
-
-        .case-desc {
-            font-size: 0.9rem;
-            color: var(--muted);
-            margin-bottom: 1rem;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        .case-meta {
-            display: flex;
-            gap: 1rem;
-            font-size: 0.85rem;
-            color: var(--text);
-        }
-
-        /* Toast */
-        .toast {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            background: var(--primary);
-            color: white;
-            padding: 1rem 1.5rem;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transform: translateY(100px);
-            opacity: 0;
-            transition: all 0.3s ease;
-            z-index: 999;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        .toast.show {
-            transform: translateY(0);
-            opacity: 1;
-        }
-
-        /* Empty State */
-        .empty-state {
-            grid-column: 1/-1;
-            text-align: center;
-            padding: 5rem 2rem;
-            color: var(--muted);
-        }
-
-        .empty-state .icon {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Responsive */
-        @media (max-width: 992px) {
-            /* Navbar mobile styles */
-            .nav-links {
-                position: fixed;
-                top: 0;
-                right: -100%;
-                width: 280px;
-                height: 100vh;
-                background: var(--primary);
-                flex-direction: column;
-                padding: 6rem 2rem 2rem;
-                transition: right 0.4s ease;
-                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
-            }
-
-            .nav-links.open {
-                right: 0;
-            }
-
-            .nav-links a {
-                padding: 0.75rem 1rem;
-                border-radius: 6px;
-            }
-
-            .nav-links a:hover {
-                background: rgba(255, 255, 255, 0.1);
-                transform: none;
-            }
-
-            .nav-links a::after {
-                display: none;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            .user-profile {
-                margin-left: auto;
-                margin-right: 1rem;
-            }
-
-            /* Other responsive adjustments */
-            .hero h1 {
-                font-size: 2rem;
-            }
-            
-            .stat-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-            
-            .filters {
-                gap: 0.5rem;
-            }
-            
-            .filter-btn {
-                padding: 0.5rem 0.8rem;
-            }
-        }
-
-        @media (max-width: 576px) {
-            .stat-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .cases-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .hero {
-                padding: 3rem 0 2rem;
-                padding-top: calc(var(--nav-height) + 1rem);
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart NGO - Volunteer Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffe4e9; --surface: #fff5f7; --card: #ffffff; --card-2: #fff0f3;
+  --border: rgba(0,0,0,0.08); --border-lg: rgba(204,0,0,0.15);
+  --accent: #cc0000; --accent-2: #ff3300; --danger: #dc2626;
+  --success: #16a34a; --text: #1e1b4b; --muted: #7c6b8f;
+  --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+  --radius: 14px; --radius-lg: 20px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body); background: var(--bg); color: var(--text);
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 72px;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 8px; z-index: 100;
+}
+.sidebar-logo {
+  width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 12px; box-shadow: 0 0 20px rgba(204,0,0,0.25);
+  cursor: pointer;
+}
+.nav-item {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 20px; color: var(--muted);
+  border: 1px solid transparent; transition: all 0.2s; position: relative;
+}
+.nav-item:hover, .nav-item.active { background: rgba(204,0,0,0.08); border-color: rgba(204,0,0,0.2); color: var(--accent); }
+.nav-item .tooltip {
+  position: absolute; left: 60px; background: var(--card-2); border: 1px solid var(--border);
+  color: var(--text); font-size: 12px; padding: 6px 10px; border-radius: 8px;
+  white-space: nowrap; opacity: 0; pointer-events: none; transform: translateX(-4px);
+  transition: all 0.2s;
+}
+.nav-item:hover .tooltip { opacity: 1; transform: translateX(0); }
+.sidebar-spacer { flex: 1; }
+.logout-btn {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 18px; color: var(--muted);
+  transition: all 0.2s;
+}
+.logout-btn:hover { background: rgba(220,38,38,0.1); color: var(--danger); }
+.main { margin-left: 72px; padding: 32px; min-height: 100vh; position: relative; z-index: 1; }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+.page-title { font-family: var(--font-head); font-size: 26px; font-weight: 700; color: var(--text); }
+.page-title span { color: var(--accent); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.status-pill {
+  display: flex; align-items: center; gap: 6px; background: rgba(22,163,74,0.1);
+  border: 1px solid rgba(22,163,74,0.2); color: var(--success); font-size: 12px;
+  padding: 6px 12px; border-radius: 99px;
+}
+.status-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse-dot 2s ease infinite; }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: white;
+}
+
+/* Stats Grid */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+.stat-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; position: relative; overflow: hidden; transition: transform 0.2s;
+}
+.stat-card:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+.stat-icon { font-size: 28px; margin-bottom: 12px; display: block; }
+.stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+.stat-value { font-family: var(--font-head); font-size: 32px; font-weight: 700; color: var(--text); }
+.stat-delta { font-size: 11px; margin-top: 4px; color: var(--success); }
+
+/* AI Welcome Card */
+.ai-welcome {
+  background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 24px;
+  border: 1px solid rgba(22,163,74,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.ai-welcome-content h3 {
+  font-size: 18px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.ai-welcome-content p {
+  font-size: 13px;
+  color: var(--muted);
+}
+.ai-badge {
+  background: var(--accent);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 40px;
+  font-size: 13px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* AI Match Cards */
+.ai-match-card {
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border: 2px solid #f59e0b;
+}
+.match-score {
+  background: #f59e0b;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.ai-insight {
+  background: #fef3c7;
+  padding: 8px;
+  border-radius: 8px;
+  margin: 10px 0;
+  font-size: 12px;
+  color: #92400e;
+}
+
+/* Filters */
+.filters { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+.search-box {
+  flex: 1; min-width: 200px; padding: 12px 16px; background: var(--card-2);
+  border: 1px solid var(--border); border-radius: 12px; font-size: 13px;
+}
+.filter-btn {
+  padding: 8px 18px; border-radius: 40px; border: 1px solid var(--border);
+  background: var(--card); cursor: pointer; font-size: 12px; font-weight: 500;
+  transition: all 0.2s;
+}
+.filter-btn:hover { background: rgba(204,0,0,0.08); border-color: var(--accent); }
+.filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* Cases Grid */
+.cases-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+.case-card {
+  background: var(--card); border-radius: var(--radius-lg); padding: 20px;
+  border: 1px solid var(--border); transition: all 0.3s; cursor: pointer;
+}
+.case-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+.card-header { display: flex; justify-content: space-between; margin-bottom: 12px; flex-wrap: wrap; gap: 8px; }
+.case-type {
+  font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600;
+}
+.case-type.medical { background: rgba(59,130,246,0.1); color: #3b82f6; }
+.case-type.disaster { background: rgba(239,68,68,0.1); color: #ef4444; }
+.case-type.food { background: rgba(245,158,11,0.1); color: #f59e0b; }
+.urgency-badge {
+  font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600;
+}
+.urgency-badge.high { background: rgba(239,68,68,0.15); color: #dc2626; }
+.urgency-badge.medium { background: rgba(245,158,11,0.15); color: #d97706; }
+.urgency-badge.low { background: rgba(34,197,94,0.15); color: #16a34a; }
+.case-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: var(--text); }
+.case-desc { font-size: 13px; color: var(--muted); margin-bottom: 15px; line-height: 1.5; }
+.case-meta { display: flex; gap: 15px; font-size: 12px; color: var(--muted); margin-bottom: 15px; flex-wrap: wrap; }
+.volunteer-btn {
+  width: 100%; padding: 10px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s;
+}
+.volunteer-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(204,0,0,0.3); }
+.volunteer-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.volunteer-btn.ai-suggested { background: linear-gradient(135deg, #f59e0b, #ea580c); animation: pulse-btn 2s infinite; }
+@keyframes pulse-btn { 0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); } 50% { box-shadow: 0 0 0 10px rgba(245,158,11,0); } }
+
+/* Server Status */
+.server-status {
+  position: fixed; bottom: 20px; left: 100px; background: rgba(0,0,0,0.7);
+  padding: 6px 12px; border-radius: 20px; font-size: 11px; z-index: 1000;
+  display: flex; align-items: center; gap: 8px; color: white;
+}
+.status-led { width: 8px; height: 8px; border-radius: 50%; }
+.status-led.online { background: #22c55e; box-shadow: 0 0 5px #22c55e; animation: pulse 2s infinite; }
+.status-led.offline { background: #ef4444; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+.empty-state { text-align: center; padding: 60px; color: var(--muted); }
+.empty-state .icon { font-size: 48px; margin-bottom: 15px; }
+
+/* Toast */
+.toast {
+  position: fixed; bottom: 30px; right: 30px; background: var(--accent);
+  color: white; padding: 12px 24px; border-radius: 12px; z-index: 1100;
+  transform: translateX(400px); transition: 0.3s; font-size: 13px;
+}
+.toast.show { transform: translateX(0); }
+
+@media (max-width: 768px) {
+  .sidebar { width: 60px; }
+  .main { margin-left: 60px; padding: 16px; }
+  .stats-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .cases-grid { grid-template-columns: 1fr; }
+  .server-status { left: 80px; font-size: 9px; }
+  .ai-welcome { flex-direction: column; text-align: center; }
+}
+</style>
 </head>
 <body>
 
-<!-- Enhanced Navbar -->
-<nav id="mainNav">
-    <div class="logo">
-        <span class="logo-icon">📮</span>
-        <span>Smart<span>NGO</span></span>
-    </div>
-
-    <ul class="nav-links" id="navLinks">
-        <li><a href="volunteer.html" class="active">
-            <span class="nav-icon">📍</span>
-            Dashboard
-        </a></li>
-        <li><a href="volunteertasks.html">
-            <span class="nav-icon">📋</span>
-            My Tasks
-        </a></li>
-        <li><a href="volunteermap.html">
-            <span class="nav-icon">🗺️</span>
-            Map
-        </a></li>
-        <li><a href="volunteerprofile.html">
-            <span class="nav-icon">👤</span>
-            Profile
-        </a></li>
-    </ul>
-
-    <div class="user-profile" id="userProfile">
-        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Profile" class="profile-img">
-        <div class="profile-dropdown" id="profileDropdown">
-            <div class="dropdown-item">
-                <span class="icon">👤</span>
-                My Profile
-            </div>
-            <div class="dropdown-item">
-                <span class="icon">⚙️</span>
-                Settings
-            </div>
-            <div class="dropdown-divider"></div>
-            <div class="dropdown-item" onclick="logout()">
-                <span class="icon">🚪</span>
-                Logout
-            </div>
-        </div>
-    </div>
-
-    <div class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
-    </div>
+<nav class="sidebar">
+  <div class="sidebar-logo" onclick="navigateTo('home.html')">🚨</div>
+  <a href="volunteer.html" class="nav-item active">🏠<span class="tooltip">Dashboard</span></a>
+  <a href="volunteertasks.html" class="nav-item">📋<span class="tooltip">My Tasks</span></a>
+  <a href="volunteermap.html" class="nav-item">🗺️<span class="tooltip">Map</span></a>
+  <a href="volunteerprofile.html" class="nav-item">👤<span class="tooltip">Profile</span></a>
+  <div class="sidebar-spacer"></div>
+  <div class="logout-btn" onclick="logout()" title="Logout">🚪</div>
 </nav>
 
-<!-- Hero Section -->
-<section class="hero">
-    <div class="container">
-        <h1>Be the Change. <span>Volunteer Today.</span></h1>
-        <p>Join hands with SmartNGO to make a difference in your community.</p>
-        <button class="btn-primary" onclick="refreshCases()">Explore Cases</button>
+<main class="main">
+  <div class="topbar">
+    <h1 class="page-title">Volunteer <span>Dashboard</span></h1>
+    <div class="topbar-right">
+      <div class="status-pill" id="statusPill"><div class="status-dot"></div> Checking...</div>
+      <div class="avatar" id="userAvatar">🧑</div>
     </div>
-</section>
+  </div>
 
-<!-- Stats Section -->
-<section class="stats">
-    <div class="container">
-        <div class="stat-grid">
-            <div class="stat-card">
-                <div class="stat-icon">🚨</div>
-                <div class="stat-content">
-                    <div class="stat-number" id="statActive">0</div>
-                    <div class="stat-label">Active Cases</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">📍</div>
-                <div class="stat-content">
-                    <div class="stat-number" id="statNearby">0</div>
-                    <div class="stat-label">Nearby</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">📋</div>
-                <div class="stat-content">
-                    <div class="stat-number" id="statAssigned">0</div>
-                    <div class="stat-label">My Tasks</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon">🫂</div>
-                <div class="stat-content">
-                    <div class="stat-number" id="statImpact">0</div>
-                    <div class="stat-label">People Helped</div>
-                </div>
-            </div>
-        </div>
+  <!-- AI Welcome Card -->
+  <div class="ai-welcome" id="aiWelcomeCard">
+    <div class="ai-welcome-content">
+      <h3>🤖 AI-Powered Volunteer Assistant</h3>
+      <p>I'm analyzing emergencies and finding the best matches for your skills. <span id="aiMatchCount">0</span> personalized recommendations available!</p>
     </div>
-</section>
+    <div class="ai-badge">
+      <i class="fas fa-brain"></i> AI Active
+    </div>
+  </div>
 
-<!-- Cases Section -->
-<section class="cases">
-    <div class="container">
-        <div class="filters">
-            <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search by title, location, or type...">
-            <button class="filter-btn active" data-filter="all">All</button>
-            <button class="filter-btn" data-filter="high">🔴 High</button>
-            <button class="filter-btn" data-filter="medium">🟡 Medium</button>
-            <button class="filter-btn" data-filter="low">🟢 Low</button>
-            <button class="filter-btn refresh" onclick="refreshCases()">↻ Refresh</button>
-        </div>
-        <div class="cases-grid" id="casesGrid">
-            <div class="empty-state">
-                <div class="icon">🔍</div>
-                <p>Loading cases...</p>
-            </div>
-        </div>
-    </div>
-</section>
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card"><span class="stat-icon">🚨</span><div class="stat-label">Active Emergencies</div><div class="stat-value" id="totalEmergencies">0</div></div>
+    <div class="stat-card"><span class="stat-icon">⚠️</span><div class="stat-label">High Priority</div><div class="stat-value" id="highPriority">0</div></div>
+    <div class="stat-card"><span class="stat-icon">👥</span><div class="stat-label">People Affected</div><div class="stat-value" id="totalAffected">0</div></div>
+    <div class="stat-card"><span class="stat-icon">✅</span><div class="stat-label">My Assigned Tasks</div><div class="stat-value" id="assignedTasks">0</div></div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search emergencies by location or type...">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="High">🔴 High</button>
+    <button class="filter-btn" data-filter="Medium">🟡 Medium</button>
+    <button class="filter-btn" data-filter="Low">🟢 Low</button>
+    <button class="filter-btn" onclick="loadEmergencies()">🔄 Refresh</button>
+    <button class="filter-btn" onclick="showAIRecommendations()" style="background: linear-gradient(135deg, #f59e0b, #ea580c); color: white;">🤖 AI Match</button>
+  </div>
+
+  <!-- Cases Grid -->
+  <div class="cases-grid" id="casesGrid">
+    <div class="empty-state"><div class="icon">📡</div><p>Loading emergencies...</p></div>
+  </div>
+</main>
+
+<!-- Server Status -->
+<div class="server-status" id="serverStatus">
+  <div class="status-led" id="statusLed"></div>
+  <span id="statusText">Checking server...</span>
+</div>
 
 <!-- Toast -->
 <div id="toast" class="toast"></div>
 
 <script>
-    const API_BASE = 'http://localhost:5000';
-    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+// API Configuration
+const API_BASE_URL = 'http://localhost:5000/api';
+let allEmergencies = [];
+let filteredEmergencies = [];
+let volunteerSkills = [];
+let showAIMode = false;
 
-    if (!token) {
-        showToast('⚠️ Please login first');
-        setTimeout(() => window.location.href = 'login.html', 1500);
+// Navigation helper
+function navigateTo(page) {
+  window.location.href = page;
+}
+
+// Check server health
+async function checkServerHealth() {
+  const statusLed = document.getElementById('statusLed');
+  const statusText = document.getElementById('statusText');
+  const statusPill = document.getElementById('statusPill');
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/health`);
+    if (response.ok) {
+      statusLed.className = 'status-led online';
+      statusText.innerHTML = '✅ Backend Connected';
+      statusPill.innerHTML = '<div class="status-dot"></div> ✅ Backend Online';
+      statusPill.style.background = 'rgba(22,163,74,0.1)';
+      statusPill.style.color = '#16a34a';
+      return true;
     }
+  } catch (error) {
+    statusLed.className = 'status-led offline';
+    statusText.innerHTML = '⚠️ Backend Offline';
+    statusPill.innerHTML = '<div style="background:#ff4444; width:7px; height:7px; border-radius:50%;"></div> Backend Offline';
+    statusPill.style.background = 'rgba(220,38,38,0.1)';
+    statusPill.style.color = '#dc2626';
+    return false;
+  }
+  return false;
+}
 
-    let cases = [];
-    let filteredCases = [];
+// Load volunteer profile to get skills
+async function loadVolunteerProfile() {
+  const token = localStorage.getItem('token');
+  if (!token) return;
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      volunteerSkills = data.skills || [];
+      console.log('✅ Volunteer skills loaded:', volunteerSkills);
+    }
+  } catch (error) {
+    console.error('Error loading profile:', error);
+  }
+}
 
-    // Navbar scroll effect
-    window.addEventListener('scroll', function() {
-        const nav = document.getElementById('mainNav');
-        if (window.scrollY > 20) {
-            nav.classList.add('nav-scrolled');
-        } else {
-            nav.classList.remove('nav-scrolled');
+// Calculate AI match score for emergency
+function calculateMatchScore(emergency) {
+  let score = 0;
+  const requiredSkills = emergency.skills_required || [];
+  
+  if (requiredSkills.length === 0) {
+    score = 50; // Default medium match
+  } else if (volunteerSkills.length === 0) {
+    score = 30; // Low match if no skills defined
+  } else {
+    const matchedSkills = requiredSkills.filter(reqSkill =>
+      volunteerSkills.some(vSkill =>
+        vSkill.toLowerCase().includes(reqSkill.toLowerCase()) ||
+        reqSkill.toLowerCase().includes(vSkill.toLowerCase())
+      )
+    );
+    score = Math.round((matchedSkills.length / requiredSkills.length) * 100);
+  }
+  
+  // Bonus for high priority
+  if (emergency.urgency_level === 'High') score += 10;
+  if (emergency.urgency_level === 'Medium') score += 5;
+  
+  // Cap at 100
+  return Math.min(score, 100);
+}
+
+// Get AI recommendation reason
+function getRecommendationReason(emergency, score) {
+  const requiredSkills = emergency.skills_required || [];
+  const matchedSkills = requiredSkills.filter(reqSkill =>
+    volunteerSkills.some(vSkill =>
+      vSkill.toLowerCase().includes(reqSkill.toLowerCase()) ||
+      reqSkill.toLowerCase().includes(vSkill.toLowerCase())
+    )
+  );
+  
+  if (score >= 80) {
+    return `🎯 Excellent match! Your skills (${matchedSkills.slice(0, 3).join(', ')}) are perfect for this emergency.`;
+  } else if (score >= 60) {
+    return `👍 Good match! You have ${matchedSkills.length}/${requiredSkills.length} matching skills.`;
+  } else if (score >= 40) {
+    return `⚠️ Potential match - Your skills partially align with requirements.`;
+  } else {
+    return `📍 Location-based match - Your help is needed in this area.`;
+  }
+}
+
+// Load emergencies from database
+async function loadEmergencies() {
+  const grid = document.getElementById('casesGrid');
+  grid.innerHTML = '<div class="empty-state"><div class="icon">📡</div><p>Loading emergencies from database...</p></div>';
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/ai/cases`);
+    if (!response.ok) throw new Error('Failed to fetch');
+    
+    const data = await response.json();
+    allEmergencies = data;
+    filteredEmergencies = [...allEmergencies];
+    
+    if (allEmergencies.length === 0) {
+      grid.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No emergencies found</p></div>';
+      updateStats([]);
+      return;
+    }
+    
+    // Calculate AI match scores
+    const emergenciesWithScores = allEmergencies.map(emergency => ({
+      ...emergency,
+      aiMatchScore: calculateMatchScore(emergency),
+      aiReason: getRecommendationReason(emergency, calculateMatchScore(emergency))
+    }));
+    
+    allEmergencies = emergenciesWithScores;
+    
+    if (showAIMode) {
+      renderAIMatchedEmergencies(emergenciesWithScores);
+    } else {
+      renderEmergencies(emergenciesWithScores);
+    }
+    updateStats(emergenciesWithScores);
+    
+    // Update AI welcome message
+    const highMatches = emergenciesWithScores.filter(e => e.aiMatchScore >= 70).length;
+    document.getElementById('aiMatchCount').innerHTML = highMatches;
+    if (highMatches > 0) {
+      document.getElementById('aiWelcomeCard').style.background = 'linear-gradient(135deg, #fef3c7, #fde68a)';
+    }
+    
+    showToast(`✅ Loaded ${allEmergencies.length} emergencies`, 'success');
+    
+  } catch (error) {
+    console.error('Error loading emergencies:', error);
+    grid.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Failed to load emergencies. Make sure backend is running on port 5000</p></div>';
+    showToast('❌ Failed to load emergencies', 'error');
+  }
+}
+
+// Render AI-matched emergencies (sorted by match score)
+function renderAIMatchedEmergencies(emergencies) {
+  const grid = document.getElementById('casesGrid');
+  const sorted = [...emergencies].sort((a, b) => b.aiMatchScore - a.aiMatchScore);
+  const topMatches = sorted.slice(0, 10);
+  
+  if (topMatches.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">🤖</div><p>No AI matches found. Update your skills in profile!</p></div>';
+    return;
+  }
+  
+  grid.innerHTML = topMatches.map(emergency => {
+    const urgencyClass = (emergency.urgency_level || 'Medium').toLowerCase();
+    let typeClass = 'disaster';
+    if (emergency.type === 'Medical') typeClass = 'medical';
+    else if (emergency.type === 'Food & Water') typeClass = 'food';
+    
+    const isHighMatch = emergency.aiMatchScore >= 70;
+    
+    return `
+      <div class="case-card ${isHighMatch ? 'ai-match-card' : ''}" onclick="viewEmergencyDetails('${emergency._id}')">
+        <div class="card-header">
+          <span class="case-type ${typeClass}">${emergency.type || 'Emergency'}</span>
+          <div style="display: flex; gap: 8px;">
+            <span class="urgency-badge ${urgencyClass}">${emergency.urgency_level || 'Medium'}</span>
+            <span class="match-score">🤖 ${emergency.aiMatchScore}% Match</span>
+          </div>
+        </div>
+        <div class="case-title">${emergency.location_name || 'Location Unknown'}</div>
+        <div class="case-desc">${(emergency.summary || emergency.text || '').substring(0, 100)}${(emergency.summary || emergency.text || '').length > 100 ? '...' : ''}</div>
+        <div class="ai-insight">
+          💡 <strong>AI Insight:</strong> ${emergency.aiReason}
+        </div>
+        <div class="case-meta">
+          <span>👥 ${(emergency.people_affected || 0).toLocaleString()} affected</span>
+          <span>📊 Score: ${emergency.priority_score || 0}/100</span>
+        </div>
+        ${emergency.skills_required && emergency.skills_required.length > 0 ? `
+          <div class="case-meta">
+            <span>🛠️ Needed: ${emergency.skills_required.slice(0, 3).join(', ')}</span>
+          </div>
+        ` : ''}
+        ${volunteerSkills.length > 0 ? `
+          <div class="case-meta">
+            <span>✅ Your skills: ${volunteerSkills.slice(0, 3).join(', ')}</span>
+          </div>
+        ` : ''}
+        <button class="volunteer-btn ${isHighMatch ? 'ai-suggested' : ''}" onclick="event.stopPropagation(); volunteerForEmergency('${emergency._id}')">
+          ${isHighMatch ? '🤖 AI Recommended - ' : ''}🤝 Volunteer Now
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+// Render emergencies (normal view)
+function renderEmergencies(emergencies) {
+  const grid = document.getElementById('casesGrid');
+  
+  if (emergencies.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><p>No emergencies match your filters</p></div>';
+    return;
+  }
+  
+  grid.innerHTML = emergencies.map(emergency => {
+    const urgencyClass = (emergency.urgency_level || 'Medium').toLowerCase();
+    let typeClass = 'disaster';
+    if (emergency.type === 'Medical') typeClass = 'medical';
+    else if (emergency.type === 'Food & Water') typeClass = 'food';
+    
+    return `
+      <div class="case-card" onclick="viewEmergencyDetails('${emergency._id}')">
+        <div class="card-header">
+          <span class="case-type ${typeClass}">${emergency.type || 'Emergency'}</span>
+          <span class="urgency-badge ${urgencyClass}">${emergency.urgency_level || 'Medium'}</span>
+        </div>
+        <div class="case-title">${emergency.location_name || 'Location Unknown'}</div>
+        <div class="case-desc">${(emergency.summary || emergency.text || '').substring(0, 100)}${(emergency.summary || emergency.text || '').length > 100 ? '...' : ''}</div>
+        <div class="case-meta">
+          <span>👥 ${(emergency.people_affected || 0).toLocaleString()} affected</span>
+          <span>📊 Score: ${emergency.priority_score || 0}/100</span>
+        </div>
+        ${emergency.skills_required && emergency.skills_required.length > 0 ? `
+          <div class="case-meta">
+            <span>🛠️ Skills: ${emergency.skills_required.slice(0, 3).join(', ')}</span>
+          </div>
+        ` : ''}
+        <button class="volunteer-btn" onclick="event.stopPropagation(); volunteerForEmergency('${emergency._id}')">
+          🤝 Volunteer for this
+        </button>
+      </div>
+    `;
+  }).join('');
+}
+
+// Show AI recommendations
+function showAIRecommendations() {
+  showAIMode = true;
+  renderAIMatchedEmergencies(allEmergencies);
+  showToast('🤖 Showing AI-matched emergencies based on your skills', 'success');
+  
+  // Update active filter visual
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+}
+
+// Update statistics
+function updateStats(emergencies) {
+  const total = emergencies.length;
+  const highPriority = emergencies.filter(e => e.urgency_level === 'High').length;
+  const totalAffected = emergencies.reduce((sum, e) => sum + (e.people_affected || 0), 0);
+  
+  document.getElementById('totalEmergencies').textContent = total;
+  document.getElementById('highPriority').textContent = highPriority;
+  document.getElementById('totalAffected').textContent = totalAffected.toLocaleString();
+  
+  // Load assigned tasks from localStorage
+  const assignedTasks = JSON.parse(localStorage.getItem('assignedTasks') || '[]');
+  document.getElementById('assignedTasks').textContent = assignedTasks.length;
+}
+
+// View emergency details
+async function viewEmergencyDetails(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/ai/cases/${id}`);
+    const emergency = await response.json();
+    
+    alert(`
+🚨 EMERGENCY DETAILS
+
+Type: ${emergency.type || 'N/A'}
+Location: ${emergency.location_name || 'Unknown'}
+People Affected: ${emergency.people_affected || 0}
+Urgency: ${emergency.urgency_level || 'N/A'}
+Priority Score: ${emergency.priority_score || 0}/100
+
+Summary: ${emergency.summary || emergency.text || 'N/A'}
+
+Skills Required: ${emergency.skills_required?.join(', ') || 'None'}
+
+Reported: ${new Date(emergency.createdAt).toLocaleString()}
+    `);
+  } catch (error) {
+    console.error('Error loading details:', error);
+    showToast('Failed to load emergency details', 'error');
+  }
+}
+
+// Volunteer for emergency
+async function volunteerForEmergency(caseId) {
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    showToast('Please login to volunteer', 'warning');
+    setTimeout(() => window.location.href = 'login.html', 1000);
+    return;
+  }
+  
+  try {
+    const assignedTasks = JSON.parse(localStorage.getItem('assignedTasks') || '[]');
+    
+    if (assignedTasks.includes(caseId)) {
+      showToast('You already volunteered for this emergency', 'warning');
+      return;
+    }
+    
+    assignedTasks.push(caseId);
+    localStorage.setItem('assignedTasks', JSON.stringify(assignedTasks));
+    
+    document.getElementById('assignedTasks').textContent = assignedTasks.length;
+    
+    showToast('✅ You have volunteered for this emergency!', 'success');
+    
+    try {
+      await fetch(`${API_BASE_URL}/volunteers/assign/${caseId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         }
+      });
+    } catch (apiError) {
+      console.log('Backend API not available, saved locally');
+    }
+    
+  } catch (error) {
+    console.error('Error volunteering:', error);
+    showToast('Failed to volunteer. Please try again.', 'error');
+  }
+}
+
+// Filter emergencies
+function filterEmergencies() {
+  showAIMode = false;
+  const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+  const activeFilter = document.querySelector('.filter-btn.active').dataset.filter;
+  
+  filteredEmergencies = allEmergencies.filter(emergency => {
+    const matchesSearch = !searchTerm || 
+      (emergency.location_name && emergency.location_name.toLowerCase().includes(searchTerm)) ||
+      (emergency.type && emergency.type.toLowerCase().includes(searchTerm)) ||
+      (emergency.summary && emergency.summary.toLowerCase().includes(searchTerm));
+    
+    const matchesUrgency = activeFilter === 'all' || emergency.urgency_level === activeFilter;
+    
+    return matchesSearch && matchesUrgency;
+  });
+  
+  renderEmergencies(filteredEmergencies);
+}
+
+// Show toast message
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.style.background = type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#cc0000';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
+}
+
+// Logout
+function logout() {
+  localStorage.clear();
+  sessionStorage.clear();
+  showToast('Logged out successfully', 'success');
+  setTimeout(() => window.location.href = 'login.html', 500);
+}
+
+// Initialize
+async function init() {
+  await checkServerHealth();
+  await loadVolunteerProfile();
+  await loadEmergencies();
+  
+  const userEmail = localStorage.getItem('userEmail') || 'Volunteer';
+  const initial = userEmail.charAt(0).toUpperCase();
+  document.getElementById('userAvatar').innerText = initial;
+  
+  document.getElementById('searchBox').addEventListener('input', filterEmergencies);
+  
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      if (this.textContent.includes('AI Match')) return;
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      filterEmergencies();
     });
-
-    // Mobile menu toggle
-    const hamburger = document.getElementById('hamburger');
-    const navLinks = document.getElementById('navLinks');
-
-    function toggleNav() {
-        hamburger.classList.toggle('active');
-        navLinks.classList.toggle('open');
+  });
+  
+  setInterval(async () => {
+    if (document.getElementById('statusLed').classList.contains('online')) {
+      await loadEmergencies();
     }
+  }, 30000);
+}
 
-    hamburger.addEventListener('click', toggleNav);
-
-    // Profile dropdown toggle
-    const userProfile = document.getElementById('userProfile');
-    const profileDropdown = document.getElementById('profileDropdown');
-
-    userProfile.addEventListener('click', function(e) {
-        e.stopPropagation();
-        profileDropdown.classList.toggle('active');
-    });
-
-    // Close dropdown when clicking outside
-    document.addEventListener('click', function() {
-        profileDropdown.classList.remove('active');
-    });
-
-    // Fetch cases from API
-    async function fetchCases() {
-        try {
-            showToast('Loading cases...');
-            const response = await fetch(`${API_BASE}/api/cases`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
-            
-            if (!response.ok) throw new Error('Failed to fetch cases');
-            
-            const data = await response.json();
-            
-            // Map API data correctly
-            cases = data.map(caseItem => ({
-                id: caseItem._id,
-                title: caseItem.text || 'Untitled Case',
-                type: caseItem.type || 'Other',
-                urgency: (caseItem.urgency_level || 'medium').toLowerCase(),
-                peopleAffected: parseInt(caseItem.people_affected) || 0,
-                description: caseItem.summary || 'No description available',
-                createdAt: caseItem.createdAt || new Date().toISOString(),
-                priorityScore: caseItem.priority_score || 5
-            }));
-            
-            filteredCases = [...cases];
-            renderCases();
-            updateStats();
-            showToast('Cases loaded successfully');
-        } catch (error) {
-            console.error('Error fetching cases:', error);
-            showToast('⚠️ Failed to load cases. Check your connection.');
-            document.getElementById('casesGrid').innerHTML = `
-                <div class="empty-state">
-                    <div class="icon">⚠️</div>
-                    <p>Failed to load cases</p>
-                </div>`;
-        }
-    }
-
-    // Render cases to the grid
-    function renderCases(list = filteredCases) {
-        const grid = document.getElementById('casesGrid');
-        
-        if (!list.length) {
-            grid.innerHTML = `
-                <div class="empty-state">
-                    <div class="icon">🔍</div>
-                    <p>No cases found matching your filters</p>
-                </div>`;
-            return;
-        }
-        
-        grid.innerHTML = '';
-        list.forEach(c => {
-            grid.innerHTML += `
-            <div class="case-card">
-                <div class="card-top">
-                    <span class="case-type-badge">${c.type}</span>
-                    <span class="urgency-dot ${c.urgency}">
-                        ${c.urgency.charAt(0).toUpperCase() + c.urgency.slice(1)}
-                        ${c.priorityScore ? `(${c.priorityScore}/10)` : ''}
-                    </span>
-                </div>
-                <div class="case-title">${c.title}</div>
-                <div class="case-desc">${c.description}</div>
-                <div class="case-meta">
-                    <span class="meta-item">👥 ${c.peopleAffected.toLocaleString()} affected</span>
-                    <span class="meta-item">📅 ${new Date(c.createdAt).toLocaleDateString()}</span>
-                </div>
-            </div>`;
-        });
-    }
-
-    // Update statistics
-    function updateStats() {
-        const activeCases = cases.length;
-        const nearbyCases = filteredCases.length;
-        const totalAffected = cases.reduce((sum, c) => sum + c.peopleAffected, 0);
-        
-        document.getElementById('statActive').textContent = activeCases;
-        document.getElementById('statNearby').textContent = nearbyCases;
-        document.getElementById('statImpact').textContent = totalAffected.toLocaleString();
-        
-        // Update assigned tasks count (you can modify this based on your actual data)
-        const assignedCount = cases.filter(c => c.status === 'assigned').length;
-        document.getElementById('statAssigned').textContent = assignedCount;
-    }
-
-    // Refresh cases
-    function refreshCases() {
-        showToast('↻ Refreshing cases...');
-        fetchCases();
-    }
-
-    // Show toast message
-    function showToast(msg) {
-        const toast = document.getElementById('toast');
-        toast.textContent = msg;
-        toast.classList.add('show');
-        setTimeout(() => toast.classList.remove('show'), 3000);
-    }
-
-    // Logout function
-    function logout() {
-        localStorage.clear();
-        sessionStorage.clear();
-        showToast('Logged out successfully');
-        setTimeout(() => window.location.href = 'login.html', 1000);
-    }
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        fetchCases();
-        
-        // Search functionality
-        document.getElementById('searchBox').addEventListener('input', (e) => {
-            const searchTerm = e.target.value.toLowerCase();
-            filteredCases = cases.filter(c => 
-                (c.title && c.title.toLowerCase().includes(searchTerm)) ||
-                (c.description && c.description.toLowerCase().includes(searchTerm)) ||
-                (c.type && c.type.toLowerCase().includes(searchTerm)) ||
-                (c.location && c.location.toLowerCase().includes(searchTerm))
-            );
-            renderCases();
-            updateStats();
-        });
-
-        // Filter buttons
-        document.querySelectorAll('.filter-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (this.classList.contains('refresh')) return;
-                
-                document.querySelector('.filter-btn.active').classList.remove('active');
-                this.classList.add('active');
-                
-                const filter = this.dataset.filter;
-                if (filter === 'all') {
-                    filteredCases = [...cases];
-                } else {
-                    filteredCases = cases.filter(c => 
-                        c.urgency && c.urgency.toLowerCase() === filter
-                    );
-                }
-                renderCases();
-                updateStats();
-            });
-        });
-    });
+init();
 </script>
 </body>
 </html>

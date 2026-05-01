@@ -91,19 +91,22 @@ body::before {
 .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .card-title { font-family: var(--font-head); font-size: 15px; font-weight: 600; }
 .card-badge { font-size: 11px; padding: 4px 10px; border-radius: 99px; background: rgba(204,0,0,0.08); color: var(--accent); border: 1px solid rgba(204,0,0,0.15); }
-.activity-list { display: flex; flex-direction: column; gap: 12px; }
+.activity-list { display: flex; flex-direction: column; gap: 12px; max-height: 400px; overflow-y: auto; }
 .activity-item {
   display: flex; align-items: flex-start; gap: 12px; padding: 14px;
   background: var(--card-2); border-radius: 12px; border: 1px solid var(--border);
+  cursor: pointer; transition: all 0.2s;
 }
+.activity-item:hover { transform: translateX(3px); background: rgba(204,0,0,0.05); }
 .act-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
-.act-icon.red { background: rgba(220,38,38,0.1); }
-.act-icon.amber { background: rgba(245,158,11,0.1); }
-.act-icon.green { background: rgba(22,163,74,0.1); }
-.act-icon.blue { background: rgba(59,130,246,0.1); }
+.act-icon.red { background: rgba(220,38,38,0.1); color: #dc2626; }
+.act-icon.amber { background: rgba(245,158,11,0.1); color: #f59e0b; }
+.act-icon.green { background: rgba(22,163,74,0.1); color: #16a34a; }
+.act-icon.blue { background: rgba(59,130,246,0.1); color: #3b82f6; }
 .act-body { flex: 1; }
-.act-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+.act-title { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
 .act-sub { font-size: 11px; color: var(--muted); }
+.act-location { font-size: 10px; color: var(--accent); margin-top: 4px; }
 .badge { font-size: 10px; padding: 3px 8px; border-radius: 99px; font-weight: 500; white-space: nowrap; align-self: center; }
 .badge.high { background: rgba(220,38,38,0.12); color: #b91c1c; border: 1px solid rgba(220,38,38,0.2); }
 .badge.medium { background: rgba(245,158,11,0.12); color: #b45309; border: 1px solid rgba(245,158,11,0.2); }
@@ -113,7 +116,7 @@ body::before {
   display: flex; align-items: center; gap: 12px; background: var(--card-2);
   border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px;
   cursor: pointer; color: var(--text); font-size: 13px; transition: all 0.2s;
-  text-align: left; width: 100%;
+  text-align: left; width: 100%; text-decoration: none;
 }
 .qa-btn:hover { background: rgba(204,0,0,0.05); border-color: rgba(204,0,0,0.2); transform: translateX(3px); }
 .qa-icon { font-size: 18px; flex-shrink: 0; }
@@ -121,6 +124,8 @@ body::before {
 .qa-label { font-weight: 500; font-size: 13px; }
 .qa-desc { font-size: 11px; color: var(--muted); margin-top: 1px; }
 .qa-arrow { margin-left: auto; color: var(--muted); font-size: 14px; }
+.empty-state { text-align: center; padding: 40px; color: var(--muted); }
+.loading { text-align: center; padding: 20px; color: var(--muted); }
 
 /* Chatbot Styles */
 .chat-fab {
@@ -168,6 +173,7 @@ body::before {
 .chat-send { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; }
 .chat-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 997; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
 .chat-backdrop.open { opacity: 1; pointer-events: all; }
+
 @media (max-width: 900px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .dashboard-grid { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .main { padding: 16px; } .chat-panel { width: calc(100vw - 24px); right: 12px; bottom: 90px; } }
 </style>
@@ -187,78 +193,301 @@ body::before {
 <main class="main">
   <div class="topbar">
     <h1 class="page-title">Dashboard <span>Overview</span></h1>
-    <div class="topbar-right"><div class="status-pill"><div class="status-dot"></div> System Online</div><div class="avatar">🧑</div></div>
+    <div class="topbar-right">
+      <div class="status-pill" id="statusPill"><div class="status-dot"></div> Checking...</div>
+      <div class="avatar">🧑</div>
+    </div>
   </div>
+  
   <div class="stats-grid">
-    <div class="stat-card"><span class="stat-icon">🆘</span><div class="stat-label">Active Emergencies</div><div class="stat-value">12</div><div class="stat-delta">↑ 3 since yesterday</div></div>
-    <div class="stat-card"><span class="stat-icon">🤝</span><div class="stat-label">Volunteers Deployed</div><div class="stat-value">48</div><div class="stat-delta">↑ 8 this week</div></div>
-    <div class="stat-card"><span class="stat-icon">📦</span><div class="stat-label">Resources Allocated</div><div class="stat-value">230</div><div class="stat-delta">↑ 15% this month</div></div>
-    <div class="stat-card"><span class="stat-icon">✅</span><div class="stat-label">Resolved Today</div><div class="stat-value">7</div><div class="stat-delta" style="color:var(--success)">↑ 2 more than avg</div></div>
+    <div class="stat-card">
+      <span class="stat-icon">🆘</span>
+      <div class="stat-label">Active Emergencies</div>
+      <div class="stat-value" id="totalEmergencies">0</div>
+      <div class="stat-delta" id="emergencyDelta">Loading...</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">🤝</span>
+      <div class="stat-label">Volunteers Deployed</div>
+      <div class="stat-value" id="totalVolunteers">0</div>
+      <div class="stat-delta">Ready to help</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">📦</span>
+      <div class="stat-label">Resources Allocated</div>
+      <div class="stat-value" id="totalResources">0</div>
+      <div class="stat-delta">Skills matched</div>
+    </div>
+    <div class="stat-card">
+      <span class="stat-icon">✅</span>
+      <div class="stat-label">Resolved</div>
+      <div class="stat-value" id="resolvedCount">0</div>
+      <div class="stat-delta" id="resolvedDelta">Completed</div>
+    </div>
   </div>
+  
   <div class="dashboard-grid">
-    <div class="card"><div class="card-header"><span class="card-title">Recent Emergency Requests</span><span class="card-badge">Live</span></div>
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Recent Emergency Requests</span>
+        <span class="card-badge" id="refreshBadge">Live</span>
+      </div>
       <div class="activity-list" id="activityList">
-        <div class="activity-item"><div class="act-icon red">🔥</div><div class="act-body"><div class="act-title">Flood relief needed — Assam district</div><div class="act-sub">250 people affected · 20 min ago</div></div><span class="badge high">High</span></div>
-        <div class="activity-item"><div class="act-icon amber">⚡</div><div class="act-body"><div class="act-title">Medical supplies shortage — Bihar</div><div class="act-sub">80 people affected · 45 min ago</div></div><span class="badge medium">Medium</span></div>
-        <div class="activity-item"><div class="act-icon green">🍱</div><div class="act-body"><div class="act-title">Food distribution — Tamil Nadu camp</div><div class="act-sub">400 people affected · 1h ago</div></div><span class="badge low">Low</span></div>
-        <div class="activity-item"><div class="act-icon blue">🏕️</div><div class="act-body"><div class="act-title">Shelter required — Odisha coast</div><div class="act-sub">130 people affected · 2h ago</div></div><span class="badge medium">Medium</span></div>
+        <div class="loading">📡 Loading emergencies from database...</div>
       </div>
     </div>
-    <div class="card"><div class="card-header"><span class="card-title">Quick Actions</span></div>
+    
+    <div class="card">
+      <div class="card-header"><span class="card-title">Quick Actions</span></div>
       <div class="quick-actions">
-        <a href="create-need.html" class="qa-btn"><span class="qa-icon">➕</span><span class="qa-text"><span class="qa-label">Create Emergency Need</span><span class="qa-desc">Log a new resource request</span></span><span class="qa-arrow">›</span></a>
-        <a href="map.html" class="qa-btn"><span class="qa-icon">🗺️</span><span class="qa-text"><span class="qa-label">View Resource Map</span><span class="qa-desc">See all active locations</span></span><span class="qa-arrow">›</span></a>
-        <a href="profile.html" class="qa-btn"><span class="qa-icon">👤</span><span class="qa-text"><span class="qa-label">View Profile</span><span class="qa-desc">Manage your account</span></span><span class="qa-arrow">›</span></a>
+        <a href="create-need.html" class="qa-btn">
+          <span class="qa-icon">➕</span>
+          <span class="qa-text">
+            <span class="qa-label">Create Emergency Need</span>
+            <span class="qa-desc">Log a new resource request</span>
+          </span>
+          <span class="qa-arrow">›</span>
+        </a>
+        <a href="map.html" class="qa-btn">
+          <span class="qa-icon">🗺️</span>
+          <span class="qa-text">
+            <span class="qa-label">View Resource Map</span>
+            <span class="qa-desc">See all active locations</span>
+          </span>
+          <span class="qa-arrow">›</span>
+        </a>
+        <a href="profile.html" class="qa-btn">
+          <span class="qa-icon">👤</span>
+          <span class="qa-text">
+            <span class="qa-label">View Profile</span>
+            <span class="qa-desc">Manage your account</span>
+          </span>
+          <span class="qa-arrow">›</span>
+        </a>
+        <a href="volunteermap.html" class="qa-btn">
+          <span class="qa-icon">🤝</span>
+          <span class="qa-text">
+            <span class="qa-label">Find Volunteers</span>
+            <span class="qa-desc">Locate nearby volunteers</span>
+          </span>
+          <span class="qa-arrow">›</span>
+        </a>
       </div>
     </div>
   </div>
 </main>
 
-<!-- Gemini AI Chatbot - Direct API Integration -->
+<!-- Gemini AI Chatbot -->
 <div class="chat-backdrop" id="chatBackdrop" onclick="closeChat()"></div>
 <div class="chat-panel" id="chatPanel">
-  <div class="chat-header"><div class="chat-avatar">🤖</div><div class="chat-header-info"><h4>Gemini AI Assistant</h4><p><span class="online-dot"></span> Powered by Google Gemini</p></div><div class="chat-close" onclick="closeChat()">✕</div></div>
+  <div class="chat-header">
+    <div class="chat-avatar">🤖</div>
+    <div class="chat-header-info">
+      <h4>Gemini AI Assistant</h4>
+      <p><span class="online-dot"></span> Powered by Google Gemini</p>
+    </div>
+    <div class="chat-close" onclick="closeChat()">✕</div>
+  </div>
   <div class="chips-wrap" id="chips">
     <button class="chip" onclick="sendChip('Emergency help needed')">🆘 Emergency help</button>
     <button class="chip" onclick="sendChip('How to find volunteers?')">🤝 Find volunteers</button>
     <button class="chip" onclick="sendChip('Resource allocation tips')">📦 Resources</button>
-    <button class="chip" onclick="sendChip('Find nearby NGOs')">📍 Nearby NGOs</button>
     <button class="chip" onclick="sendChip('How to prioritize emergencies?')">⚡ Prioritization</button>
   </div>
-  <div class="chat-messages" id="chatMessages"><div class="msg bot"><div class="msg-avatar">🤖</div><div class="msg-bubble">👋 Hello! I'm your Gemini AI Assistant. I can help you manage emergencies, allocate resources, find volunteers, and more. How can I help you today?</div></div></div>
+  <div class="chat-messages" id="chatMessages">
+    <div class="msg bot">
+      <div class="msg-avatar">🤖</div>
+      <div class="msg-bubble">👋 Hello! I'm your Gemini AI Assistant. I can help you manage emergencies, allocate resources, find volunteers, and more. How can I help you today?</div>
+    </div>
+  </div>
   <div class="typing-indicator" id="typingIndicator"><div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
-  <div class="chat-input-area"><textarea class="chat-input" id="chatInput" placeholder="Ask Gemini about NGO resources..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea><button class="chat-send" onclick="sendMessage()">➤</button></div>
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="chatInput" placeholder="Ask Gemini about NGO resources..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="chat-send" onclick="sendMessage()">➤</button>
+  </div>
 </div>
 <button class="chat-fab" id="chatFab" onclick="toggleChat()">🤖</button>
 
 <script>
-const GEMINI_API_KEY = 'AIzaSyCurEz2dJ_wFxNIaxK8tpOx6HLvPWF4wNE';
+// API Configuration
+const API_BASE_URL = 'http://localhost:5000/api';
+let allEmergencies = [];
 
-async function loadRecentCases() {
-  const container = document.getElementById("activityList");
-  try {
-    const res = await fetch("http://localhost:5000/api/cases");
-    if (!res.ok) throw new Error();
-    const cases = await res.json();
-    if (!cases || cases.length === 0) { container.innerHTML = '<div class="empty-state"><span>No emergency cases found</span></div>'; return; }
-    container.innerHTML = "";
-    cases.slice().reverse().forEach(c => {
-      const text = c.text || "No description", people = c.people_affected || 0, urgency = c.urgency_level || "Low";
-      let colorClass = "blue", badgeClass = "low";
-      if (urgency === "High") { colorClass = "red"; badgeClass = "high"; }
-      else if (urgency === "Medium") { colorClass = "amber"; badgeClass = "medium"; }
-      else { colorClass = "green"; badgeClass = "low"; }
-      container.innerHTML += `<div class="activity-item"><div class="act-icon ${colorClass}">🚨</div><div class="act-body"><div class="act-title">${text}</div><div class="act-sub">${people} people affected</div></div><span class="badge ${badgeClass}">${urgency}</span></div>`;
-    });
-  } catch { container.innerHTML = '<div class="empty-state"><span>Unable to load emergencies</span></div>'; }
+// Check backend health
+async function checkBackendHealth() {
+    const statusPill = document.getElementById('statusPill');
+    try {
+        const response = await fetch(`${API_BASE_URL}/health`);
+        if (response.ok) {
+            statusPill.innerHTML = '<div class="status-dot"></div> ✅ Backend Connected';
+            statusPill.style.background = 'rgba(22,163,74,0.1)';
+            statusPill.style.color = '#16a34a';
+            console.log('✅ Backend is reachable');
+            return true;
+        }
+    } catch (error) {
+        statusPill.innerHTML = '<div style="background:#ff4444; width:7px; height:7px; border-radius:50%;"></div> ❌ Backend Offline';
+        statusPill.style.background = 'rgba(220,38,38,0.1)';
+        statusPill.style.color = '#dc2626';
+        console.error('❌ Backend unreachable:', error);
+        return false;
+    }
+    return false;
 }
-loadRecentCases();
 
-function logout() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
+// Load emergencies from database
+async function loadEmergencies() {
+    const container = document.getElementById("activityList");
+    container.innerHTML = '<div class="loading">📡 Fetching emergencies from database...</div>';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/ai/cases`);
+        if (!response.ok) throw new Error('Failed to fetch');
+        
+        const emergencies = await response.json();
+        allEmergencies = emergencies;
+        
+        if (!emergencies || emergencies.length === 0) {
+            container.innerHTML = '<div class="empty-state"><span>📭 No emergencies found. Create your first emergency!</span></div>';
+            updateStats(0, 0, 0);
+            return;
+        }
+        
+        // Update stats
+        const highCount = emergencies.filter(e => e.urgency_level === 'High').length;
+        const totalPeople = emergencies.reduce((sum, e) => sum + (e.people_affected || 0), 0);
+        const resolvedCount = emergencies.filter(e => e.status === 'completed').length;
+        
+        updateStats(emergencies.length, highCount, totalPeople, resolvedCount);
+        
+        // Display emergencies (show last 10)
+        const recentEmergencies = emergencies.slice(0, 10);
+        container.innerHTML = "";
+        
+        recentEmergencies.forEach(emergency => {
+            const urgency = emergency.urgency_level || "Low";
+            let colorClass = "blue";
+            let badgeClass = "low";
+            
+            if (urgency === "High") { 
+                colorClass = "red"; 
+                badgeClass = "high"; 
+            } else if (urgency === "Medium") { 
+                colorClass = "amber"; 
+                badgeClass = "medium"; 
+            } else if (urgency === "Low") { 
+                colorClass = "green"; 
+                badgeClass = "low"; 
+            }
+            
+            const date = new Date(emergency.createdAt);
+            const timeAgo = getTimeAgo(date);
+            
+            container.innerHTML += `
+                <div class="activity-item" onclick="viewEmergency('${emergency._id}')">
+                    <div class="act-icon ${colorClass}">🚨</div>
+                    <div class="act-body">
+                        <div class="act-title">${escapeHtml(emergency.type || 'Emergency')}</div>
+                        <div class="act-sub">👥 ${(emergency.people_affected || 0).toLocaleString()} people affected</div>
+                        <div class="act-location">📍 ${escapeHtml(emergency.location_name || 'Location unknown')}</div>
+                        <div class="act-sub">📝 ${escapeHtml((emergency.summary || emergency.text || '').substring(0, 80))}${(emergency.summary || emergency.text || '').length > 80 ? '...' : ''}</div>
+                    </div>
+                    <span class="badge ${badgeClass}">${urgency}</span>
+                </div>
+            `;
+        });
+        
+    } catch (error) {
+        console.error('Error loading emergencies:', error);
+        container.innerHTML = '<div class="empty-state"><span>❌ Failed to load emergencies. Make sure backend is running on port 5000</span></div>';
+        updateStats(0, 0, 0);
+    }
+}
+
+// Update statistics
+function updateStats(total, highCount, totalPeople, resolvedCount = 0) {
+    document.getElementById('totalEmergencies').innerText = total;
+    document.getElementById('emergencyDelta').innerHTML = `🔥 ${highCount} High Priority`;
+    document.getElementById('totalResources').innerText = totalPeople.toLocaleString();
+    document.getElementById('resolvedCount').innerText = resolvedCount;
+    
+    // Estimate volunteers (rough calculation)
+    const estimatedVolunteers = Math.floor(total * 3.5) + highCount * 2;
+    document.getElementById('totalVolunteers').innerText = estimatedVolunteers;
+}
+
+// Get time ago string
+function getTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    if (seconds < 60) return `${seconds} seconds ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes} minutes ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} hours ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} days ago`;
+}
+
+// Escape HTML to prevent XSS
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// View emergency details
+async function viewEmergency(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/ai/cases/${id}`);
+        const emergency = await response.json();
+        
+        alert(`
+🚨 EMERGENCY DETAILS
+
+Type: ${emergency.type || 'N/A'}
+Location: ${emergency.location_name || 'Unknown'}
+People Affected: ${emergency.people_affected || 0}
+Urgency: ${emergency.urgency_level || 'N/A'}
+Priority Score: ${emergency.priority_score || 0}/100
+
+Summary: ${emergency.summary || emergency.text || 'N/A'}
+
+Skills Required: ${emergency.skills_required?.join(', ') || 'None'}
+
+Status: ${emergency.status || 'open'}
+Reported: ${new Date(emergency.createdAt).toLocaleString()}
+        `);
+    } catch (error) {
+        console.error('Error loading details:', error);
+        alert('Failed to load emergency details');
+    }
+}
+
+// Logout function
+function logout() { 
+    localStorage.removeItem('token'); 
+    localStorage.removeItem('userId');
+    window.location.href = 'login.html'; 
+}
+
+// Initialize dashboard
+async function initDashboard() {
+    const isConnected = await checkBackendHealth();
+    if (isConnected) {
+        await loadEmergencies();
+        // Auto-refresh every 30 seconds
+        setInterval(loadEmergencies, 30000);
+    }
+}
 
 // ========================================
 // GEMINI AI CHATBOT - DIRECT API INTEGRATION
 // ========================================
+const GEMINI_API_KEY = 'AIzaSyCurEz2dJ_wFxNIaxK8tpOx6HLvPWF4wNE';
 let chatOpen = false;
 let chatHistory = [];
 const CHAT_KEY = 'ngo_chat_history';
@@ -374,6 +603,9 @@ async function sendMessage() {
 function sendChip(text) { document.getElementById('chatInput').value = text; sendMessage(); }
 function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
 function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+
+// Start the dashboard
+initDashboard();
 </script>
 </body>
 </html>

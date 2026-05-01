@@ -1,444 +1,516 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart NGO — My Profile</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #D82F2F; /* India Post red */
-            --secondary: #FFC107; /* Golden yellow */
-            --accent: #2196F3; /* Blue */
-            --light-bg: #F5F5F5;
-            --white: #FFFFFF;
-            --text: #333333;
-            --muted: #757575;
-            --border: #E0E0E0;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart NGO - Volunteer Profile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #ffe4e9; --surface: #fff5f7; --card: #ffffff; --card-2: #fff0f3;
+  --border: rgba(0,0,0,0.08); --border-lg: rgba(204,0,0,0.15);
+  --accent: #cc0000; --accent-2: #ff3300; --danger: #dc2626;
+  --success: #16a34a; --text: #1e1b4b; --muted: #7c6b8f;
+  --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+  --radius: 14px; --radius-lg: 20px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body); background: var(--bg); color: var(--text);
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 72px;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 8px; z-index: 100;
+}
+.sidebar-logo {
+  width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 12px; box-shadow: 0 0 20px rgba(204,0,0,0.25);
+}
+.nav-item {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 20px; color: var(--muted);
+  border: 1px solid transparent; transition: all 0.2s; position: relative;
+}
+.nav-item:hover, .nav-item.active { background: rgba(204,0,0,0.08); border-color: rgba(204,0,0,0.2); color: var(--accent); }
+.nav-item .tooltip {
+  position: absolute; left: 60px; background: var(--card-2); border: 1px solid var(--border);
+  color: var(--text); font-size: 12px; padding: 6px 10px; border-radius: 8px;
+  white-space: nowrap; opacity: 0; pointer-events: none; transform: translateX(-4px);
+  transition: all 0.2s;
+}
+.nav-item:hover .tooltip { opacity: 1; transform: translateX(0); }
+.sidebar-spacer { flex: 1; }
+.logout-btn {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 18px; color: var(--muted);
+  transition: all 0.2s;
+}
+.logout-btn:hover { background: rgba(220,38,38,0.1); color: var(--danger); }
+.main { margin-left: 72px; padding: 32px; min-height: 100vh; position: relative; z-index: 1; }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+.page-title { font-family: var(--font-head); font-size: 26px; font-weight: 700; color: var(--text); }
+.page-title span { color: var(--accent); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.status-pill {
+  display: flex; align-items: center; gap: 6px; background: rgba(22,163,74,0.1);
+  border: 1px solid rgba(22,163,74,0.2); color: var(--success); font-size: 12px;
+  padding: 6px 12px; border-radius: 99px;
+}
+.status-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse-dot 2s ease infinite; }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: white;
+}
+.profile-wrap { max-width: 900px; margin: 0 auto; }
+.profile-hero {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  padding: 32px; display: flex; align-items: center; gap: 24px; margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.profile-avatar {
+  width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex; align-items: center; justify-content: center; font-size: 48px; color: white;
+}
+.profile-info h2 { font-family: var(--font-head); font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.profile-info p { font-size: 14px; color: var(--muted); margin: 6px 0; }
+.profile-fields { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); overflow: hidden; }
+.pf-row {
+  display: flex; align-items: center; padding: 18px 24px;
+  border-bottom: 1px solid var(--border); gap: 16px;
+}
+.pf-row:last-child { border-bottom: none; }
+.pf-icon { font-size: 22px; width: 40px; text-align: center; }
+.pf-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 4px; }
+.pf-value { font-size: 15px; font-weight: 500; color: var(--text); }
+.edit-btn {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white; border: none; padding: 14px 28px; border-radius: 40px;
+  font-weight: 600; cursor: pointer; margin-top: 24px; width: 100%;
+  transition: transform 0.2s; font-size: 16px;
+}
+.edit-btn:hover { transform: translateY(-2px); }
 
-        body {
-            font-family: 'Poppins', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--light-bg);
-            color: var(--text);
-        }
+/* Modal Styles */
+.modal {
+  display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000;
+  align-items: center; justify-content: center;
+}
+.modal.show { display: flex; }
+.modal-content {
+  background: var(--card); border-radius: var(--radius-lg); padding: 32px;
+  max-width: 500px; width: 90%; border: 1px solid var(--border-lg);
+}
+.modal-content h3 { font-family: var(--font-head); margin-bottom: 24px; font-size: 24px; }
+.modal-content input, .modal-content textarea, .modal-content select {
+  width: 100%; padding: 12px 16px; margin: 8px 0; border: 1px solid var(--border);
+  border-radius: 12px; background: var(--card-2); font-size: 14px;
+  font-family: var(--font-body);
+}
+.modal-content textarea { min-height: 80px; resize: vertical; }
+.modal-buttons { display: flex; gap: 12px; margin-top: 24px; }
+.modal-buttons button { flex: 1; padding: 12px; border-radius: 12px; border: none; cursor: pointer; font-weight: 600; }
+.modal-save { background: var(--accent); color: white; }
+.modal-cancel { background: var(--card-2); color: var(--text); }
 
-        /* Enhanced Navbar */
-        nav {
-            background: var(--primary);
-            color: white;
-            padding: 0.8rem 2rem;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+/* Server Status */
+.server-status {
+  position: fixed; bottom: 20px; left: 100px; background: rgba(0,0,0,0.7);
+  padding: 6px 12px; border-radius: 20px; font-size: 11px; z-index: 1000;
+  display: flex; align-items: center; gap: 8px; color: white;
+}
+.status-led { width: 8px; height: 8px; border-radius: 50%; }
+.status-led.online { background: #22c55e; animation: pulse 2s infinite; }
+.status-led.offline { background: #ef4444; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
 
-        .logo {
-            font-size: 1.8rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-        }
+/* Toast */
+.toast {
+  position: fixed; bottom: 30px; right: 30px; background: var(--accent);
+  color: white; padding: 12px 24px; border-radius: 12px; z-index: 1100;
+  transform: translateX(400px); transition: 0.3s; font-size: 13px; font-weight: 500;
+}
+.toast.show { transform: translateX(0); }
 
-        .logo span {
-            color: var(--secondary);
-            margin-left: 0.3rem;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 2rem;
-            margin: 0;
-            padding: 0;
-        }
-
-        .nav-links li a {
-            color: white;
-            text-decoration: none;
-            font-weight: 500;
-            font-size: 1rem;
-            padding: 0.5rem 1rem;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .nav-links li a:hover, .nav-links li a.active {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .hamburger {
-            display: none;
-            cursor: pointer;
-            flex-direction: column;
-            gap: 0.3rem;
-        }
-
-        .hamburger span {
-            width: 25px;
-            height: 3px;
-            background: white;
-            border-radius: 3px;
-            transition: all 0.3s ease;
-        }
-
-        /* Profile Section */
-        .container {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 2rem;
-        }
-
-        .panel {
-            background: var(--white);
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .panel-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary);
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.8rem;
-            border-bottom: 2px solid var(--secondary);
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-
-        .profile-info {
-            display: flex;
-            gap: 3rem;
-            align-items: flex-start;
-        }
-
-        .profile-picture {
-            position: relative;
-            width: 150px;
-            height: 150px;
-            flex-shrink: 0;
-        }
-
-        .avatar {
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: var(--light-bg);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-            color: var(--primary);
-            border: 4px solid var(--secondary);
-            overflow: hidden;
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .avatar-edit {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            width: 36px;
-            height: 36px;
-            background: var(--accent);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            border: 2px solid var(--white);
-            transition: all 0.3s ease;
-        }
-
-        .avatar-edit:hover {
-            transform: scale(1.1);
-            background: #1976D2;
-        }
-
-        .details-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            flex-grow: 1;
-        }
-
-        .detail-item {
-            background: var(--light-bg);
-            border-radius: 8px;
-            padding: 1.2rem;
-            border-left: 4px solid var(--primary);
-        }
-
-        .detail-label {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--muted);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.5rem;
-        }
-
-        .detail-value {
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: var(--text);
-        }
-
-        .btn-edit {
-            margin-top: 2rem;
-            padding: 0.8rem 1.8rem;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-edit:hover {
-            background: #C62828;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(216, 47, 47, 0.3);
-        }
-
-        /* Responsive Design */
-        @media (max-width: 992px) {
-            .profile-info {
-                flex-direction: column;
-                align-items: center;
-            }
-            
-            .details-grid {
-                grid-template-columns: 1fr;
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-                position: absolute;
-                top: 70px;
-                left: 0;
-                right: 0;
-                background: var(--primary);
-                flex-direction: column;
-                gap: 0;
-                padding: 1rem 0;
-            }
-
-            .nav-links li a {
-                padding: 1rem 2rem;
-                border-radius: 0;
-                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            }
-
-            .nav-links.active {
-                display: flex;
-            }
-
-            .hamburger {
-                display: flex;
-            }
-
-            .container {
-                padding: 0 1rem;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .detail-item {
-            animation: fadeIn 0.4s ease forwards;
-            opacity: 0;
-        }
-
-        .detail-item:nth-child(1) { animation-delay: 0.1s; }
-        .detail-item:nth-child(2) { animation-delay: 0.2s; }
-        .detail-item:nth-child(3) { animation-delay: 0.3s; }
-        .detail-item:nth-child(4) { animation-delay: 0.4s; }
-        .detail-item:nth-child(5) { animation-delay: 0.5s; }
-        .detail-item:nth-child(6) { animation-delay: 0.6s; }
-    </style>
+@media (max-width: 768px) {
+  .sidebar { width: 60px; }
+  .main { margin-left: 60px; padding: 16px; }
+  .profile-hero { flex-direction: column; text-align: center; }
+  .server-status { left: 80px; font-size: 9px; }
+  .pf-row { padding: 12px 16px; }
+}
+</style>
 </head>
 <body>
-    <nav>
-        <div class="logo">⚡ Smart<span>NGO</span></div>
-        <ul class="nav-links" id="navLinks">
-            <li><a href="volunteer.html">📍 Dashboard</a></li>
-            <li><a href="volunteertasks.html">📋 My Tasks</a></li>
-            <li><a href="volunteermap.html">🗺️ Map</a></li>
-            <li><a href="volunteerprofile.html" class="active">👤 Profile</a></li>
-            <li><a href="#" onclick="logout()">🚪 Logout</a></li>
-        </ul>
-        <div class="hamburger" id="hamburger" onclick="toggleNav()">
-            <span></span><span></span><span></span>
-        </div>
-    </nav>
 
-    <div class="container">
-        <!-- Personal Info Panel -->
-        <div class="panel active" id="panel-info">
-            <div class="panel-title">👤 Personal Information</div>
-            <div class="profile-info">
-                <!-- Profile Picture -->
-                <div class="profile-picture">
-                    <div class="avatar" id="avatarDisplay">👤</div>
-                    <div class="avatar-edit" onclick="document.getElementById('avatarInput').click()">✏️</div>
-                    <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="handleAvatar(event)">
-                </div>
+<nav class="sidebar">
+  <div class="sidebar-logo">🚨</div>
+  <a href="volunteer.html" class="nav-item">🏠<span class="tooltip">Dashboard</span></a>
+  <a href="volunteertasks.html" class="nav-item">📋<span class="tooltip">My Tasks</span></a>
+  <a href="volunteermap.html" class="nav-item">🗺️<span class="tooltip">Map</span></a>
+  <a href="volunteerprofile.html" class="nav-item active">👤<span class="tooltip">Profile</span></a>
+  <div class="sidebar-spacer"></div>
+  <div class="logout-btn" onclick="logout()" title="Logout">🚪</div>
+</nav>
 
-                <!-- Personal Details -->
-                <div class="details-grid">
-                    <div class="detail-item">
-                        <span class="detail-label">Full Name</span>
-                        <span class="detail-value" id="fullNameDisplay">John Doe</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Email Address</span>
-                        <span class="detail-value" id="emailDisplay">john@example.com</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Phone Number</span>
-                        <span class="detail-value" id="phoneDisplay">+91 98765 43210</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Location</span>
-                        <span class="detail-value" id="locationDisplay">Bengaluru</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Role</span>
-                        <span class="detail-value" id="roleDisplay">Volunteer</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Availability</span>
-                        <span class="detail-value" id="availabilityDisplay">Full-time</span>
-                    </div>
-                </div>
-            </div>
-            <button class="btn-edit" onclick="enableEditing()">✏️ Edit Profile</button>
-        </div>
+<main class="main">
+  <div class="topbar">
+    <h1 class="page-title">My <span>Profile</span></h1>
+    <div class="topbar-right">
+      <div class="status-pill" id="statusPill"><div class="status-dot"></div> Checking...</div>
+      <div class="avatar" id="userAvatar">🧑</div>
     </div>
+  </div>
+  
+  <div class="profile-wrap">
+    <div class="profile-hero">
+      <div class="profile-avatar" id="profileAvatar">🧑</div>
+      <div class="profile-info">
+        <h2 id="p_name">Loading...</h2>
+        <p id="p_role">—</p>
+        <p id="p_email">—</p>
+        <p id="p_memberSince">—</p>
+      </div>
+    </div>
+    
+    <div class="profile-fields">
+      <div class="pf-row">
+        <span class="pf-icon">📧</span>
+        <div style="flex:1">
+          <div class="pf-label">Email Address</div>
+          <div class="pf-value" id="pf_email">—</div>
+        </div>
+      </div>
+      <div class="pf-row">
+        <span class="pf-icon">📞</span>
+        <div style="flex:1">
+          <div class="pf-label">Phone Number</div>
+          <div class="pf-value" id="p_phone">—</div>
+        </div>
+      </div>
+      <div class="pf-row">
+        <span class="pf-icon">📍</span>
+        <div style="flex:1">
+          <div class="pf-label">Location / City</div>
+          <div class="pf-value" id="p_location">—</div>
+        </div>
+      </div>
+      <div class="pf-row">
+        <span class="pf-icon">🎖️</span>
+        <div style="flex:1">
+          <div class="pf-label">Role</div>
+          <div class="pf-value" id="pf_role">—</div>
+        </div>
+      </div>
+      <div class="pf-row" id="skillsRow">
+        <span class="pf-icon">🛠️</span>
+        <div style="flex:1">
+          <div class="pf-label">Skills</div>
+          <div class="pf-value" id="p_skills">—</div>
+        </div>
+      </div>
+      <div class="pf-row" id="availabilityRow">
+        <span class="pf-icon">⏰</span>
+        <div style="flex:1">
+          <div class="pf-label">Availability</div>
+          <div class="pf-value" id="p_availability">—</div>
+        </div>
+      </div>
+      <div class="pf-row" id="tasksCompletedRow">
+        <span class="pf-icon">✅</span>
+        <div style="flex:1">
+          <div class="pf-label">Tasks Completed</div>
+          <div class="pf-value" id="p_tasks">0</div>
+        </div>
+      </div>
+    </div>
+    
+    <button class="edit-btn" onclick="openEditModal()">✏️ Edit Profile</button>
+  </div>
+</main>
+
+<!-- Edit Profile Modal -->
+<div class="modal" id="editModal">
+  <div class="modal-content">
+    <h3>Edit Profile</h3>
+    <input type="text" id="edit_name" placeholder="Full Name">
+    <input type="tel" id="edit_phone" placeholder="Phone Number">
+    <input type="text" id="edit_location" placeholder="Location">
+    <input type="text" id="edit_skills" placeholder="Skills (comma separated, e.g., First Aid, Rescue, Medical)">
+    <select id="edit_availability">
+      <option value="">Select Availability</option>
+      <option value="Full-time">Full-time</option>
+      <option value="Part-time">Part-time</option>
+      <option value="Weekends">Weekends Only</option>
+      <option value="On Call">On Call</option>
+    </select>
+    <div class="modal-buttons">
+      <button class="modal-cancel" onclick="closeEditModal()">Cancel</button>
+      <button class="modal-save" onclick="saveProfile()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Server Status -->
+<div class="server-status" id="serverStatus">
+  <div class="status-led" id="statusLed"></div>
+  <span id="statusText">Checking server...</span>
+</div>
+
+<div id="toast" class="toast"></div>
 
 <script>
-    async function loadProfile() {
-    try {
-        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
-        if (!token) {
-            showToast('⚠️ Please login first');
-            setTimeout(() => window.location.href = 'login.html', 1500);
-            return;
-        }
+// API Configuration
+const API_BASE = 'http://localhost:5000/api';
+let currentUser = null;
 
-        const response = await fetch('http://localhost:5000/api/profile', {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch profile');
-        }
-
-        const profileData = await response.json();
-        console.log('Profile data:', profileData); // Debug log
-
-        // Update Profile Details
-        document.getElementById('fullNameDisplay').textContent = profileData.fullName || 'User';
-        document.getElementById('emailDisplay').textContent = profileData.email || 'Not provided';
-        document.getElementById('phoneDisplay').textContent = profileData.phoneNumber || 'Not provided';
-        document.getElementById('cityDisplay').textContent = profileData.location || 'Not provided';
-
-        // Update NGO-specific fields if role is NGO
-        if (profileData.role === 'ngo') {
-            document.getElementById('ngoFields').style.display = 'block';
-            document.getElementById('ngoDescField').style.display = 'block';
-            document.getElementById('ngoRegField').style.display = 'block';
-            document.getElementById('organizationNameDisplay').textContent = profileData.organizationName || 'Not provided';
-            document.getElementById('ngoDescriptionDisplay').textContent = profileData.ngoDescription || 'Not provided';
-            document.getElementById('registrationNumberDisplay').textContent = profileData.registrationNumber || 'Not provided';
-        }
-
-        showToast('✅ Profile loaded successfully');
-
-    } catch (error) {
-        console.error('Error loading profile:', error);
-        showToast('❌ Failed to load profile');
-    }
+// Show toast notification
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.style.background = type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#cc0000';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
- function toggleNav() {
-            const navLinks = document.getElementById('navLinks');
-            navLinks.classList.toggle('active');
-            
-            const hamburger = document.getElementById('hamburger');
-            hamburger.classList.toggle('active');
-        }
+// Check server health
+async function checkServerHealth() {
+  const statusLed = document.getElementById('statusLed');
+  const statusText = document.getElementById('statusText');
+  const statusPill = document.getElementById('statusPill');
+  
+  try {
+    const response = await fetch(`${API_BASE}/health`);
+    if (response.ok) {
+      statusLed.className = 'status-led online';
+      statusText.innerHTML = '✅ Backend Connected';
+      statusPill.innerHTML = '<div class="status-dot"></div> ✅ Backend Online';
+      statusPill.style.background = 'rgba(22,163,74,0.1)';
+      statusPill.style.color = '#16a34a';
+      return true;
+    }
+  } catch (error) {
+    statusLed.className = 'status-led offline';
+    statusText.innerHTML = '⚠️ Backend Offline';
+    statusPill.innerHTML = '<div style="background:#ff4444; width:7px; height:7px; border-radius:50%;"></div> Backend Offline';
+    statusPill.style.background = 'rgba(220,38,38,0.1)';
+    statusPill.style.color = '#dc2626';
+    return false;
+  }
+  return false;
+}
 
-        function logout() {
-            localStorage.clear();
-            sessionStorage.clear();
-            window.location.href = 'login.html';
-        }
+// Load profile from backend
+async function loadProfile() {
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    showToast('Please login to view your profile', 'warning');
+    setDefaultProfile();
+    setTimeout(() => window.location.href = 'login.html', 2000);
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${API_BASE}/auth/profile`, {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      currentUser = data;
+      updateProfileUI(data);
+      showToast('Profile loaded successfully', 'success');
+    } else if (response.status === 401) {
+      localStorage.removeItem('token');
+      showToast('Session expired. Please login again.', 'warning');
+      setTimeout(() => window.location.href = 'login.html', 1500);
+    } else {
+      throw new Error('Failed to load profile');
+    }
+  } catch (error) {
+    console.error('Error loading profile:', error);
+    setDefaultProfile();
+    showToast('Could not load profile from server', 'error');
+  }
+}
 
-        function handleAvatar(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            const reader = new FileReader();
-            reader.onload = e => {
-                const avatar = document.getElementById('avatarDisplay');
-                avatar.innerHTML = `<img src="${e.target.result}" alt="Profile Picture">`;
-            };
-            reader.readAsDataURL(file);
-        }
+// Update UI with profile data
+function updateProfileUI(data) {
+  const fullName = data.fullName || 'Volunteer';
+  const role = data.role || 'volunteer';
+  const email = data.email || '—';
+  const phone = data.phoneNumber || '—';
+  const location = data.location || '—';
+  const skills = Array.isArray(data.skills) ? data.skills.join(', ') : (data.skills || '—');
+  const availability = data.availability || '—';
+  const memberSince = data.createdAt ? new Date(data.createdAt).toLocaleDateString() : '—';
+  
+  document.getElementById('p_name').innerText = fullName;
+  document.getElementById('p_role').innerText = role === 'ngo' ? 'NGO Coordinator' : 'Volunteer';
+  document.getElementById('p_email').innerText = email;
+  document.getElementById('p_memberSince').innerHTML = `📅 Member since ${memberSince}`;
+  document.getElementById('pf_email').innerText = email;
+  document.getElementById('p_phone').innerText = phone;
+  document.getElementById('p_location').innerText = location;
+  document.getElementById('pf_role').innerText = role === 'ngo' ? 'NGO' : 'Volunteer';
+  document.getElementById('p_skills').innerText = skills;
+  document.getElementById('p_availability').innerText = availability;
+  
+  // Load assigned tasks count from localStorage
+  const assignedTasks = JSON.parse(localStorage.getItem('assignedTasks') || '[]');
+  document.getElementById('p_tasks').innerText = assignedTasks.length;
+  
+  // Set avatar based on name
+  const initial = fullName.charAt(0).toUpperCase();
+  document.getElementById('profileAvatar').innerText = initial;
+  document.getElementById('userAvatar').innerText = initial;
+  
+  // Store in localStorage for offline reference
+  localStorage.setItem('userProfile', JSON.stringify(data));
+}
 
-        function enableEditing() {
-            // Redirect to edit page or show edit form
-            window.location.href = 'edit-profile.html';
-        }
+// Set default profile when offline
+function setDefaultProfile() {
+  const savedProfile = localStorage.getItem('userProfile');
+  if (savedProfile) {
+    try {
+      const data = JSON.parse(savedProfile);
+      updateProfileUI(data);
+      return;
+    } catch(e) {}
+  }
+  
+  document.getElementById('p_name').innerText = 'Guest User';
+  document.getElementById('p_role').innerText = 'Volunteer';
+  document.getElementById('p_email').innerText = 'Not logged in';
+  document.getElementById('p_memberSince').innerHTML = '';
+  document.getElementById('pf_email').innerText = '—';
+  document.getElementById('p_phone').innerText = '—';
+  document.getElementById('p_location').innerText = '—';
+  document.getElementById('pf_role').innerText = 'Volunteer';
+  document.getElementById('p_skills').innerText = '—';
+  document.getElementById('p_availability').innerText = '—';
+  document.getElementById('p_tasks').innerText = '0';
+  document.getElementById('profileAvatar').innerText = '👤';
+  document.getElementById('userAvatar').innerText = '👤';
+}
 
-        // Load profile data when page loads
-        document.addEventListener('DOMContentLoaded', () => {
-            // Add your profile loading logic here
-            console.log('Profile page loaded');
-        });
+// Open edit modal
+function openEditModal() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    showToast('Please login to edit profile', 'warning');
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  document.getElementById('edit_name').value = document.getElementById('p_name').innerText;
+  document.getElementById('edit_phone').value = document.getElementById('p_phone').innerText;
+  document.getElementById('edit_location').value = document.getElementById('p_location').innerText;
+  document.getElementById('edit_skills').value = document.getElementById('p_skills').innerText;
+  
+  const availability = document.getElementById('p_availability').innerText;
+  const select = document.getElementById('edit_availability');
+  for(let i = 0; i < select.options.length; i++) {
+    if(select.options[i].value === availability) {
+      select.selectedIndex = i;
+      break;
+    }
+  }
+  
+  document.getElementById('editModal').classList.add('show');
+}
 
-loadProfile();
+// Close edit modal
+function closeEditModal() {
+  document.getElementById('editModal').classList.remove('show');
+}
+
+// Save profile changes
+async function saveProfile() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    showToast('Please login to save changes', 'error');
+    return;
+  }
+  
+  const updatedData = {
+    fullName: document.getElementById('edit_name').value,
+    phoneNumber: document.getElementById('edit_phone').value,
+    location: document.getElementById('edit_location').value,
+    skills: document.getElementById('edit_skills').value,
+    availability: document.getElementById('edit_availability').value
+  };
+  
+  try {
+    const response = await fetch(`${API_BASE}/auth/profile`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(updatedData)
+    });
+    
+    if (response.ok) {
+      const data = await response.json();
+      updateProfileUI(data);
+      closeEditModal();
+      showToast('Profile updated successfully!', 'success');
+    } else {
+      throw new Error('Update failed');
+    }
+  } catch (error) {
+    console.error('Error updating profile:', error);
+    showToast('Failed to update profile', 'error');
+  }
+}
+
+// Logout function
+function logout() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('userId');
+  localStorage.removeItem('userProfile');
+  localStorage.removeItem('assignedTasks');
+  showToast('Logged out successfully', 'success');
+  setTimeout(() => window.location.href = 'login.html', 500);
+}
+
+// Set user avatar from stored data
+function setUserAvatar() {
+  const savedProfile = localStorage.getItem('userProfile');
+  if (savedProfile) {
+    try {
+      const data = JSON.parse(savedProfile);
+      const initial = (data.fullName || 'V').charAt(0);
+      document.getElementById('userAvatar').innerText = initial;
+    } catch(e) {}
+  }
+}
+
+// Initialize page
+async function init() {
+  await checkServerHealth();
+  await loadProfile();
+  setUserAvatar();
+}
+
+// Start the app
+init();
 </script>
 </body>
 </html>
-
-

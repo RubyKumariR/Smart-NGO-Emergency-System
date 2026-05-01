@@ -2,634 +2,757 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Volunteer Task Portal - Smart NGO</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<title>Smart NGO - Volunteer Tasks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-
-/* INDIA POST STYLE */
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f5f5f5;
-}
-
-/* HEADER */
-.header {
-    background: #8B0000;
-    color: white;
-    padding: 15px;
-    text-align: center;
-    font-size: 22px;
-    font-weight: bold;
-}
-
-/* NAV BAR */
-.navbar {
-    background: #c62828;
-    display: flex;
-    justify-content: space-around;
-    padding: 10px;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.navbar button {
-    background: #ffcc00;
-    border: none;
-    padding: 10px 20px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: transform 0.2s;
-    border-radius: 5px;
-}
-
-.navbar button:hover {
-    transform: scale(1.05);
-}
-
-.container {
-    padding: 20px;
-}
-
-/* CARD */
-.card {
-    background: white;
-    padding: 15px;
-    margin-bottom: 15px;
-    border-left: 5px solid #c62828;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    transition: transform 0.2s;
-    border-radius: 8px;
-}
-
-.card:hover {
-    transform: translateX(5px);
-}
-
-.task-meta {
-    display: flex;
-    gap: 15px;
-    margin: 10px 0;
-    flex-wrap: wrap;
-}
-
-.badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-/* BUTTON */
-.btn {
-    background: #c62828;
-    color: white;
-    border: none;
-    padding: 8px 15px;
-    cursor: pointer;
-    margin-top: 10px;
-    margin-right: 10px;
-    border-radius: 5px;
-    transition: background 0.2s;
-}
-
-.btn:hover {
-    background: #8b0000;
-}
-
-.btn:disabled {
-    background: #ccc;
-    cursor: not-allowed;
-}
-
-/* LEADERBOARD */
-.leaderboard {
-    background: white;
-    padding: 15px;
-    margin-top: 20px;
-    border-top: 5px solid green;
-    border-radius: 10px;
-}
-
-.leaderboard ul {
-    list-style: none;
-    padding: 0;
-}
-
-.leaderboard li {
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-    font-weight: bold;
-}
-
-.match-badge {
-    display: inline-block;
-    background: #4caf50;
-    color: white;
-    padding: 3px 8px;
-    border-radius: 12px;
-    font-size: 12px;
-    margin-left: 10px;
-}
-
-.priority-High {
-    border-left-color: #f44336;
-}
-
-.priority-Medium {
-    border-left-color: #ff9800;
-}
-
-.priority-Low {
-    border-left-color: #4caf50;
-}
-
-.status-badge {
-    display: inline-block;
-    padding: 3px 10px;
-    border-radius: 15px;
-    font-size: 12px;
-    font-weight: bold;
-}
-
-.status-open { background: #e3f2fd; color: #1976d2; }
-.status-accepted { background: #fff3e0; color: #f57c00; }
-.status-in-progress { background: #e8f5e9; color: #388e3c; }
-.status-completed { background: #e0e0e0; color: #616161; }
-
-.loading {
-    text-align: center;
-    padding: 40px;
-    font-size: 18px;
-    color: #666;
-}
-
-.error {
-    background: #ffebee;
-    color: #c62828;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 10px 0;
-}
-
-/* =========================
-   POST OFFICE STYLE NAVBAR
-========================= */
-
 :root {
-    --post-red: #b71c1c;
-    --post-dark-red: #8b0000;
-    --post-yellow: #ffcc00;
-    --post-light-yellow: #ffe082;
-    --white: #ffffff;
+  --bg: #ffe4e9; --surface: #fff5f7; --card: #ffffff; --card-2: #fff0f3;
+  --border: rgba(0,0,0,0.08); --border-lg: rgba(204,0,0,0.15);
+  --accent: #cc0000; --accent-2: #ff3300; --danger: #dc2626;
+  --success: #16a34a; --text: #1e1b4b; --muted: #7c6b8f;
+  --font-head: 'Syne', sans-serif; --font-body: 'DM Sans', sans-serif;
+  --radius: 14px; --radius-lg: 20px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font-body); background: var(--bg); color: var(--text);
+  min-height: 100vh; overflow-x: hidden;
+}
+body::before {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0; width: 72px;
+  background: var(--surface); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center; padding: 20px 0; gap: 8px; z-index: 100;
+}
+.sidebar-logo {
+  width: 42px; height: 42px; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  border-radius: 12px; display: flex; align-items: center; justify-content: center;
+  font-size: 20px; margin-bottom: 12px; box-shadow: 0 0 20px rgba(204,0,0,0.25);
+}
+.nav-item {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 20px; color: var(--muted);
+  border: 1px solid transparent; transition: all 0.2s; position: relative;
+}
+.nav-item:hover, .nav-item.active { background: rgba(204,0,0,0.08); border-color: rgba(204,0,0,0.2); color: var(--accent); }
+.nav-item .tooltip {
+  position: absolute; left: 60px; background: var(--card-2); border: 1px solid var(--border);
+  color: var(--text); font-size: 12px; padding: 6px 10px; border-radius: 8px;
+  white-space: nowrap; opacity: 0; pointer-events: none; transform: translateX(-4px);
+  transition: all 0.2s;
+}
+.nav-item:hover .tooltip { opacity: 1; transform: translateX(0); }
+.sidebar-spacer { flex: 1; }
+.logout-btn {
+  width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center;
+  justify-content: center; cursor: pointer; font-size: 18px; color: var(--muted);
+  transition: all 0.2s;
+}
+.logout-btn:hover { background: rgba(220,38,38,0.1); color: var(--danger); }
+.main { margin-left: 72px; padding: 32px; min-height: 100vh; position: relative; z-index: 1; }
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 32px; }
+.page-title { font-family: var(--font-head); font-size: 26px; font-weight: 700; color: var(--text); }
+.page-title span { color: var(--accent); }
+.topbar-right { display: flex; align-items: center; gap: 12px; }
+.status-pill {
+  display: flex; align-items: center; gap: 6px; background: rgba(22,163,74,0.1);
+  border: 1px solid rgba(22,163,74,0.2); color: var(--success); font-size: 12px;
+  padding: 6px 12px; border-radius: 99px;
+}
+.status-dot { width: 7px; height: 7px; background: var(--success); border-radius: 50%; animation: pulse-dot 2s ease infinite; }
+@keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+.avatar {
+  width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: white;
 }
 
-/* NAVBAR CONTAINER */
-nav {
-    background: linear-gradient(90deg, var(--post-dark-red), var(--post-red));
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 20px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    border-bottom: 3px solid var(--post-yellow);
+/* Stats Bar */
+.stats-bar {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding: 20px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.stat-card {
+  flex: 1;
+  text-align: center;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
 }
 
-/* LOGO */
-.logo {
-    color: var(--white);
-    font-size: 20px;
-    font-weight: 800;
-    letter-spacing: 1px;
+/* Filter Buttons */
+.filter-buttons {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.filter-btn {
+  padding: 10px 24px;
+  border-radius: 40px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.filter-btn:hover {
+  background: rgba(204,0,0,0.08);
+  border-color: var(--accent);
+}
+.filter-btn.active {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
 }
 
-.logo span {
-    color: var(--post-yellow);
+/* Tasks Grid */
+.tasks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 20px;
+}
+.task-card {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  border: 1px solid var(--border);
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.task-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+.task-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.task-type {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.task-type.high { background: rgba(239,68,68,0.15); color: #dc2626; }
+.task-type.medium { background: rgba(245,158,11,0.15); color: #d97706; }
+.task-type.low { background: rgba(34,197,94,0.15); color: #16a34a; }
+.task-status {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+.task-status.open { background: rgba(59,130,246,0.15); color: #3b82f6; }
+.task-status.accepted { background: rgba(245,158,11,0.15); color: #f59e0b; }
+.task-status.completed { background: rgba(34,197,94,0.15); color: #16a34a; }
+.task-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.task-desc {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+.task-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.task-skills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+.skill-tag {
+  background: var(--card-2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  color: var(--text);
+}
+.match-badge {
+  display: inline-block;
+  background: #4caf50;
+  color: white;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  margin-left: 10px;
+}
+.task-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+.btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(204,0,0,0.3);
+}
+.btn-secondary {
+  background: var(--card-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.btn-secondary:hover {
+  background: rgba(204,0,0,0.08);
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
-/* NAV LINKS */
-.nav-links {
-    list-style: none;
-    display: flex;
-    gap: 18px;
-    margin: 0;
-    padding: 0;
+/* Leaderboard */
+.leaderboard-card {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-top: 24px;
+  border: 1px solid var(--border);
+}
+.leaderboard-card h3 {
+  font-family: var(--font-head);
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: var(--accent);
+}
+.leaderboard-list {
+  list-style: none;
+  padding: 0;
+}
+.leaderboard-list li {
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.leaderboard-rank {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--accent);
+  width: 40px;
+}
+.leaderboard-name {
+  flex: 1;
+  font-weight: 500;
+}
+.leaderboard-score {
+  font-size: 12px;
+  color: var(--muted);
 }
 
-.nav-links li a {
-    text-decoration: none;
-    color: var(--white);
-    font-weight: 600;
-    font-size: 14px;
-    padding: 8px 14px;
-    border-radius: 8px;
-    transition: all 0.25s ease;
-    border: 1px solid transparent;
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 60px;
+  color: var(--muted);
+}
+.empty-state .icon {
+  font-size: 48px;
+  margin-bottom: 16px;
 }
 
-/* HOVER EFFECT */
-.nav-links li a:hover {
-    background: var(--post-yellow);
-    color: #000;
-    border: 1px solid var(--post-yellow);
-    transform: translateY(-2px);
+/* Toast */
+.toast {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background: var(--accent);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  z-index: 1100;
+  transform: translateX(400px);
+  transition: 0.3s;
+  font-size: 13px;
+}
+.toast.show { transform: translateX(0); }
+
+/* Server Status */
+.server-status {
+  position: fixed;
+  bottom: 20px;
+  left: 100px;
+  background: rgba(0,0,0,0.7);
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: white;
+}
+.status-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.status-led.online { background: #22c55e; animation: pulse 2s infinite; }
+.status-led.offline { background: #ef4444; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 60px;
+  color: var(--muted);
 }
 
-/* ACTIVE LINK */
-.nav-links li a.active {
-    background: var(--post-yellow);
-    color: #000;
-    font-weight: 700;
-}
-
-/* HAMBURGER */
-.hamburger {
-    display: none;
-    flex-direction: column;
-    gap: 4px;
-    cursor: pointer;
-}
-
-.hamburger span {
-    width: 25px;
-    height: 3px;
-    background: var(--post-yellow);
-    border-radius: 2px;
-}
-
-/* MOBILE VIEW */
 @media (max-width: 768px) {
-    .nav-links {
-        display: none;
-        position: absolute;
-        top: 60px;
-        left: 0;
-        right: 0;
-        background: var(--post-dark-red);
-        flex-direction: column;
-        padding: 10px 0;
-        border-top: 2px solid var(--post-yellow);
-        z-index: 1000;
-    }
-
-    .nav-links li a {
-        padding: 12px 20px;
-        border-radius: 0;
-    }
-
-    .nav-links.active {
-        display: flex;
-    }
-
-    .hamburger {
-        display: flex;
-    }
-    
-    .navbar button {
-        flex: 1;
-        min-width: 120px;
-    }
+  .sidebar { width: 60px; }
+  .main { margin-left: 60px; padding: 16px; }
+  .stats-bar { flex-wrap: wrap; }
+  .tasks-grid { grid-template-columns: 1fr; }
+  .server-status { left: 80px; font-size: 9px; }
 }
 </style>
 </head>
-
 <body>
-<nav>
-    <div class="logo">⚡ Smart<span>NGO</span></div>
-    <ul class="nav-links" id="navLinks">
-        <li><a href="volunteer.html">📍 Dashboard</a></li>
-        <li><a href="volunteertasks.html" class="active">📋 My Tasks</a></li>
-        <li><a href="volunteermap.html">🗺️ Map</a></li>
-        <li><a href="volunteerprofile.html">👤 Profile</a></li>
-        <li><a href="#" onclick="logout()">🚪 Logout</a></li>
-    </ul>
-    <div class="hamburger" id="hamburger" onclick="toggleNav()">
-        <span></span><span></span><span></span>
-    </div>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">🚨</div>
+  <a href="volunteer.html" class="nav-item">🏠<span class="tooltip">Dashboard</span></a>
+  <a href="volunteertasks.html" class="nav-item active">📋<span class="tooltip">My Tasks</span></a>
+  <a href="volunteermap.html" class="nav-item">🗺️<span class="tooltip">Map</span></a>
+  <a href="volunteerprofile.html" class="nav-item">👤<span class="tooltip">Profile</span></a>
+  <div class="sidebar-spacer"></div>
+  <div class="logout-btn" onclick="logout()" title="Logout">🚪</div>
 </nav>
 
-<div class="header">
-     SMART NGO TASK SYSTEM 
-</div>
-
-<div class="navbar">
-    <button onclick="showMyTasks()">📋 My Assigned Tasks</button>
-    <button onclick="showAvailableTasks()">🎯 Available Tasks</button>
-    <button onclick="showLeaderboard()">🏆 Leaderboard</button>
-</div>
-
-<div class="container">
-    <div id="message" style="display:none;" class="error"></div>
-    <div id="tasks"></div>
-    <div id="leaderboard" class="leaderboard" style="display:none">
-        <h3>🏆 Top Volunteers</h3>
-        <ul id="leaderboardList"></ul>
+<main class="main">
+  <div class="topbar">
+    <h1 class="page-title">My <span>Tasks</span></h1>
+    <div class="topbar-right">
+      <div class="status-pill" id="statusPill"><div class="status-dot"></div> Checking...</div>
+      <div class="avatar" id="userAvatar">🧑</div>
     </div>
+  </div>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-value" id="assignedCount">0</div><div class="stat-label">Assigned Tasks</div></div>
+    <div class="stat-card"><div class="stat-value" id="completedCount">0</div><div class="stat-label">Completed</div></div>
+    <div class="stat-card"><div class="stat-value" id="inProgressCount">0</div><div class="stat-label">In Progress</div></div>
+    <div class="stat-card"><div class="stat-value" id="availableCount">0</div><div class="stat-label">Available Tasks</div></div>
+  </div>
+
+  <!-- Filter Buttons -->
+  <div class="filter-buttons">
+    <button class="filter-btn active" onclick="showMyTasks()">📋 My Assigned Tasks</button>
+    <button class="filter-btn" onclick="showAvailableTasks()">🎯 Available Tasks</button>
+    <button class="filter-btn" onclick="showLeaderboard()">🏆 Leaderboard</button>
+  </div>
+
+  <!-- Tasks Container -->
+  <div id="tasksContainer" class="tasks-grid">
+    <div class="loading">📡 Loading tasks...</div>
+  </div>
+
+  <!-- Leaderboard Container -->
+  <div id="leaderboardContainer" style="display: none;"></div>
+</main>
+
+<!-- Server Status -->
+<div class="server-status" id="serverStatus">
+  <div class="status-led" id="statusLed"></div>
+  <span id="statusText">Checking server...</span>
 </div>
+
+<div id="toast" class="toast"></div>
 
 <script>
 // API Configuration
-const API_URL = 'http://localhost:5000/api';
+const API_BASE = 'http://localhost:5000/api';
 let token = localStorage.getItem('token');
-let currentUser = JSON.parse(localStorage.getItem('user') || '{}');
 let currentView = 'my-tasks';
 
-// Check authentication and log user info
+// Check authentication
 if (!token) {
-    alert('Please login first');
-    window.location.href = 'login.html';
-} else {
-    console.log('✅ User logged in:', currentUser.fullName || currentUser.email);
-    console.log('👤 Role:', currentUser.role);
-    console.log('🔧 Skills:', currentUser.skills);
+  showToast('Please login first', 'error');
+  setTimeout(() => window.location.href = 'login.html', 1500);
 }
 
-// Show loading state
-function showLoading() {
-    document.getElementById('tasks').innerHTML = '<div class="loading">⏳ Loading tasks...</div>';
+// Show toast notification
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.style.background = type === 'success' ? '#16a34a' : type === 'error' ? '#dc2626' : '#cc0000';
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Show error message
-function showMessage(msg, isError = true) {
-    const msgDiv = document.getElementById('message');
-    msgDiv.textContent = msg;
-    msgDiv.style.display = 'block';
-    msgDiv.style.backgroundColor = isError ? '#ffebee' : '#e8f5e9';
-    msgDiv.style.color = isError ? '#c62828' : '#2e7d32';
-    setTimeout(() => {
-        msgDiv.style.display = 'none';
-    }, 5000);
+// Check server health
+async function checkServerHealth() {
+  const statusLed = document.getElementById('statusLed');
+  const statusText = document.getElementById('statusText');
+  const statusPill = document.getElementById('statusPill');
+  
+  try {
+    const response = await fetch(`${API_BASE}/health`);
+    if (response.ok) {
+      statusLed.className = 'status-led online';
+      statusText.innerHTML = '✅ Connected';
+      statusPill.innerHTML = '<div class="status-dot"></div> ✅ Online';
+      return true;
+    }
+  } catch (error) {
+    statusLed.className = 'status-led offline';
+    statusText.innerHTML = '⚠️ Offline';
+    statusPill.innerHTML = '<div style="background:#ff4444; width:7px; height:7px; border-radius:50%;"></div> Offline';
+    return false;
+  }
+  return false;
 }
 
 // Show My Assigned Tasks
 async function showMyTasks() {
-    currentView = 'my-tasks';
-    showLoading();
-    document.getElementById('leaderboard').style.display = 'none';
+  currentView = 'my-tasks';
+  document.getElementById('leaderboardContainer').style.display = 'none';
+  document.getElementById('tasksContainer').style.display = 'grid';
+  
+  updateActiveFilter('my-tasks');
+  showLoading();
+  
+  try {
+    const response = await fetch(`${API_BASE}/tasks/my-tasks`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     
-    try {
-        const response = await fetch(`${API_URL}/tasks/my-tasks`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.status === 401) {
-            localStorage.removeItem('token');
-            alert('Session expired. Please login again.');
-            window.location.href = 'login.html';
-            return;
-        }
-        
-        if (!response.ok) throw new Error('Failed to fetch tasks');
-        
-        const tasks = await response.json();
-        renderMyTasks(tasks);
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('tasks').innerHTML = '<div class="error">❌ Error loading tasks. Please try again.</div>';
+    if (response.status === 401) {
+      localStorage.clear();
+      showToast('Session expired. Please login again.', 'error');
+      setTimeout(() => window.location.href = 'login.html', 1500);
+      return;
     }
+    
+    if (!response.ok) throw new Error('Failed to fetch tasks');
+    
+    const tasks = await response.json();
+    renderMyTasks(tasks);
+    updateStats(tasks);
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById('tasksContainer').innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Error loading tasks. Please try again.</p></div>';
+    showToast('Failed to load tasks', 'error');
+  }
 }
 
 // Show Available Tasks
 async function showAvailableTasks() {
-    currentView = 'available';
-    showLoading();
-    document.getElementById('leaderboard').style.display = 'none';
+  currentView = 'available';
+  document.getElementById('leaderboardContainer').style.display = 'none';
+  document.getElementById('tasksContainer').style.display = 'grid';
+  
+  updateActiveFilter('available');
+  showLoading();
+  
+  try {
+    const response = await fetch(`${API_BASE}/tasks/open-tasks`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
     
-    try {
-        const response = await fetch(`${API_URL}/tasks/open-tasks`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.status === 401) {
-            localStorage.removeItem('token');
-            alert('Session expired. Please login again.');
-            window.location.href = 'login.html';
-            return;
-        }
-        
-        if (!response.ok) throw new Error('Failed to fetch tasks');
-        
-        const tasks = await response.json();
-        console.log('Available tasks with match %:', tasks);
-        renderAvailableTasks(tasks);
-    } catch (error) {
-        console.error('Error:', error);
-        document.getElementById('tasks').innerHTML = '<div class="error">❌ Error loading available tasks.</div>';
-    }
+    if (!response.ok) throw new Error('Failed to fetch tasks');
+    
+    const tasks = await response.json();
+    renderAvailableTasks(tasks);
+    
+    document.getElementById('availableCount').textContent = tasks.length;
+  } catch (error) {
+    console.error('Error:', error);
+    document.getElementById('tasksContainer').innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Error loading available tasks.</p></div>';
+  }
 }
 
 // Render My Assigned Tasks
 function renderMyTasks(tasks) {
-    const container = document.getElementById('tasks');
-    
-    if (!tasks || tasks.length === 0) {
-        container.innerHTML = '<div class="loading">📭 No tasks assigned to you yet.<br>🔍 Check "Available Tasks" to find opportunities!</div>';
-        return;
-    }
-    
-    let html = '<h3>📋 My Assigned Tasks</h3>';
-    
-    tasks.forEach(task => {
-        const priorityClass = `priority-${task.urgency_level}`;
-        const statusClass = `status-${task.status}`;
-        
-        html += `
-            <div class="card ${priorityClass}">
-                <h4>${escapeHtml(task.text)}</h4>
-                <div class="task-meta">
-                    <span class="badge ${statusClass}">${task.status}</span>
-                    <span>🔥 ${task.urgency_level} Priority</span>
-                    <span>👥 ${task.people_affected || 0} affected</span>
-                </div>
-                <p><strong>Type:</strong> ${task.type || 'General'}</p>
-                <p><strong>Skills Required:</strong> ${task.skills_required?.join(', ') || 'None'}</p>
-                ${task.summary ? `<p><strong>Summary:</strong> ${task.summary}</p>` : ''}
-                <div class="task-actions">
-                    ${task.status === 'accepted' ? `<button class="btn" onclick="updateTaskStatus('${task._id}', 'in-progress')">▶️ Start Working</button>` : ''}
-                    ${task.status === 'in-progress' ? `<button class="btn" onclick="updateTaskStatus('${task._id}', 'completed')">✅ Mark Complete</button>` : ''}
-                    ${task.status === 'completed' ? `<span style="color: green; margin-left: 10px;">✓ Task Completed! Great job! 🎉</span>` : ''}
-                </div>
-            </div>
-        `;
-    });
-    
-    container.innerHTML = html;
+  const container = document.getElementById('tasksContainer');
+  
+  if (!tasks || tasks.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No tasks assigned to you yet.<br>Check "Available Tasks" to find opportunities!</p></div>';
+    return;
+  }
+  
+  container.innerHTML = tasks.map(task => `
+    <div class="task-card">
+      <div class="task-header">
+        <span class="task-type ${(task.urgency_level || 'medium').toLowerCase()}">${task.type || 'Emergency'}</span>
+        <span class="task-status ${task.status}">${task.status || 'open'}</span>
+      </div>
+      <div class="task-title">${escapeHtml(task.text || task.summary || 'Emergency Task')}</div>
+      <div class="task-desc">${escapeHtml((task.summary || task.text || '').substring(0, 120))}${(task.summary || task.text || '').length > 120 ? '...' : ''}</div>
+      <div class="task-meta">
+        <span>🔥 ${task.urgency_level || 'Medium'} Priority</span>
+        <span>👥 ${(task.people_affected || 0).toLocaleString()} affected</span>
+        <span>📊 Score: ${task.priority_score || 0}/100</span>
+      </div>
+      ${task.skills_required && task.skills_required.length > 0 ? `
+        <div class="task-skills">
+          ${task.skills_required.slice(0, 4).map(skill => `<span class="skill-tag">${escapeHtml(skill)}</span>`).join('')}
+        </div>
+      ` : ''}
+      <div class="task-actions">
+        ${task.status === 'accepted' ? `<button class="btn btn-primary" onclick="updateTaskStatus('${task._id}', 'in-progress')">▶️ Start Working</button>` : ''}
+        ${task.status === 'in-progress' ? `<button class="btn btn-primary" onclick="updateTaskStatus('${task._id}', 'completed')">✅ Mark Complete</button>` : ''}
+        ${task.status === 'completed' ? `<span style="color: #16a34a; font-size: 13px;">✓ Task Completed! Great job! 🎉</span>` : ''}
+      </div>
+    </div>
+  `).join('');
 }
 
 // Render Available Tasks
 function renderAvailableTasks(tasks) {
-    const container = document.getElementById('tasks');
+  const container = document.getElementById('tasksContainer');
+  
+  if (!tasks || tasks.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">🎯</div><p>No available tasks at the moment.<br>Check back later for new opportunities!</p></div>';
+    return;
+  }
+  
+  container.innerHTML = tasks.map(task => {
+    const matchPercent = task.matchPercentage || 0;
+    let matchClass = '';
+    let matchText = '';
+    if (matchPercent >= 70) { matchClass = 'match-badge'; matchText = '🎉 Excellent Match!'; }
+    else if (matchPercent >= 50) { matchClass = 'match-badge'; matchText = '👍 Good Match'; }
+    else if (matchPercent > 0) { matchClass = 'match-badge'; matchText = '⚠️ Partial Match'; }
     
-    if (!tasks || tasks.length === 0) {
-        container.innerHTML = '<div class="loading">🎯 No available tasks at the moment.<br>💡 Check back later for new opportunities!</div>';
-        return;
-    }
-    
-    let html = '<h3>🎯 Available Tasks (Based on Your Skills)</h3>';
-    
-    tasks.forEach(task => {
-        const priorityClass = `priority-${task.urgency_level}`;
-        const matchPercent = task.matchPercentage || 0;
-        
-        let matchMessage = '';
-        if (matchPercent >= 70) matchMessage = '🎉 Excellent match for your skills!';
-        else if (matchPercent >= 50) matchMessage = '👍 Good match for your skills!';
-        else if (matchPercent > 0) matchMessage = '⚠️ Partial skill match - you can still help!';
-        
-        html += `
-            <div class="card ${priorityClass}">
-                <h4>${escapeHtml(task.text)}</h4>
-                ${matchPercent > 0 ? `<span class="match-badge">🎯 ${matchPercent}% Match</span>` : '<span class="match-badge" style="background: #ff9800;">⭐ New Opportunity</span>'}
-                ${matchMessage ? `<p style="color: #666; font-size: 12px; margin-top: 5px;">${matchMessage}</p>` : ''}
-                <div class="task-meta">
-                    <span>🔥 ${task.urgency_level} Priority</span>
-                    <span>👥 ${task.people_affected || 0} affected</span>
-                </div>
-                <p><strong>Type:</strong> ${task.type || 'General'}</p>
-                <p><strong>Skills Required:</strong> ${task.skills_required?.join(', ') || 'None'}</p>
-                ${task.matchedSkills && task.matchedSkills.length > 0 ? `<p><strong>✅ Your Matching Skills:</strong> ${task.matchedSkills.join(', ')}</p>` : ''}
-                ${task.summary ? `<p><strong>Summary:</strong> ${task.summary}</p>` : ''}
-                <button class="btn" onclick="acceptTask('${task._id}')">✅ Accept Task</button>
-            </div>
-        `;
+    return `
+      <div class="task-card">
+        <div class="task-header">
+          <span class="task-type ${(task.urgency_level || 'medium').toLowerCase()}">${task.type || 'Emergency'}</span>
+          ${matchPercent > 0 ? `<span class="${matchClass}">🎯 ${matchPercent}% Match</span>` : ''}
+        </div>
+        <div class="task-title">${escapeHtml(task.text || task.summary || 'Emergency Task')}</div>
+        ${matchText ? `<div style="font-size: 12px; color: #666; margin-bottom: 8px;">${matchText}</div>` : ''}
+        <div class="task-desc">${escapeHtml((task.summary || task.text || '').substring(0, 120))}${(task.summary || task.text || '').length > 120 ? '...' : ''}</div>
+        <div class="task-meta">
+          <span>🔥 ${task.urgency_level || 'Medium'} Priority</span>
+          <span>👥 ${(task.people_affected || 0).toLocaleString()} affected</span>
+        </div>
+        ${task.skills_required && task.skills_required.length > 0 ? `
+          <div class="task-skills">
+            ${task.skills_required.slice(0, 4).map(skill => `<span class="skill-tag">${escapeHtml(skill)}</span>`).join('')}
+          </div>
+        ` : ''}
+        ${task.matchedSkills && task.matchedSkills.length > 0 ? `
+          <div class="task-skills">
+            <span style="font-size: 11px; color: #16a34a;">✅ Your matching skills: ${task.matchedSkills.join(', ')}</span>
+          </div>
+        ` : ''}
+        <div class="task-actions">
+          <button class="btn btn-primary" onclick="acceptTask('${task._id}')">✅ Accept Task</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Accept Task
+async function acceptTask(taskId) {
+  if (!confirm('Are you sure you want to accept this task?')) return;
+  
+  try {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/accept`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
     });
     
-    container.innerHTML = html;
+    if (response.ok) {
+      showToast('✅ Task accepted successfully!', 'success');
+      showMyTasks();
+    } else {
+      const error = await response.json();
+      showToast('❌ Failed to accept task: ' + (error.error || 'Unknown error'), 'error');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('❌ Error accepting task', 'error');
+  }
 }
 
-// ==================== FIXED ACCEPT TASK FUNCTION ====================
-// Accept a task - Using the dedicated POST endpoint
-async function acceptTask(taskId) {
-    if (!confirm('Are you sure you want to accept this task? You will receive email and SMS confirmation.')) {
-        return;
-    }
-    
-    try {
-        const response = await fetch(`${API_URL}/tasks/${taskId}/accept`, {  // CHANGED: /accept instead of /status
-            method: 'POST',  // CHANGED: POST instead of PUT
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-            // No body needed
-        });
-        
-        if (response.ok) {
-            showMessage('✅ Task accepted! Check your email and SMS for details.', false);
-            showMyTasks();
-        } else {
-            const error = await response.json();
-            showMessage('❌ Failed to accept task: ' + (error.error || 'Unknown error'));
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showMessage('❌ Error accepting task');
-    }
-}
-
-// Update task status
+// Update Task Status
 async function updateTaskStatus(taskId, status) {
-    let message = '';
-    if (status === 'in-progress') message = 'Start working on this task?';
-    if (status === 'completed') message = 'Mark this task as completed?';
+  let message = status === 'in-progress' ? 'Start working on this task?' : 'Mark this task as completed?';
+  if (!confirm(message)) return;
+  
+  try {
+    const response = await fetch(`${API_BASE}/tasks/${taskId}/status`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ status })
+    });
     
-    if (!confirm(message)) return;
-    
-    try {
-        const response = await fetch(`${API_URL}/tasks/${taskId}/accept`, {
-            method: 'POST',  // Using POST for status updates as well 
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ status })
-        });
-        
-        if (response.ok) {
-            showMessage(`✅ Task status updated to ${status}!`, false);
-            showMyTasks(); // Refresh
-        } else {
-            const error = await response.json();
-            showMessage('❌ Failed to update status: ' + (error.error || 'Unknown error'));
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        showMessage('❌ Error updating status');
+    if (response.ok) {
+      showToast(`✅ Task status updated to ${status}!`, 'success');
+      showMyTasks();
+    } else {
+      const error = await response.json();
+      showToast('❌ Failed to update status', 'error');
     }
+  } catch (error) {
+    console.error('Error:', error);
+    showToast('❌ Error updating status', 'error');
+  }
 }
 
 // Show Leaderboard
 async function showLeaderboard() {
-    document.getElementById('tasks').innerHTML = '';
-    document.getElementById('leaderboard').style.display = 'block';
-    
-    const leaderboardList = document.getElementById('leaderboardList');
-    leaderboardList.innerHTML = '<li>🏆 Loading leaderboard...</li>';
-    
-    try {
-        const response = await fetch(`${API_URL}/volunteers`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
-        if (response.ok) {
-            const volunteers = await response.json();
-            leaderboardList.innerHTML = '';
-            
-            volunteers.forEach((vol, index) => {
-                leaderboardList.innerHTML += `
-                    <li>
-                        ${index + 1}. 🏅 ${vol.fullName} - ${vol.skills?.length || 0} skills
-                        <br><small style="color: #666;">📍 ${vol.location || 'Location not set'}</small>
-                    </li>
-                `;
-            });
-        } else {
-            leaderboardList.innerHTML = '<li>💪 Keep completing tasks to appear on leaderboard!</li>';
-            leaderboardList.innerHTML += `<li>🌟 Complete tasks and earn recognition!</li>`;
-        }
-    } catch (error) {
-        leaderboardList.innerHTML = '<li>🏆 Feature coming soon - Track your points!</li>';
-        leaderboardList.innerHTML += `<li>💪 Keep completing tasks to earn points!</li>`;
-    }
-}
-
-// Helper function to escape HTML
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
+  currentView = 'leaderboard';
+  document.getElementById('tasksContainer').style.display = 'none';
+  document.getElementById('leaderboardContainer').style.display = 'block';
+  
+  updateActiveFilter('leaderboard');
+  
+  const leaderboardHtml = `
+    <div class="leaderboard-card">
+      <h3>🏆 Top Volunteers</h3>
+      <ul class="leaderboard-list" id="leaderboardList">
+        <li><div class="loading">Loading leaderboard...</div></li>
+      </ul>
+    </div>
+  `;
+  document.getElementById('leaderboardContainer').innerHTML = leaderboardHtml;
+  
+  try {
+    const response = await fetch(`${API_BASE}/volunteers`, {
+      headers: { 'Authorization': `Bearer ${token}` }
     });
-}
-
-// Logout function
-function logout() {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = 'login.html';
-}
-
-// Toggle mobile navigation
-function toggleNav() {
-    const navLinks = document.getElementById('navLinks');
-    navLinks.classList.toggle('active');
-}
-
-// Load initial view - My Tasks
-showMyTasks();
-
-// Refresh tasks every 30 seconds
-setInterval(() => {
-    if (currentView === 'my-tasks') {
-        showMyTasks();
-    } else if (currentView === 'available') {
-        showAvailableTasks();
+    
+    if (response.ok) {
+      const volunteers = await response.json();
+      const listContainer = document.getElementById('leaderboardList');
+      if (volunteers.length === 0) {
+        listContainer.innerHTML = '<li>💪 Complete tasks to appear on leaderboard!</li>';
+      } else {
+        listContainer.innerHTML = volunteers.slice(0, 10).map((vol, index) => `
+          <li>
+            <div class="leaderboard-rank">${index + 1}</div>
+            <div class="leaderboard-name">🏅 ${escapeHtml(vol.fullName || 'Volunteer')}</div>
+            <div class="leaderboard-score">📊 ${vol.skills?.length || 0} skills • 📍 ${escapeHtml(vol.location || 'Location not set')}</div>
+          </li>
+        `).join('');
+      }
+    } else {
+      document.getElementById('leaderboardList').innerHTML = '<li>🏆 Feature coming soon - Track your points!</li><li>💪 Keep completing tasks to earn points!</li>';
     }
-}, 30000);
+  } catch (error) {
+    document.getElementById('leaderboardList').innerHTML = '<li>🏆 Leaderboard coming soon!</li>';
+  }
+}
+
+// Update Statistics
+function updateStats(tasks) {
+  const assigned = tasks.length;
+  const completed = tasks.filter(t => t.status === 'completed').length;
+  const inProgress = tasks.filter(t => t.status === 'in-progress').length;
+  
+  document.getElementById('assignedCount').textContent = assigned;
+  document.getElementById('completedCount').textContent = completed;
+  document.getElementById('inProgressCount').textContent = inProgress;
+}
+
+// Update Active Filter Button
+function updateActiveFilter(view) {
+  document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+  if (view === 'my-tasks') document.querySelector('.filter-btn:first-child').classList.add('active');
+  else if (view === 'available') document.querySelectorAll('.filter-btn')[1].classList.add('active');
+  else if (view === 'leaderboard') document.querySelectorAll('.filter-btn')[2].classList.add('active');
+}
+
+// Helper Functions
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function showLoading() {
+  document.getElementById('tasksContainer').innerHTML = '<div class="loading">📡 Loading tasks...</div>';
+}
+
+function logout() {
+  localStorage.clear();
+  showToast('Logged out successfully', 'success');
+  setTimeout(() => window.location.href = 'login.html', 500);
+}
+
+function setUserAvatar() {
+  const savedProfile = localStorage.getItem('userProfile');
+  if (savedProfile) {
+    try {
+      const data = JSON.parse(savedProfile);
+      const initial = (data.fullName || 'V').charAt(0);
+      document.getElementById('userAvatar').innerText = initial;
+    } catch(e) {}
+  }
+}
+
+// Initialize
+async function init() {
+  await checkServerHealth();
+  setUserAvatar();
+  showMyTasks();
+  
+  // Auto-refresh every 30 seconds
+  setInterval(() => {
+    if (currentView === 'my-tasks') showMyTasks();
+    else if (currentView === 'available') showAvailableTasks();
+  }, 30000);
+}
+
+init();
 </script>
 </body>
 </html>

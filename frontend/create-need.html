@@ -83,7 +83,7 @@ textarea, input[type="text"], input[type="number"] {
 }
 textarea:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(204,0,0,0.08); }
 textarea { min-height: 120px; }
-.btn-row { display: flex; gap: 10px; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
 .btn {
   display: flex; align-items: center; justify-content: center; padding: 12px 20px;
   border: none; border-radius: 12px; font-size: 13px; font-weight: 500;
@@ -108,6 +108,120 @@ textarea { min-height: 120px; }
 .empty-state { display: flex; flex-direction: column; align-items: center; padding: 32px 20px; color: var(--muted); gap: 10px; }
 .empty-state .icon { font-size: 36px; opacity: 0.4; }
 
+/* Recent Emergencies List */
+.recent-list {
+    margin-top: 20px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.recent-item {
+    background: var(--card-2);
+    padding: 12px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border-left: 3px solid var(--accent);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.recent-item:hover {
+    transform: translateX(-5px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.recent-title {
+    font-weight: 600;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+.recent-location {
+    font-size: 11px;
+    color: var(--muted);
+}
+.recent-time {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 5px;
+}
+
+/* Upload Section */
+.upload-section {
+    background: var(--card-2);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-top: 20px;
+    border: 1px solid var(--border);
+}
+.upload-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.upload-title {
+    font-family: var(--font-head);
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.upload-area {
+    border: 2px dashed var(--accent);
+    background: rgba(204,0,0,0.03);
+    padding: 30px;
+    text-align: center;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.upload-area:hover, .upload-area.dragover {
+    background: rgba(204,0,0,0.08);
+    border-color: var(--accent-2);
+}
+.upload-icon { font-size: 48px; margin-bottom: 10px; }
+.upload-text { font-size: 13px; color: var(--muted); }
+.upload-subtext { font-size: 11px; color: var(--muted); margin-top: 8px; }
+.file-list {
+    margin-top: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+}
+.file-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background: var(--card);
+    border-radius: 10px;
+    margin-bottom: 8px;
+    border: 1px solid var(--border);
+}
+.file-info { display: flex; align-items: center; gap: 10px; flex: 1; }
+.file-name { font-size: 12px; font-weight: 500; }
+.file-size { font-size: 10px; color: var(--muted); }
+.delete-file { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 16px; padding: 5px; }
+.delete-file:hover { color: var(--danger); }
+
+/* Toast */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    z-index: 10000;
+    animation: fadeInOut 3s ease;
+}
+@keyframes fadeInOut {
+    0% { opacity: 0; transform: translateX(-50%) translateY(20px); }
+    10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+    90% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+}
+
 /* Chatbot Styles */
 .chat-fab { position: fixed; bottom: 28px; right: 28px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 24px; z-index: 999; color: white; box-shadow: 0 4px 24px rgba(204,0,0,0.4); transition: transform 0.2s; animation: fab-pulse 3s ease infinite; }
 .chat-fab:hover { transform: scale(1.1); }
@@ -127,9 +241,6 @@ textarea { min-height: 120px; }
 .chip { font-size: 11px; padding: 5px 10px; border-radius: 99px; background: rgba(204,0,0,0.08); border: 1px solid rgba(204,0,0,0.15); color: #b91c1c; cursor: pointer; font-family: var(--font-body); transition: all 0.15s; white-space: nowrap; }
 .chip:hover { background: rgba(204,0,0,0.15); border-color: rgba(204,0,0,0.3); }
 .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
-.chat-messages::-webkit-scrollbar { width: 4px; }
-.chat-messages::-webkit-scrollbar-track { background: transparent; }
-.chat-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.08); border-radius: 99px; }
 .msg { display: flex; gap: 8px; animation: msgIn 0.25s ease both; max-width: 100%; }
 @keyframes msgIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 .msg.user { flex-direction: row-reverse; }
@@ -143,171 +254,13 @@ textarea { min-height: 120px; }
 .typing-indicator.show { display: flex; }
 .typing-bubble { background: var(--card); border: 1px solid var(--border); padding: 12px 16px; border-radius: 16px; border-bottom-left-radius: 4px; display: flex; gap: 4px; align-items: center; }
 .typing-dot { width: 6px; height: 6px; background: var(--muted); border-radius: 50%; animation: bounce 1.4s ease infinite; }
-.typing-dot:nth-child(1) { animation-delay: 0s; }
-.typing-dot:nth-child(2) { animation-delay: 0.15s; }
-.typing-dot:nth-child(3) { animation-delay: 0.3s; }
-@keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-5px); } }
 .chat-input-area { padding: 12px 16px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-end; }
-.chat-input { flex: 1; background: var(--card-2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; color: var(--text); font-family: var(--font-body); font-size: 13px; outline: none; resize: none; min-height: 42px; max-height: 120px; transition: border-color 0.2s; line-height: 1.5; }
+.chat-input { flex: 1; background: var(--card-2); border: 1px solid var(--border); border-radius: 14px; padding: 10px 14px; color: var(--text); font-family: var(--font-body); font-size: 13px; outline: none; resize: none; min-height: 42px; max-height: 120px; }
 .chat-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(204,0,0,0.08); }
-.chat-send { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; flex-shrink: 0; transition: all 0.2s; box-shadow: 0 4px 12px rgba(204,0,0,0.3); }
-.chat-send:hover { transform: scale(1.05); box-shadow: 0 6px 16px rgba(204,0,0,0.4); }
+.chat-send { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, var(--accent), var(--accent-2)); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; flex-shrink: 0; transition: all 0.2s; }
 .chat-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.3); backdrop-filter: blur(4px); z-index: 997; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
 .chat-backdrop.open { opacity: 1; pointer-events: all; }
 @media (max-width: 900px) { .create-grid { grid-template-columns: 1fr; } .main { padding: 16px; } .chat-panel { width: calc(100vw - 24px); right: 12px; bottom: 90px; } .chat-fab { right: 16px; bottom: 20px; } }
-/* Document Upload Section Styles */
-.upload-section {
-    background: var(--card-2);
-    border-radius: var(--radius-lg);
-    padding: 20px;
-    margin-top: 20px;
-    border: 1px solid var(--border);
-}
-
-.upload-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 15px;
-}
-
-.upload-title {
-    font-family: var(--font-head);
-    font-size: 14px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.upload-area {
-    border: 2px dashed var(--accent);
-    background: rgba(204,0,0,0.03);
-    padding: 30px;
-    text-align: center;
-    border-radius: 16px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.upload-area:hover, .upload-area.dragover {
-    background: rgba(204,0,0,0.08);
-    border-color: var(--accent-2);
-}
-
-.upload-icon {
-    font-size: 48px;
-    margin-bottom: 10px;
-}
-
-.upload-text {
-    font-size: 13px;
-    color: var(--muted);
-}
-
-.upload-subtext {
-    font-size: 11px;
-    color: var(--muted);
-    margin-top: 8px;
-}
-
-.file-list {
-    margin-top: 15px;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.file-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 10px;
-    background: var(--card);
-    border-radius: 10px;
-    margin-bottom: 8px;
-    border: 1px solid var(--border);
-}
-
-.file-info {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex: 1;
-}
-
-.file-name {
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.file-size {
-    font-size: 10px;
-    color: var(--muted);
-}
-
-.file-status {
-    font-size: 11px;
-    padding: 3px 8px;
-    border-radius: 20px;
-}
-
-.status-pending {
-    background: #fef3c7;
-    color: #d97706;
-}
-
-.status-synced {
-    background: #d1fae5;
-    color: #059669;
-}
-
-.status-error {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.delete-file {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--muted);
-    font-size: 16px;
-    padding: 5px;
-}
-
-.delete-file:hover {
-    color: var(--danger);
-}
-
-.offline-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-    background: #fef3c7;
-    color: #d97706;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    margin-left: 10px;
-}
-
-.sync-btn {
-    background: var(--accent);
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 10px;
-    font-size: 12px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.sync-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
 </style>
 </head>
 <body>
@@ -323,63 +276,79 @@ textarea { min-height: 120px; }
 </nav>
 
 <main class="main">
-  <div class="topbar"><h1 class="page-title">Create <span>Emergency Need</span></h1><div class="topbar-right"><div class="status-pill"><div class="status-dot"></div> System Online</div><div class="avatar">🧑</div></div></div>
+  <div class="topbar">
+    <h1 class="page-title">Create <span>Emergency Need</span></h1>
+    <div class="topbar-right">
+      <div class="status-pill" id="statusPill"><div class="status-dot"></div> Checking...</div>
+      <div class="avatar">🧑</div>
+    </div>
+  </div>
+  
   <div class="create-grid">
     <div class="card">
       <div class="card-header"><span class="card-title">Log Emergency Need</span></div>
-      <div class="form-group"><label class="form-label">Emergency Description</label><textarea id="description" placeholder="Describe the emergency situation in detail..."></textarea></div>
-      <div class="form-group"><label class="form-label">People Affected</label><input type="number" id="people" placeholder="Estimated number"></div>
-      <div class="form-group"><label class="form-label">Location / Address</label><input type="text" id="address" placeholder="Enter address or area name"></div>
-      <div class="form-group"><label class="form-label">Skills Required</label><input type="text" id="skills_input" placeholder="e.g. food distribution, logistics, medical help">
-</div>
-<!-- Document Upload Section -->
-<div class="upload-section">
-    <div class="upload-header">
-        <div class="upload-title">
-            📎 <span>Supporting Documents</span>
-            <span id="onlineStatus" class="offline-badge">🟢 Online</span>
-        </div>
-        <button class="sync-btn" id="syncBtn" onclick="syncDocuments()">
-            🔄 Sync Now
-        </button>
-    </div>
-    
-    <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
-        <div class="upload-icon">📄</div>
-        <div class="upload-text">Click or drag files here</div>
-        <div class="upload-subtext">Upload photos, PDFs, documents (Max 10MB each)</div>
-    </div>
-    
-    <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png,.doc,.docx" style="display:none" onchange="handleFiles(this.files)">
-    
-    <div id="fileList" class="file-list">
-        <!-- Files will appear here -->
-    </div>
-</div>
-
-<!-- Offline Drafts Section -->
-<div class="upload-section" style="margin-top: 15px;">
-    <div class="upload-header">
-        <div class="upload-title">
-            📦 <span>Offline Drafts</span>
-        </div>
-    </div>
-    <div id="draftsList" class="file-list">
-        <!-- Saved drafts will appear here -->
-    </div>
-</div>
-      <div class="btn-row"><button class="btn btn-ghost" onclick="startVoice()">🎤 Voice</button><button class="btn btn-primary" onclick="submitData()">🚀 Analyze & Submit</button></div>
+      
+      <div class="form-group">
+        <label class="form-label">Emergency Description</label>
+        <textarea id="description" placeholder="Example: 50000 people affected from flood in Mizoram..."></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">People Affected</label>
+        <input type="number" id="people" placeholder="Estimated number">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Location / Address</label>
+        <input type="text" id="address" placeholder="Enter address or area name">
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Skills Required</label>
+        <input type="text" id="skills_input" placeholder="e.g. food distribution, logistics, medical help">
+      </div>
+      
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="startVoice()">🎤 Voice</button>
+        <button class="btn btn-primary" onclick="submitData()">🚀 Analyze & Submit</button>
+        <button class="btn btn-ghost" onclick="saveDraft()">💾 Save Draft</button>
+        <button class="btn btn-ghost" onclick="loadRecentEmergencies()">📋 Load Recent</button>
+      </div>
       <div class="loading-bar" id="loading"><div class="loading-bar-inner"></div></div>
+      
+      <!-- Recent Emergencies Section -->
+      <div class="upload-section" style="margin-top: 20px;">
+        <div class="upload-header">
+          <div class="upload-title">📋 Recently Added Emergencies</div>
+          <button class="sync-btn" onclick="loadRecentEmergencies()" style="padding: 5px 12px;">🔄 Refresh</button>
+        </div>
+        <div id="recentList" class="recent-list">
+          <div style="text-align: center; padding: 20px; color: var(--muted);">Click "Load Recent" to see emergencies</div>
+        </div>
+      </div>
     </div>
+    
     <div class="ai-result-card">
-      <div class="ai-header"><div class="ai-orb-sm">🤖</div><div class="ai-header-text"><h3>Gemini AI Analysis</h3><p>Powered by Google Gemini</p></div></div>
-      <div id="ai-empty" class="empty-state"><span class="icon">🧠</span><span>Submit a need to see AI analysis</span></div>
+      <div class="ai-header">
+        <div class="ai-orb-sm">🤖</div>
+        <div class="ai-header-text">
+          <h3>AI Analysis</h3>
+          <p>Powered by ML Model</p>
+        </div>
+      </div>
+      <div id="ai-empty" class="empty-state">
+        <span class="icon">🧠</span>
+        <span>Submit a need to see AI analysis</span>
+      </div>
       <div id="ai-results" style="display:none;">
-        <div class="result-field"><span class="result-key">Skills Required</span><span class="result-val" id="skills">—</span></div>
         <div class="result-field"><span class="result-key">Type</span><span class="result-val accent" id="type">—</span></div>
         <div class="result-field"><span class="result-key">Urgency</span><span class="result-val" id="urgency">—</span></div>
         <div class="result-field"><span class="result-key">People Affected</span><span class="result-val" id="people_out">—</span></div>
         <div class="result-field"><span class="result-key">Priority Score</span><span class="result-val" id="priority">—</span></div>
+        <div class="result-field"><span class="result-key">Skills Required</span><span class="result-val" id="skills">—</span></div>
+        <div class="result-field"><span class="result-key">Location</span><span class="result-val" id="location_out">—</span></div>
+        <div class="result-field"><span class="result-key">Coordinates</span><span class="result-val" id="coords_out">—</span></div>
+        <div class="result-field"><span class="result-key">Status</span><span class="result-val" id="saveStatus">—</span></div>
         <div class="result-field"><span class="result-key">Summary</span><span class="result-val" id="summary" style="font-size:12px;">—</span></div>
       </div>
     </div>
@@ -397,484 +366,338 @@ textarea { min-height: 120px; }
     </div>
     <div class="chat-close" onclick="closeChat()">✕</div>
   </div>
-  <div class="chips-wrap" id="chips">
+  <div class="chips-wrap">
     <button class="chip" onclick="sendChip('Help me write an emergency description')">📝 Write Description</button>
     <button class="chip" onclick="sendChip('What resources are needed for flood relief?')">🌊 Flood Resources</button>
     <button class="chip" onclick="sendChip('How to prioritize emergencies?')">⚡ Prioritization Tips</button>
-    <button class="chip" onclick="sendChip('Sample emergency report format')">📋 Report Format</button>
-    <button class="chip" onclick="sendChip('Best practices for disaster response')">✅ Best Practices</button>
   </div>
   <div class="chat-messages" id="chatMessages">
     <div class="msg bot">
       <div class="msg-avatar">🤖</div>
-      <div class="msg-bubble">
-        📝 Hello! I'm your Gemini AI Assistant. I can help you write emergency descriptions, suggest resources, and provide disaster response guidance. Describe your situation or ask me anything!
-      </div>
+      <div class="msg-bubble">📝 Hello! I'm your AI Assistant. Ask me anything about emergency response!</div>
     </div>
   </div>
-  <div class="typing-indicator" id="typingIndicator">
-    <div class="typing-bubble">
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-    </div>
-  </div>
+  <div class="typing-indicator" id="typingIndicator"><div class="typing-bubble"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>
   <div class="chat-input-area">
-    <textarea class="chat-input" id="chatInput" placeholder="Ask Gemini for help with emergency response..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <textarea class="chat-input" id="chatInput" placeholder="Ask me anything..." rows="1"></textarea>
     <button class="chat-send" onclick="sendMessage()">➤</button>
   </div>
 </div>
 <button class="chat-fab" id="chatFab" onclick="toggleChat()">🤖</button>
 
 <script>
-let mapRef = null;
-async function submitData() {
-  const text = document.getElementById('description').value.trim();
-  if (!text) { alert('Please describe the emergency.'); return; }
-  const loading = document.getElementById('loading');
-  loading.style.display = 'block';
-  document.getElementById('ai-empty').style.display = 'none';
-  document.getElementById('ai-results').style.display = 'none';
-  try {
-    const skills = document.getElementById('skills_input').value;
-    const res = await fetch('http://localhost:5000/predict', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
-        text,
-        skills
-      })
-    });
-    const data = await res.json();
-    document.getElementById('type').innerText = data?.type || '—';
-    document.getElementById('urgency').innerText = data?.urgency_level || '—';
-    document.getElementById('people_out').innerText = data?.people_affected || document.getElementById('people').value || '—';
-    document.getElementById('priority').innerText = data?.priority_score || '—';
-    document.getElementById('summary').innerText = data?.summary || '—';
-    const userSkills = document.getElementById('skills_input').value || '—';
-    document.getElementById('skills').innerText = userSkills;
-    document.getElementById('ai-results').style.display = 'block';
-  } catch (err) {
-    document.getElementById('ai-empty').style.display = 'flex';
-    document.getElementById('ai-empty').querySelector('span:last-child').textContent = '⚠️ Backend unreachable.';
-  }
-  loading.style.display = 'none';
-}
-function startVoice() {
-  const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SpeechRec) { alert('Speech recognition not supported.'); return; }
-  const rec = new SpeechRec(); rec.lang = 'en-US'; rec.start();
-  rec.onresult = (e) => { document.getElementById('description').value = e.results[0][0].transcript; };
-}
-function logout() { localStorage.removeItem('token'); window.location.href = 'login.html'; }
+// API Configuration
+const API_BASE_URL = 'http://localhost:5000/api';
 
-// const locationMap = {
-//   assam: [26.2006, 92.9376],
-//   bihar: [25.5941, 85.1376],
-//   gujarat: [22.2587, 71.1924],
-//   bengaluru: [12.9716, 77.5946],
-//   bangalore: [12.9716, 77.5946],
-//   delhi: [28.7041, 77.1025],
-//   mumbai: [19.0760, 72.8777],
-//   manipur: [24.8170, 93.9368],
-//   mizoram: [23.1645, 92.9376],
-//   uttarakhand: [30.0668, 79.0193],
-//   kolkata: [22.5726, 88.3639],
-//   patna: [25.5941, 85.1376],
-//   lucknow: [26.8467, 80.9462]
-// };
-
-// function extractCoordinates(text) {
-//   const lower = text.toLowerCase();
-
-//   for (const city in locationMap) {
-//     if (lower.includes(city)) {
-//       return locationMap[city];
-//     }
-//   }
-
-//   return null; // if not found
-// }
-// const coords = extractCoordinates(req.body.text);
-// const newCase = new Case({
-//   text: req.body.text,
-//   type: req.body.type,
-//   urgency_level: req.body.urgency_level,
-//   people_affected: req.body.people_affected,
-//   skills_required: req.body.skills_required,
-//   status: "open",
-
-//   location: coords
-//     ? {
-//         type: "Point",
-//         coordinates: [coords[1], coords[0]] // [lng, lat]
-//       }
-//     : null
-// });
-
-// ========================================
-// GEMINI AI CHATBOT - FULL API INTEGRATION
-// ========================================
-let chatOpen = false;
-let chatHistory = [];
-const CHAT_KEY = 'ngo_chat_history_create';
-
-function toggleChat() { chatOpen ? closeChat() : openChat(); }
-
-function openChat() {
-  chatOpen = true;
-  document.getElementById('chatPanel').classList.add('open');
-  document.getElementById('chatBackdrop').classList.add('open');
-  document.getElementById('chatFab').classList.add('open');
-  document.getElementById('chatFab').innerText = '✕';
-  restoreHistory();
-  setTimeout(() => document.getElementById('chatInput').focus(), 350);
-}
-
-function closeChat() {
-  chatOpen = false;
-  document.getElementById('chatPanel').classList.remove('open');
-  document.getElementById('chatBackdrop').classList.remove('open');
-  document.getElementById('chatFab').classList.remove('open');
-  document.getElementById('chatFab').innerText = '🤖';
-}
-
-function appendMsg(text, role) {
-  const wrap = document.getElementById('chatMessages');
-  const div = document.createElement('div');
-  div.className = 'msg ' + role;
-  const av = document.createElement('div');
-  av.className = 'msg-avatar';
-  av.innerText = role === 'bot' ? '🤖' : '🧑';
-  const bub = document.createElement('div');
-  bub.className = 'msg-bubble';
-  bub.innerText = text;
-  div.appendChild(av);
-  div.appendChild(bub);
-  wrap.appendChild(div);
-  wrap.scrollTop = wrap.scrollHeight;
-  return div;
-}
-
-function showTyping() {
-  document.getElementById('typingIndicator').classList.add('show');
-  const wrap = document.getElementById('chatMessages');
-  wrap.scrollTop = wrap.scrollHeight;
-}
-
-function hideTyping() {
-  document.getElementById('typingIndicator').classList.remove('show');
-}
-
-function saveHistory(messages) {
-  try { localStorage.setItem(CHAT_KEY, JSON.stringify(messages)); } catch(e) {}
-}
-
-function restoreHistory() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(CHAT_KEY) || '[]');
-    if (stored.length > 0) {
-      document.getElementById('chatMessages').innerHTML = '';
-      stored.forEach(m => appendMsg(m.text, m.role));
-    }
-  } catch(e) {}
-}
-
-async function sendMessage() {
-  const input = document.getElementById('chatInput');
-  const text = input.value.trim();
-  if (!text) return;
-
-  input.value = '';
-  input.style.height = 'auto';
-
-  document.getElementById('chips').style.display = 'none';
-
-  appendMsg(text, 'user');
-  chatHistory.push({ role: 'user', text: text });
-
-  showTyping();
-
-  try {
-    const res = await fetch('http://localhost:5000/api/gemini', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: text })
-    });
-    
-    const data = await res.json();
-    hideTyping();
-    
-    const reply = data?.reply || 'I encountered an issue. Please try again.';
-    appendMsg(reply, 'bot');
-    chatHistory.push({ role: 'bot', text: reply });
-
-    const flat = chatHistory.map(m => ({ text: m.text, role: m.role }));
-    saveHistory(flat);
-
-  } catch (err) {
-    console.error('Gemini API Error:', err);
-    hideTyping();
-    appendMsg('⚠️ Could not reach the Gemini backend. Please make sure your server is running at http://localhost:5000', 'bot');
-  }
-}
-
-function sendChip(text) {
-  document.getElementById('chatInput').value = text;
-  sendMessage();
-}
-
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
-  }
-}
-
-function autoResize(el) {
-  el.style.height = 'auto';
-  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-}
-
-// ==================== DOCUMENT UPLOAD SYSTEM ====================
-let pendingFiles = [];
-let isOnline = navigator.onLine;
-
-// Check online status
-window.addEventListener('online', () => {
-    isOnline = true;
-    document.getElementById('onlineStatus').innerHTML = '🟢 Online';
-    document.getElementById('onlineStatus').style.background = '#d1fae5';
-    document.getElementById('onlineStatus').style.color = '#059669';
-    syncDocuments();
-});
-
-window.addEventListener('offline', () => {
-    isOnline = false;
-    document.getElementById('onlineStatus').innerHTML = '🔴 Offline';
-    document.getElementById('onlineStatus').style.background = '#fee2e2';
-    document.getElementById('onlineStatus').style.color = '#dc2626';
-});
-
-// Handle file selection
-function handleFiles(files) {
-    for (let file of files) {
-        if (file.size > 10 * 1024 * 1024) {
-            alert(`${file.name} is too large. Max 10MB`);
-            continue;
-        }
-        
-        pendingFiles.push({
-            id: Date.now() + Math.random(),
-            file: file,
-            name: file.name,
-            size: (file.size / 1024).toFixed(2) + ' KB',
-            status: isOnline ? 'pending' : 'pending'
-        });
-    }
-    renderFileList();
-}
-
-// Render file list
-function renderFileList() {
-    const container = document.getElementById('fileList');
-    container.innerHTML = '';
-    
-    pendingFiles.forEach(file => {
-        const fileDiv = document.createElement('div');
-        fileDiv.className = 'file-item';
-        fileDiv.innerHTML = `
-            <div class="file-info">
-                <span>📄</span>
-                <div>
-                    <div class="file-name">${file.name}</div>
-                    <div class="file-size">${file.size}</div>
-                </div>
-            </div>
-            <div class="file-status ${file.status === 'synced' ? 'status-synced' : 'status-pending'}">
-                ${file.status === 'synced' ? '✅ Synced' : '⏳ Pending'}
-            </div>
-            <button class="delete-file" onclick="removeFile('${file.id}')">🗑️</button>
-        `;
-        container.appendChild(fileDiv);
-    });
-}
-
-// Remove file
-function removeFile(fileId) {
-    pendingFiles = pendingFiles.filter(f => f.id != fileId);
-    renderFileList();
-}
-
-// Upload files to server
-async function uploadFiles() {
-    const pending = pendingFiles.filter(f => f.status !== 'synced');
-    if (pending.length === 0) return;
-    
-    const formData = new FormData();
-    pending.forEach(file => {
-        formData.append('documents', file.file);
-    });
-    
+// Check backend health on page load
+async function checkBackendHealth() {
+    const statusPill = document.getElementById('statusPill');
     try {
-        const token = localStorage.getItem('token');
-        const response = await fetch('http://localhost:5000/api/upload-documents', {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}` },
-            body: formData
-        });
-        
+        const response = await fetch(`${API_BASE_URL}/ai/cases`);
         if (response.ok) {
-            pendingFiles.forEach(f => f.status = 'synced');
-            renderFileList();
-            showToast('Documents uploaded successfully!', 'success');
+            statusPill.innerHTML = '<div class="status-dot"></div> ✅ Backend Connected';
+            statusPill.style.background = 'rgba(22,163,74,0.1)';
+            statusPill.style.color = '#16a34a';
+            console.log('✅ Backend is reachable');
+            // Load recent emergencies automatically
+            loadRecentEmergencies();
+            return true;
         }
     } catch (error) {
-        console.error('Upload error:', error);
-        showToast('Upload failed. Will retry when online.', 'error');
+        statusPill.innerHTML = '<div style="background:#ff4444; width:7px; height:7px; border-radius:50%;"></div> ❌ Backend Offline';
+        statusPill.style.background = 'rgba(220,38,38,0.1)';
+        statusPill.style.color = '#dc2626';
+        console.error('❌ Backend unreachable:', error);
+        return false;
+    }
+    return false;
+}
+
+// Load recent emergencies from database
+async function loadRecentEmergencies() {
+    const recentList = document.getElementById('recentList');
+    recentList.innerHTML = '<div style="text-align: center; padding: 20px;">📡 Loading emergencies...</div>';
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/ai/cases`);
+        if (!response.ok) throw new Error('Failed to fetch');
+        
+        const emergencies = await response.json();
+        
+        if (emergencies.length === 0) {
+            recentList.innerHTML = '<div style="text-align: center; padding: 20px; color: var(--muted);">📭 No emergencies found. Create your first emergency above!</div>';
+            return;
+        }
+        
+        // Show last 5 emergencies
+        const recent = emergencies.slice(0, 5);
+        recentList.innerHTML = recent.map(emergency => `
+            <div class="recent-item" onclick="viewEmergencyDetails('${emergency._id}')">
+                <div class="recent-title">🚨 ${emergency.type || 'Emergency'}</div>
+                <div class="recent-location">📍 ${emergency.location_name || 'Location not specified'}</div>
+                <div class="recent-location">👥 ${(emergency.people_affected || 0).toLocaleString()} people | ⚡ ${emergency.urgency_level || 'N/A'}</div>
+                <div class="recent-time">🕒 ${new Date(emergency.createdAt).toLocaleString()}</div>
+                ${emergency.latitude && emergency.longitude ? `<div class="recent-location">📍 ${emergency.latitude.toFixed(4)}, ${emergency.longitude.toFixed(4)}</div>` : ''}
+            </div>
+        `).join('');
+        
+        showToast(`✅ Loaded ${emergencies.length} emergencies from database`, 'success');
+        
+    } catch (error) {
+        console.error('Error loading emergencies:', error);
+        recentList.innerHTML = '<div style="text-align: center; padding: 20px; color: #dc2626;">❌ Failed to load emergencies. Make sure backend is running.</div>';
     }
 }
 
-// Sync documents when online
-async function syncDocuments() {
-    if (!isOnline) {
-        showToast('You are offline. Files will sync when online.', 'info');
+// View emergency details
+async function viewEmergencyDetails(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/ai/cases/${id}`);
+        const emergency = await response.json();
+        
+        // Display in AI results section
+        document.getElementById('ai-empty').style.display = 'none';
+        document.getElementById('ai-results').style.display = 'block';
+        
+        document.getElementById('type').innerText = emergency.type || '—';
+        document.getElementById('urgency').innerText = emergency.urgency_level || '—';
+        document.getElementById('people_out').innerText = emergency.people_affected || '—';
+        document.getElementById('priority').innerText = emergency.priority_score || '—';
+        document.getElementById('skills').innerText = emergency.skills_required?.join(', ') || '—';
+        document.getElementById('location_out').innerText = emergency.location_name || '—';
+        document.getElementById('coords_out').innerText = emergency.latitude && emergency.longitude ? 
+            `${emergency.latitude.toFixed(4)}, ${emergency.longitude.toFixed(4)}` : 'No coordinates';
+        document.getElementById('saveStatus').innerText = '✅ Saved to Database';
+        document.getElementById('summary').innerText = emergency.summary || '—';
+        
+        showToast('📋 Emergency details loaded', 'success');
+        
+    } catch (error) {
+        console.error('Error loading details:', error);
+        showToast('Failed to load details', 'error');
+    }
+}
+
+// Submit emergency data
+async function submitData() {
+    const text = document.getElementById('description').value.trim();
+    if (!text) {
+        showToast('Please describe the emergency.', 'error');
         return;
     }
     
-    await uploadFiles();
+    const loading = document.getElementById('loading');
+    loading.style.display = 'block';
+    document.getElementById('ai-empty').style.display = 'none';
+    document.getElementById('ai-results').style.display = 'none';
+    
+    try {
+        const skills = document.getElementById('skills_input').value;
+        const people = document.getElementById('people').value;
+        const address = document.getElementById('address').value;
+        
+        console.log('📤 Sending to backend:', { text, skills, people, address });
+        
+        const response = await fetch(`${API_BASE_URL}/ai/predict`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                text: text,
+                skills: skills,
+                people: people ? parseInt(people) : null,
+                address: address
+            })
+        });
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+        }
+        
+        const data = await response.json();
+        console.log('📥 Response from backend:', data);
+        
+        // Display AI results
+        document.getElementById('type').innerText = data?.type || '—';
+        document.getElementById('urgency').innerText = data?.urgency_level || '—';
+        document.getElementById('people_out').innerText = data?.people_affected || people || '—';
+        document.getElementById('priority').innerText = data?.priority_score || '—';
+        document.getElementById('skills').innerText = skills || data?.skills_required?.join(', ') || '—';
+        document.getElementById('location_out').innerText = data?.location?.name || address || 'Detected automatically';
+        document.getElementById('coords_out').innerText = data?.location?.lat && data?.location?.lng ? 
+            `${data.location.lat.toFixed(4)}, ${data.location.lng.toFixed(4)}` : '—';
+        document.getElementById('saveStatus').innerHTML = data?.saved_id ? '✅ Saved to Database ✓' : '⚠️ Not saved';
+        document.getElementById('summary').innerText = data?.summary || '—';
+        
+        document.getElementById('ai-results').style.display = 'block';
+        
+        if (data?.saved_id) {
+            showToast('✅ Emergency saved to database successfully!', 'success');
+            // Clear form
+            document.getElementById('description').value = '';
+            document.getElementById('people').value = '';
+            document.getElementById('address').value = '';
+            document.getElementById('skills_input').value = '';
+            // Reload recent emergencies
+            loadRecentEmergencies();
+        } else {
+            showToast('⚠️ Emergency analyzed but not saved', 'info');
+        }
+        
+    } catch (err) {
+        console.error('Submission error:', err);
+        document.getElementById('ai-empty').style.display = 'flex';
+        const emptySpan = document.querySelector('#ai-empty span:last-child');
+        if (emptySpan) emptySpan.textContent = '⚠️ ' + err.message;
+        showToast('Error: ' + err.message, 'error');
+    }
+    
+    loading.style.display = 'none';
 }
 
-// Save offline draft
+// Voice input
+function startVoice() {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SpeechRec) {
+        showToast('Speech recognition not supported.', 'error');
+        return;
+    }
+    const rec = new SpeechRec();
+    rec.lang = 'en-US';
+    rec.start();
+    rec.onresult = (e) => {
+        document.getElementById('description').value = e.results[0][0].transcript;
+    };
+}
+
+// Logout
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userId');
+    window.location.href = 'login.html';
+}
+
+// Save draft locally
 function saveDraft() {
     const draft = {
         description: document.getElementById('description').value,
         people: document.getElementById('people').value,
         address: document.getElementById('address').value,
         skills: document.getElementById('skills_input').value,
-        files: pendingFiles.map(f => ({ name: f.name, size: f.size })),
         timestamp: new Date().toISOString()
     };
-    
-    // Save to localStorage
     let drafts = JSON.parse(localStorage.getItem('ngo_drafts') || '[]');
     drafts.push(draft);
     localStorage.setItem('ngo_drafts', JSON.stringify(drafts));
-    
     showToast('Draft saved locally!', 'success');
-    loadDrafts();
 }
 
-// Load drafts
-function loadDrafts() {
-    const drafts = JSON.parse(localStorage.getItem('ngo_drafts') || '[]');
-    const container = document.getElementById('draftsList');
-    container.innerHTML = '';
-    
-    if (drafts.length === 0) {
-        container.innerHTML = '<div style="text-align:center; padding:20px; color:var(--muted);">No saved drafts</div>';
-        return;
-    }
-    
-    drafts.forEach((draft, index) => {
-        const draftDiv = document.createElement('div');
-        draftDiv.className = 'file-item';
-        draftDiv.innerHTML = `
-            <div class="file-info">
-                <span>📝</span>
-                <div>
-                    <div class="file-name">${draft.description.substring(0, 50)}...</div>
-                    <div class="file-size">${new Date(draft.timestamp).toLocaleString()}</div>
-                </div>
-            </div>
-            <button class="sync-btn" style="background:#4caf50;" onclick="loadDraft(${index})">Load</button>
-            <button class="delete-file" onclick="deleteDraft(${index})">🗑️</button>
-        `;
-        container.appendChild(draftDiv);
-    });
-}
-
-// Load draft
-function loadDraft(index) {
-    const drafts = JSON.parse(localStorage.getItem('ngo_drafts') || '[]');
-    const draft = drafts[index];
-    
-    document.getElementById('description').value = draft.description;
-    document.getElementById('people').value = draft.people;
-    document.getElementById('address').value = draft.address;
-    document.getElementById('skills_input').value = draft.skills;
-    
-    showToast('Draft loaded!', 'success');
-}
-
-// Delete draft
-function deleteDraft(index) {
-    let drafts = JSON.parse(localStorage.getItem('ngo_drafts') || '[]');
-    drafts.splice(index, 1);
-    localStorage.setItem('ngo_drafts', JSON.stringify(drafts));
-    loadDrafts();
-    showToast('Draft deleted', 'info');
-}
-
-// Toast notification
-function showToast(message, type = 'info') {
+function showToast(message, type) {
     const toast = document.createElement('div');
     toast.className = 'toast';
     toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: ${type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3'};
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        z-index: 10000;
-        animation: fadeInOut 3s ease;
-    `;
+    toast.style.background = type === 'success' ? '#4caf50' : type === 'error' ? '#f44336' : '#2196f3';
     document.body.appendChild(toast);
     setTimeout(() => toast.remove(), 3000);
 }
 
-// Modify submitData to include files
-const originalSubmitData = submitData;
-window.submitData = async function() {
-    if (pendingFiles.length > 0 && isOnline) {
-        await uploadFiles();
+// ========================================
+// GEMINI AI CHATBOT
+// ========================================
+let chatOpen = false;
+
+function toggleChat() { chatOpen ? closeChat() : openChat(); }
+
+function openChat() {
+    chatOpen = true;
+    document.getElementById('chatPanel').classList.add('open');
+    document.getElementById('chatBackdrop').classList.add('open');
+    document.getElementById('chatFab').classList.add('open');
+    document.getElementById('chatFab').innerText = '✕';
+    setTimeout(() => document.getElementById('chatInput').focus(), 350);
+}
+
+function closeChat() {
+    chatOpen = false;
+    document.getElementById('chatPanel').classList.remove('open');
+    document.getElementById('chatBackdrop').classList.remove('open');
+    document.getElementById('chatFab').classList.remove('open');
+    document.getElementById('chatFab').innerText = '🤖';
+}
+
+function appendMsg(text, role) {
+    const wrap = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    const av = document.createElement('div');
+    av.className = 'msg-avatar';
+    av.innerText = role === 'bot' ? '🤖' : '🧑';
+    const bub = document.createElement('div');
+    bub.className = 'msg-bubble';
+    bub.innerText = text;
+    div.appendChild(av);
+    div.appendChild(bub);
+    wrap.appendChild(div);
+    wrap.scrollTop = wrap.scrollHeight;
+}
+
+function showTyping() {
+    document.getElementById('typingIndicator').classList.add('show');
+}
+
+function hideTyping() {
+    document.getElementById('typingIndicator').classList.remove('show');
+}
+
+async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    appendMsg(text, 'user');
+    showTyping();
+    try {
+        const res = await fetch(`${API_BASE_URL}/gemini`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ message: text })
+        });
+        const data = await res.json();
+        hideTyping();
+        const reply = data?.reply || 'I encountered an issue. Please try again.';
+        appendMsg(reply, 'bot');
+    } catch (err) {
+        hideTyping();
+        appendMsg('⚠️ Could not reach the Gemini backend.', 'bot');
     }
-    originalSubmitData();
-};
+}
 
-// Load drafts on page load
+function sendChip(text) {
+    document.getElementById('chatInput').value = text;
+    sendMessage();
+}
+
+function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+}
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+// Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    loadDrafts();
+    checkBackendHealth();
+    document.getElementById('chatInput').addEventListener('keydown', handleKey);
+    document.getElementById('chatInput').addEventListener('input', function() { autoResize(this); });
     
-    // Add drag and drop
-    const uploadArea = document.getElementById('uploadArea');
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('dragover');
-    });
-    
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.classList.remove('dragover');
-    });
-    
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove('dragover');
-        handleFiles(e.dataTransfer.files);
-    });
+    // Auto-refresh recent emergencies every 30 seconds
+    setInterval(loadRecentEmergencies, 30000);
 });
-
-// Add Save Draft button next to Submit
-const btnRow = document.querySelector('.btn-row');
-const saveDraftBtn = document.createElement('button');
-saveDraftBtn.className = 'btn btn-ghost';
-saveDraftBtn.innerHTML = '💾 Save Draft';
-saveDraftBtn.onclick = saveDraft;
-btnRow.appendChild(saveDraftBtn);
 </script>
 </body>
 </html>
