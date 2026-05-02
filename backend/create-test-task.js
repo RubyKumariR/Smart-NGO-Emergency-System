@@ -1,63 +1,55 @@
 const mongoose = require('mongoose');
-const User = require('./models/User');
-const Task = require('./models/Task');
-const Case = require('./models/Case');
+require('dotenv').config();
 
-// Connect to MongoDB
-mongoose.connect('mongodb://127.0.0.1:27017/smartngo');
+mongoose.connect('mongodb://127.0.0.1:27017/hackathon');
 
-// Wait for connection
-setTimeout(async () => {
+// Wait for connection to be ready
+mongoose.connection.once('open', async () => {
+    console.log('✅ MongoDB connected');
+    
     try {
-        console.log('Creating test data...');
+        // Get the database directly
+        const db = mongoose.connection.db;
         
-        // Create test case
-        const testCase = new Case({
-            text: 'Test flood emergency',
-            type: 'Flood',
-            urgency_level: 'High',
-            people_affected: 5000,
-            skills_required: ['Rescue', 'Medical'],
-            location_name: 'Mumbai',
-            priority_score: 95
-        });
-        await testCase.save();
-        console.log('✅ Test case created');
-
         // Find volunteer
-        const volunteer = await User.findOne({ phoneNumber: '918050035131' });
+        const volunteer = await db.collection('users').findOne({ 
+            phoneNumber: '918050035131' 
+        });
+        
         if (!volunteer) {
-            console.log('❌ Volunteer not found');
+            console.log('❌ Volunteer not found! Please register first.');
             mongoose.disconnect();
             return;
         }
+        
         console.log('✅ Volunteer found:', volunteer.fullName);
-
-        // Create task
-        const task = new Task({
-            caseId: testCase._id,
+        console.log('Volunteer ID:', volunteer._id);
+        
+        // Create task directly (bypass schema issues)
+        const task = {
             title: 'Emergency Flood Rescue',
-            description: 'People stranded in flood waters need immediate rescue',
-            skills_required: ['Rescue', 'Medical'],
             location: 'Mumbai, Andheri East',
-            urgency_level: 'High',
             people_affected: 5000,
+            urgency_level: 'High',
+            skills_required: ['Rescue', 'Medical', 'First Aid'],
             assignedTo: volunteer._id,
             status: 'pending_confirmation',
-            match_score: 94
-        });
-
-        await task.save();
-        console.log('✅ Task created!');
-        console.log('Task ID:', task._id.toString());
-        console.log('Status:', task.status);
-
-    } catch (err) {
-        console.error('Error:', err.message);
-    }
-    
-    setTimeout(() => {
+            match_score: 94,
+            createdAt: new Date()
+        };
+        
+        const result = await db.collection('tasks').insertOne(task);
+        console.log('✅ Test task created!');
+        console.log('Task ID:', result.insertedId);
+        console.log('Status: pending_confirmation');
+        
+    } catch (error) {
+        console.error('Error:', error.message);
+    } finally {
         mongoose.disconnect();
-        console.log('✅ Done');
-    }, 1000);
-}, 2000);
+    }
+});
+
+mongoose.connection.on('error', (err) => {
+    console.error('MongoDB error:', err);
+});

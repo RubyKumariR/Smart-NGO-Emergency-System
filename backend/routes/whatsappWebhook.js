@@ -2,9 +2,13 @@ const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
 const User = require('../models/User');
-
-// Twilio credentials - NOW USING ENV VARIABLES (NOT HARDCODED!)
 const twilio = require('twilio');
+
+// ✅ IMPORTANT: Add body-parser middleware for Twilio webhook
+router.use(express.urlencoded({ extended: false }));
+router.use(express.json());
+
+// Twilio credentials from .env
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
 const authToken = process.env.TWILIO_AUTH_TOKEN;
 const client = twilio(accountSid, authToken);
@@ -14,8 +18,8 @@ async function sendWhatsAppMessage(to, message) {
     try {
         const response = await client.messages.create({
             body: message,
-            from: process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886',
-            to: `whatsapp:${to}`
+            from: 'whatsapp:+14155238886',
+            to: `whatsapp:+${to}`
         });
         console.log(`✅ WhatsApp sent to ${to}`);
         return { success: true };
@@ -25,11 +29,21 @@ async function sendWhatsAppMessage(to, message) {
     }
 }
 
-// Twilio webhook - receives WhatsApp replies
+// Webhook to receive WhatsApp replies
 router.post('/webhook', async (req, res) => {
     try {
+        // ✅ Log the full body to debug
+        console.log('📩 Webhook Body:', req.body);
+        
         const incomingMsg = req.body.Body;
         const fromNumber = req.body.From;
+        
+        // ✅ Check if body exists
+        if (!incomingMsg || !fromNumber) {
+            console.log('❌ Missing Body or From in request');
+            return res.status(200).send('<Response></Response>');
+        }
+        
         const phoneNumber = fromNumber.replace('whatsapp:+', '');
         
         console.log(`📩 WhatsApp from ${phoneNumber}: ${incomingMsg}`);
@@ -59,20 +73,24 @@ router.post('/webhook', async (req, res) => {
         const twiml = new twilio.twiml.MessagingResponse();
         
         if (response === 'ACCEPT') {
-            // Update task status
+            // ✅ STORE ACCEPTED TASK IN DATABASE
             pendingTask.status = 'accepted';
             pendingTask.acceptedAt = new Date();
             await pendingTask.save();
             
-            // Update volunteer status
-            await User.findByIdAndUpdate(volunteer._id, { status: 'busy' });
+            // Update volunteer stats
+            await User.findByIdAndUpdate(volunteer._id, { 
+                status: 'busy',
+                $inc: { totalTasksCompleted: 1 }
+            });
             
-            // Send confirmation
-            await sendWhatsAppMessage(phoneNumber, `✅ Task Accepted!\n\n📍 Location: ${pendingTask.location}\n\nPlease update status on dashboard when you reach and complete.`);
+            // Send confirmation to volunteer
+            await sendWhatsAppMessage(phoneNumber, `✅ Task Accepted!\n\n📍 Location: ${pendingTask.location}\n\nThank you for your service! 🙏`);
             
             console.log(`✅ ${volunteer.fullName} ACCEPTED task: ${pendingTask.title}`);
+            console.log(`✅ Task stored in database with status: accepted`);
             
-            twiml.message(`✅ Task Accepted! Please proceed to location.`);
+            twiml.message(`✅ Task Accepted! Thank you for your service.`);
             
         } else if (response === 'REJECT') {
             pendingTask.status = 'rejected';
@@ -94,5 +112,7 @@ router.post('/webhook', async (req, res) => {
         res.status(200).send('<Response></Response>');
     }
 });
+
+console.log('✅ WhatsApp Webhook route loaded!');
 
 module.exports = router;

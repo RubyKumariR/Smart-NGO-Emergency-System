@@ -71,8 +71,6 @@ body::before {
   width: 38px; height: 38px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2));
   display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; color: white;
 }
-
-/* Stats Bar */
 .stats-bar {
   display: flex;
   gap: 16px;
@@ -82,22 +80,9 @@ body::before {
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
 }
-.stat-card {
-  flex: 1;
-  text-align: center;
-}
-.stat-value {
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--accent);
-}
-.stat-label {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 4px;
-}
-
-/* Filters */
+.stat-card { flex: 1; text-align: center; }
+.stat-value { font-size: 28px; font-weight: 700; color: var(--accent); }
+.stat-label { font-size: 12px; color: var(--muted); margin-top: 4px; }
 .filters {
   display: flex;
   gap: 10px;
@@ -126,11 +111,11 @@ body::before {
 }
 .filter-btn:hover { background: rgba(204,0,0,0.08); border-color: var(--accent); }
 .filter-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
-
-/* Volunteers Grid */
+.ai-sort-btn { background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: white; }
+.ai-sort-btn:hover { background: linear-gradient(135deg, #7c3aed, #5b21b6); }
 .volunteers-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 20px;
 }
 .volunteer-card {
@@ -139,11 +124,11 @@ body::before {
   padding: 20px;
   border: 1px solid var(--border);
   transition: all 0.3s;
+  position: relative;
 }
-.volunteer-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-}
+.volunteer-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+.volunteer-card.high-match { border: 2px solid #10b981; }
+.volunteer-card.medium-match { border: 2px solid #f59e0b; }
 .volunteer-header {
   display: flex;
   align-items: center;
@@ -161,21 +146,22 @@ body::before {
   font-size: 24px;
   color: white;
 }
-.volunteer-info h3 {
-  font-size: 18px;
-  font-weight: 700;
-  margin-bottom: 4px;
+.volunteer-info h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.volunteer-info p { font-size: 12px; color: var(--muted); }
+.match-score-display { position: absolute; top: 15px; right: 15px; }
+.ai-match-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
 }
-.volunteer-info p {
-  font-size: 12px;
-  color: var(--muted);
-}
-.skills-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin: 12px 0;
-}
+.match-perfect { background: linear-gradient(135deg, #10b981, #059669); }
+.match-good { background: linear-gradient(135deg, #f59e0b, #ea580c); }
+.match-low { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.skills-list { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0; }
 .skill-tag {
   background: var(--card-2);
   padding: 4px 10px;
@@ -203,16 +189,18 @@ body::before {
   transition: all 0.2s;
   margin-top: 10px;
 }
-.assign-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(204,0,0,0.3);
+.assign-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(204,0,0,0.3); }
+.assign-whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); margin-top: 8px; }
+.whatsapp-status {
+  font-size: 11px;
+  padding: 6px;
+  border-radius: 8px;
+  margin-top: 8px;
+  text-align: center;
 }
-.assign-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Modal */
+.status-sent { background: #dcfce7; color: #166534; }
+.status-error { background: #fee2e2; color: #991b1b; }
+.status-pending { background: #fef3c7; color: #92400e; }
 .modal {
   display: none;
   position: fixed;
@@ -234,11 +222,8 @@ body::before {
   max-width: 500px;
   width: 90%;
 }
-.modal-content h3 {
-  font-family: var(--font-head);
-  margin-bottom: 20px;
-}
-.modal-content select {
+.modal-content h3 { font-family: var(--font-head); margin-bottom: 20px; }
+.modal-content select, .modal-content textarea {
   width: 100%;
   padding: 12px;
   margin: 8px 0;
@@ -246,12 +231,10 @@ body::before {
   border-radius: 12px;
   background: var(--card-2);
   font-size: 14px;
+  font-family: var(--font-body);
 }
-.modal-buttons {
-  display: flex;
-  gap: 12px;
-  margin-top: 20px;
-}
+.modal-content textarea { min-height: 80px; resize: vertical; }
+.modal-buttons { display: flex; gap: 12px; margin-top: 20px; }
 .modal-buttons button {
   flex: 1;
   padding: 12px;
@@ -262,8 +245,6 @@ body::before {
 }
 .modal-assign { background: var(--accent); color: white; }
 .modal-cancel { background: var(--card-2); color: var(--text); }
-
-/* Toast */
 .toast {
   position: fixed;
   bottom: 30px;
@@ -278,8 +259,6 @@ body::before {
   font-size: 13px;
 }
 .toast.show { transform: translateX(0); }
-
-/* Server Status */
 .server-status {
   position: fixed;
   bottom: 20px;
@@ -294,18 +273,12 @@ body::before {
   gap: 8px;
   color: white;
 }
-.status-led {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
+.status-led { width: 8px; height: 8px; border-radius: 50%; }
 .status-led.online { background: #22c55e; animation: pulse 2s infinite; }
 .status-led.offline { background: #ef4444; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-
 .empty-state { text-align: center; padding: 60px; color: var(--muted); }
 .empty-state .icon { font-size: 48px; margin-bottom: 15px; }
-
 @media (max-width: 768px) {
   .sidebar { width: 60px; }
   .main { margin-left: 60px; padding: 16px; }
@@ -336,72 +309,61 @@ body::before {
       <div class="avatar" id="userAvatar">🧑</div>
     </div>
   </div>
-
-  <!-- Stats Bar -->
   <div class="stats-bar">
     <div class="stat-card"><div class="stat-value" id="totalVolunteers">0</div><div class="stat-label">Total Volunteers</div></div>
     <div class="stat-card"><div class="stat-value" id="activeVolunteers">0</div><div class="stat-label">Active Volunteers</div></div>
     <div class="stat-card"><div class="stat-value" id="availableVolunteers">0</div><div class="stat-label">Available Now</div></div>
     <div class="stat-card"><div class="stat-value" id="avgSkillMatch">0%</div><div class="stat-label">Avg Skill Match</div></div>
   </div>
-
-  <!-- Filters -->
   <div class="filters">
     <input type="text" class="search-box" id="searchBox" placeholder="🔍 Search by name, skills, or location...">
     <button class="filter-btn active" data-filter="all">All</button>
-    <button class="filter-btn" data-filter="full-time">🟢 Full-time</button>
-    <button class="filter-btn" data-filter="part-time">🟡 Part-time</button>
-    <button class="filter-btn" data-filter="weekends">🔵 Weekends</button>
+    <button class="filter-btn" data-filter="Full-time">🟢 Full-time</button>
+    <button class="filter-btn" data-filter="Part-time">🟡 Part-time</button>
+    <button class="filter-btn" data-filter="Weekends">🔵 Weekends</button>
+    <button class="filter-btn ai-sort-btn" onclick="sortByAIMatch()">🤖 AI Match Sort</button>
     <button class="filter-btn" onclick="loadVolunteers()">🔄 Refresh</button>
   </div>
-
-  <!-- Volunteers Grid -->
   <div class="volunteers-grid" id="volunteersGrid">
     <div class="empty-state"><div class="icon">📡</div><p>Loading volunteers...</p></div>
   </div>
 </main>
 
-<!-- Assign Task Modal -->
 <div class="modal" id="assignModal">
   <div class="modal-content">
     <h3>Assign Task to Volunteer</h3>
     <select id="taskSelect">
-      <option value="">Select a task...</option>
+      <option value="">Select an emergency...</option>
     </select>
+    <textarea id="taskMessage" placeholder="Custom message for volunteer (optional)"></textarea>
     <div class="modal-buttons">
       <button class="modal-cancel" onclick="closeAssignModal()">Cancel</button>
-      <button class="modal-assign" onclick="confirmAssignment()">Assign Task</button>
+      <button class="modal-assign" onclick="confirmAssignment()">📋 Assign Task</button>
+      <button class="modal-assign" onclick="confirmAssignmentWithWhatsApp()" style="background: #25D366;">📱 Assign & Send WhatsApp</button>
     </div>
   </div>
 </div>
 
-<!-- Server Status -->
 <div class="server-status" id="serverStatus">
   <div class="status-led" id="statusLed"></div>
   <span id="statusText">Checking server...</span>
 </div>
-
 <div id="toast" class="toast"></div>
 
 <script>
-// API Configuration
 const API_BASE = 'http://localhost:5000/api';
 let token = localStorage.getItem('token');
 let allVolunteers = [];
-let selectedVolunteerId = null;
+let allEmergencies = [];
+let selectedVolunteer = null;
 
-// Check if token exists
 if (!token) {
     showToast('Please login first', 'error');
     setTimeout(() => window.location.href = 'login.html', 1500);
 }
 
-// Navigation
-function navigateTo(page) {
-    window.location.href = page;
-}
+function navigateTo(page) { window.location.href = page; }
 
-// Show toast
 function showToast(message, type = 'info') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
@@ -410,12 +372,10 @@ function showToast(message, type = 'info') {
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Check server health
 async function checkServerHealth() {
     const statusLed = document.getElementById('statusLed');
     const statusText = document.getElementById('statusText');
     const statusPill = document.getElementById('statusPill');
-    
     try {
         const response = await fetch(`${API_BASE}/health`);
         if (response.ok) {
@@ -433,61 +393,103 @@ async function checkServerHealth() {
     return false;
 }
 
-// Load volunteers - FIXED ENDPOINT
+function calculateMatchScore(volunteer, emergency) {
+    let score = 0;
+    const requiredSkills = emergency.skills_required || [];
+    const volunteerSkills = volunteer.skills || [];
+    
+    if (requiredSkills.length > 0 && volunteerSkills.length > 0) {
+        const matched = requiredSkills.filter(req =>
+            volunteerSkills.some(v => v.toLowerCase().includes(req.toLowerCase()) || req.toLowerCase().includes(v.toLowerCase()))
+        );
+        score += (matched.length / requiredSkills.length) * 60;
+    } else if (requiredSkills.length === 0) {
+        score += 30;
+    }
+    
+    if (volunteer.location && emergency.location_name) {
+        const vLoc = volunteer.location.toLowerCase();
+        const eLoc = emergency.location_name.toLowerCase();
+        if (vLoc === eLoc) score += 25;
+        else if (vLoc.includes(eLoc) || eLoc.includes(vLoc)) score += 15;
+        else score += 5;
+    } else { score += 5; }
+    
+    if (emergency.urgency_level === 'High' && volunteer.availability === 'Full-time') score += 15;
+    else if (volunteer.availability === 'Full-time') score += 10;
+    else if (volunteer.availability === 'Part-time') score += 7;
+    else score += 3;
+    
+    return Math.min(100, Math.round(score));
+}
+
 async function loadVolunteers() {
     const grid = document.getElementById('volunteersGrid');
-    grid.innerHTML = '<div class="empty-state"><div class="icon">📡</div><p>Loading volunteers...</p></div>';
+    grid.innerHTML = '<div class="empty-state"><div class="icon">📡</div><p>Loading volunteers from database...</p></div>';
     
     try {
-        // CORRECT ENDPOINT - using /auth/volunteers
-        const response = await fetch(`${API_BASE}/auth/volunteers`, {
-            headers: { 
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
+        const volunteersRes = await fetch(`${API_BASE}/auth/volunteers`, {
+            headers: { 'Authorization': `Bearer ${token}` }
         });
         
-        if (response.status === 401) {
-            showToast('Session expired. Please login again.', 'error');
+        const emergenciesRes = await fetch(`${API_BASE}/ai/cases`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (volunteersRes.status === 401) {
             localStorage.clear();
+            showToast('Session expired. Please login again.', 'error');
             setTimeout(() => window.location.href = 'login.html', 1500);
             return;
         }
         
-        if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || 'Failed to fetch volunteers');
-        }
+        const volunteers = await volunteersRes.json();
+        allEmergencies = await emergenciesRes.json();
+        const openEmergencies = allEmergencies.filter(e => e.status === 'open' || !e.status);
         
-        const volunteers = await response.json();
-        allVolunteers = volunteers;
+        allVolunteers = volunteers.map(vol => {
+            const bestMatch = openEmergencies.length > 0 ? calculateMatchScore(vol, openEmergencies[0]) : 50;
+            let matchClass = 'match-low';
+            if (bestMatch >= 80) matchClass = 'match-perfect';
+            else if (bestMatch >= 60) matchClass = 'match-good';
+            
+            return { 
+                ...vol, 
+                aiMatchScore: bestMatch,
+                matchClass: matchClass,
+                matchText: bestMatch >= 80 ? 'Perfect Match!' : bestMatch >= 60 ? 'Good Match' : 'Potential Match'
+            };
+        });
         
         if (volunteers.length === 0) {
-            grid.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No volunteers registered yet</p><p style="font-size: 12px; margin-top: 10px;">Volunteers will appear here after they register.</p></div>';
+            grid.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>No volunteers registered yet</p></div>';
             updateStats([]);
             return;
         }
         
-        renderVolunteers(volunteers);
+        renderVolunteers(allVolunteers);
         updateStats(volunteers);
         showToast(`✅ Loaded ${volunteers.length} volunteers`, 'success');
         
     } catch (error) {
-        console.error('Error loading volunteers:', error);
-        grid.innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Failed to load volunteers</p><p style="font-size: 12px; margin-top: 10px;">${error.message}</p></div>`;
-        showToast(error.message, 'error');
+        console.error('Error:', error);
+        grid.innerHTML = '<div class="empty-state"><div class="icon">⚠️</div><p>Failed to load volunteers</p></div>';
     }
 }
 
-// Render volunteers
+function sortByAIMatch() {
+    const sorted = [...allVolunteers].sort((a, b) => b.aiMatchScore - a.aiMatchScore);
+    renderVolunteers(sorted);
+    showToast('🤖 Sorted by AI Match Score', 'success');
+}
+
 function renderVolunteers(volunteers) {
     const grid = document.getElementById('volunteersGrid');
     const searchTerm = document.getElementById('searchBox').value.toLowerCase();
-    const activeFilter = document.querySelector('.filter-btn.active')?.dataset.filter || 'all';
+    const activeFilter = document.querySelector('.filter-btn.active')?.dataset?.filter || 'all';
     
     let filtered = [...volunteers];
     
-    // Search filter
     if (searchTerm) {
         filtered = filtered.filter(v => 
             (v.fullName && v.fullName.toLowerCase().includes(searchTerm)) ||
@@ -496,11 +498,8 @@ function renderVolunteers(volunteers) {
         );
     }
     
-    // Availability filter
     if (activeFilter !== 'all') {
-        filtered = filtered.filter(v => 
-            v.availability && v.availability.toLowerCase() === activeFilter
-        );
+        filtered = filtered.filter(v => v.availability === activeFilter);
     }
     
     if (filtered.length === 0) {
@@ -508,62 +507,68 @@ function renderVolunteers(volunteers) {
         return;
     }
     
-    grid.innerHTML = filtered.map(volunteer => `
-        <div class="volunteer-card">
-            <div class="volunteer-header">
-                <div class="volunteer-avatar">${getAvatarInitial(volunteer.fullName)}</div>
-                <div class="volunteer-info">
-                    <h3>${escapeHtml(volunteer.fullName || 'Volunteer')}</h3>
-                    <p>📍 ${escapeHtml(volunteer.location || 'Location not set')}</p>
+    grid.innerHTML = filtered.map(volunteer => {
+        const matchColor = volunteer.aiMatchScore >= 80 ? '#10b981' : volunteer.aiMatchScore >= 60 ? '#f59e0b' : '#ef4444';
+        
+        return `
+            <div class="volunteer-card ${volunteer.aiMatchScore >= 80 ? 'high-match' : volunteer.aiMatchScore >= 60 ? 'medium-match' : ''}">
+                <div class="match-score-display">
+                    <span class="ai-match-badge ${volunteer.matchClass}" style="background: ${matchColor}">
+                        🤖 ${volunteer.aiMatchScore}% Match
+                    </span>
                 </div>
-            </div>
-            <div class="volunteer-meta">
-                <span>⏰ ${volunteer.availability || 'Availability not set'}</span>
-                <span>📧 ${escapeHtml(volunteer.email || 'No email')}</span>
-                ${volunteer.phoneNumber ? `<span>📞 ${volunteer.phoneNumber}</span>` : ''}
-            </div>
-            ${volunteer.skills && volunteer.skills.length > 0 ? `
-                <div class="skills-list">
-                    ${volunteer.skills.map(skill => `<span class="skill-tag">${escapeHtml(skill)}</span>`).join('')}
+                <div class="volunteer-header">
+                    <div class="volunteer-avatar">${getAvatarInitial(volunteer.fullName)}</div>
+                    <div class="volunteer-info">
+                        <h3>${escapeHtml(volunteer.fullName || 'Volunteer')}</h3>
+                        <p>📍 ${escapeHtml(volunteer.location || 'Location not set')}</p>
+                    </div>
                 </div>
-            ` : '<div class="skills-list"><span class="skill-tag">No skills listed</span></div>'}
-            <button class="assign-btn" onclick="openAssignModal('${volunteer._id}', '${escapeHtml(volunteer.fullName)}')">
-                📋 Assign Task
-            </button>
-        </div>
-    `).join('');
+                <div class="volunteer-meta">
+                    <span>⏰ ${volunteer.availability || 'Not set'}</span>
+                    <span>📧 ${escapeHtml(volunteer.email || 'No email')}</span>
+                    ${volunteer.phoneNumber ? `<span>📞 ${volunteer.phoneNumber}</span>` : ''}
+                </div>
+                ${volunteer.skills && volunteer.skills.length > 0 ? `
+                    <div class="skills-list">
+                        ${volunteer.skills.slice(0, 5).map(skill => `<span class="skill-tag">🛠️ ${escapeHtml(skill)}</span>`).join('')}
+                    </div>
+                ` : '<div class="skills-list"><span class="skill-tag">No skills listed</span></div>'}
+                <div class="volunteer-meta" style="color: ${matchColor}; font-weight: 600;">
+                    🤖 AI: ${volunteer.matchText}
+                </div>
+                <button class="assign-btn" onclick="openAssignModal('${volunteer._id}', '${escapeHtml(volunteer.fullName)}', '${volunteer.phoneNumber || ''}')">
+                    📋 Assign Task
+                </button>
+                <button class="assign-btn assign-whatsapp" onclick="sendWhatsAppToVolunteer('${volunteer._id}', '${escapeHtml(volunteer.fullName)}', '${volunteer.phoneNumber || ''}')">
+                    📱 Send WhatsApp & Assign
+                </button>
+                <div id="whatsapp-status-${volunteer._id}" class="whatsapp-status" style="display: none;"></div>
+            </div>
+        `;
+    }).join('');
 }
 
-// Get avatar initial
-function getAvatarInitial(name) {
-    if (!name) return '👤';
-    return name.charAt(0).toUpperCase();
-}
+function getAvatarInitial(name) { return name ? name.charAt(0).toUpperCase() : '👤'; }
 
-// Update statistics
 function updateStats(volunteers) {
     const total = volunteers.length;
     const active = volunteers.filter(v => v.status === 'active').length;
-    const fullTime = volunteers.filter(v => v.availability === 'Full-time').length;
-    const partTime = volunteers.filter(v => v.availability === 'Part-time').length;
+    const available = volunteers.filter(v => v.availability === 'Full-time' || v.availability === 'Part-time').length;
+    const avgMatch = volunteers.length ? Math.round(volunteers.reduce((sum, v) => sum + (v.aiMatchScore || 0), 0) / volunteers.length) : 0;
     
     document.getElementById('totalVolunteers').textContent = total;
     document.getElementById('activeVolunteers').textContent = active;
-    document.getElementById('availableVolunteers').textContent = fullTime + partTime;
-    
-    // Calculate average skills per volunteer
-    const totalSkills = volunteers.reduce((sum, v) => sum + (v.skills?.length || 0), 0);
-    const avgSkills = volunteers.length > 0 ? Math.round(totalSkills / volunteers.length) : 0;
-    document.getElementById('avgSkillMatch').textContent = `${avgSkills * 15}%`; // Rough estimate
+    document.getElementById('availableVolunteers').textContent = available;
+    document.getElementById('avgSkillMatch').textContent = `${avgMatch}%`;
 }
 
-// Open assign modal
-async function openAssignModal(volunteerId, volunteerName) {
-    selectedVolunteerId = volunteerId;
+async function openAssignModal(volunteerId, volunteerName, volunteerPhone) {
+    selectedVolunteer = { id: volunteerId, name: volunteerName, phone: volunteerPhone };
     const modal = document.getElementById('assignModal');
     const taskSelect = document.getElementById('taskSelect');
     
-    taskSelect.innerHTML = '<option value="">Loading tasks...</option>';
+    taskSelect.innerHTML = '<option value="">Loading emergencies...</option>';
     modal.classList.add('show');
     
     try {
@@ -572,82 +577,159 @@ async function openAssignModal(volunteerId, volunteerName) {
         });
         
         if (response.ok) {
-            const tasks = await response.json();
-            const openTasks = tasks.filter(t => t.status === 'open');
+            const emergencies = await response.json();
+            const openEmergencies = emergencies.filter(e => e.status === 'open' || !e.status);
             
-            if (openTasks.length === 0) {
-                taskSelect.innerHTML = '<option value="">No open tasks available</option>';
+            if (openEmergencies.length === 0) {
+                taskSelect.innerHTML = '<option value="">No open emergencies. Create one first!</option>';
             } else {
-                taskSelect.innerHTML = '<option value="">Select a task...</option>' +
-                    openTasks.map(task => `<option value="${task._id}">${task.type || 'Emergency'} - ${task.location_name || 'Unknown location'}</option>`).join('');
+                taskSelect.innerHTML = '<option value="">Select an emergency...</option>' +
+                    openEmergencies.map(e => `<option value="${e._id}">🚨 ${e.type || 'Emergency'} - ${e.location_name || 'Unknown'} | 👥 ${e.people_affected || 0}</option>`).join('');
             }
-        } else {
-            taskSelect.innerHTML = '<option value="">Error loading tasks</option>';
         }
     } catch (error) {
-        console.error('Error loading tasks:', error);
-        taskSelect.innerHTML = '<option value="">Error loading tasks</option>';
+        taskSelect.innerHTML = '<option value="">Error loading emergencies</option>';
     }
 }
 
-// Close assign modal
-function closeAssignModal() {
-    document.getElementById('assignModal').classList.remove('show');
-    selectedVolunteerId = null;
-}
+function closeAssignModal() { document.getElementById('assignModal').classList.remove('show'); }
 
-// Confirm assignment
 async function confirmAssignment() {
-    const taskId = document.getElementById('taskSelect').value;
-    
-    if (!taskId) {
-        showToast('Please select a task', 'error');
-        return;
-    }
+    const emergencyId = document.getElementById('taskSelect').value;
+    if (!emergencyId) { showToast('Please select an emergency', 'error'); return; }
     
     try {
-        const response = await fetch(`${API_BASE}/tasks/${taskId}/accept`, {
+        showToast('📋 Creating task and assigning...', 'info');
+        
+        const createRes = await fetch(`${API_BASE}/task-assignment/create-from-case/${emergencyId}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ volunteerId: selectedVolunteerId })
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
         });
         
-        if (response.ok) {
-            showToast('✅ Task assigned successfully!', 'success');
+        if (!createRes.ok) throw new Error('Failed to create task');
+        const { task } = await createRes.json();
+        
+        const assignRes = await fetch(`${API_BASE}/task-assignment/${task._id}/auto-assign`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (assignRes.ok) {
+            showToast(`✅ Task assigned to ${selectedVolunteer.name}`, 'success');
             closeAssignModal();
             loadVolunteers();
         } else {
-            const error = await response.json();
-            throw new Error(error.error || 'Assignment failed');
+            throw new Error('Assignment failed');
         }
     } catch (error) {
-        console.error('Error:', error);
-        showToast(error.message || 'Failed to assign task', 'error');
+        showToast(error.message, 'error');
     }
 }
 
-// Escape HTML
+// MAIN WHATSAPP FUNCTION - THIS SENDS THE ACTUAL MESSAGE
+async function sendWhatsAppToVolunteer(volunteerId, volunteerName, volunteerPhone) {
+    const statusDiv = document.getElementById(`whatsapp-status-${volunteerId}`);
+    
+    // Validate phone number
+    if (!volunteerPhone) {
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'whatsapp-status status-error';
+        statusDiv.innerHTML = '❌ No phone number available';
+        setTimeout(() => statusDiv.style.display = 'none', 3000);
+        return;
+    }
+    
+    // Check for emergencies
+    if (allEmergencies.length === 0) {
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'whatsapp-status status-error';
+        statusDiv.innerHTML = '❌ No emergencies. Create one first!';
+        setTimeout(() => statusDiv.style.display = 'none', 3000);
+        return;
+    }
+    
+    const openEmergency = allEmergencies.find(e => e.status === 'open' || !e.status);
+    if (!openEmergency) {
+        statusDiv.style.display = 'block';
+        statusDiv.className = 'whatsapp-status status-error';
+        statusDiv.innerHTML = '❌ No open emergencies';
+        setTimeout(() => statusDiv.style.display = 'none', 3000);
+        return;
+    }
+    
+    statusDiv.style.display = 'block';
+    statusDiv.className = 'whatsapp-status status-pending';
+    statusDiv.innerHTML = '📱 Creating task and sending WhatsApp...';
+    
+    try {
+        // STEP 1: Create task from emergency
+        console.log('Creating task from emergency:', openEmergency._id);
+        const createRes = await fetch(`${API_BASE}/task-assignment/create-from-case/${openEmergency._id}`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            }
+        });
+        
+        if (!createRes.ok) {
+            const errorText = await createRes.text();
+            throw new Error(`Task creation failed: ${createRes.status} - ${errorText}`);
+        }
+        
+        const { task } = await createRes.json();
+        console.log('Task created:', task._id);
+        
+        // STEP 2: Auto-assign and send WhatsApp
+        const assignRes = await fetch(`${API_BASE}/task-assignment/${task._id}/auto-assign`, {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            }
+        });
+        
+        const data = await assignRes.json();
+        console.log('Assignment response:', data);
+        
+        if (data.success) {
+            statusDiv.className = 'whatsapp-status status-sent';
+            statusDiv.innerHTML = '✅ WhatsApp sent successfully!';
+            setTimeout(() => statusDiv.style.display = 'none', 5000);
+            showToast(`✅ WhatsApp sent to ${volunteerName}! Ask them to check their phone.`, 'success');
+            
+            // Refresh volunteers list
+            setTimeout(() => loadVolunteers(), 2000);
+        } else {
+            throw new Error(data.message || data.error || 'WhatsApp send failed');
+        }
+        
+    } catch (error) {
+        console.error('WhatsApp Error:', error);
+        statusDiv.className = 'whatsapp-status status-error';
+        statusDiv.innerHTML = `❌ Failed: ${error.message}`;
+        setTimeout(() => statusDiv.style.display = 'none', 5000);
+        showToast(`Failed: ${error.message}`, 'error');
+    }
+}
+
+async function confirmAssignmentWithWhatsApp() {
+    const emergencyId = document.getElementById('taskSelect').value;
+    if (!emergencyId) { showToast('Please select an emergency', 'error'); return; }
+    await sendWhatsAppToVolunteer(selectedVolunteer.id, selectedVolunteer.name, selectedVolunteer.phone);
+}
+
 function escapeHtml(str) {
     if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
+    return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;');
 }
 
-// Logout
-function logout() {
-    localStorage.clear();
-    showToast('Logged out', 'success');
-    setTimeout(() => window.location.href = 'login.html', 500);
+function logout() { 
+    localStorage.clear(); 
+    showToast('Logged out', 'success'); 
+    setTimeout(() => window.location.href = 'login.html', 500); 
 }
 
-// Initialize
 async function init() {
     await checkServerHealth();
     await loadVolunteers();
@@ -656,7 +738,7 @@ async function init() {
     
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', function() {
-            if (this.textContent.includes('Refresh')) return;
+            if (this.textContent.includes('Refresh') || this.textContent.includes('AI Match')) return;
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             this.classList.add('active');
             renderVolunteers(allVolunteers);
@@ -664,11 +746,9 @@ async function init() {
     });
     
     const userEmail = localStorage.getItem('userEmail') || 'NGO';
-    const initial = userEmail.charAt(0).toUpperCase();
-    document.getElementById('userAvatar').innerText = initial;
+    document.getElementById('userAvatar').innerText = userEmail.charAt(0).toUpperCase();
     
-    // Auto-refresh every 30 seconds
-    setInterval(async () => {
+    setInterval(async () => { 
         if (document.getElementById('statusLed').classList.contains('online')) {
             await loadVolunteers();
         }
