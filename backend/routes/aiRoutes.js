@@ -139,27 +139,67 @@ router.put('/cases/:id', async (req, res) => {
 });
 
 // Gemini AI endpoint
+// router.post('/gemini', async (req, res) => {
+//     try {
+//         const { message } = req.body;
+        
+//         if (!message) {
+//             return res.status(400).json({ error: 'Message is required' });
+//         }
+        
+//         console.log('🤖 Gemini request:', message.substring(0, 100));
+        
+//         // You can integrate actual Gemini API here
+//         // For now, return a helpful response
+//         res.json({ 
+//             reply: `🤖 I understand you're asking about: "${message}".\n\nI'm your AI assistant for emergency response. I can help you with:\n- Emergency reporting\n- Resource allocation\n- Volunteer coordination\n- Disaster management tips\n\nHow can I assist you further?`,
+//             timestamp: new Date().toISOString()
+//         });
+        
+//     } catch (err) {
+//         console.error('Gemini error:', err);
+//         res.status(500).json({ error: err.message });
+//     }
+// });
+
+const { GoogleGenAI } = require("@google/genai");
+
+const ai = new GoogleGenAI({
+    apiKey: process.env.GEMINI_API_KEY
+});
+
 router.post('/gemini', async (req, res) => {
     try {
         const { message } = req.body;
-        
+
         if (!message) {
             return res.status(400).json({ error: 'Message is required' });
         }
-        
-        console.log('🤖 Gemini request:', message.substring(0, 100));
-        
-        // You can integrate actual Gemini API here
-        // For now, return a helpful response
-        res.json({ 
-            reply: `🤖 I understand you're asking about: "${message}".\n\nI'm your AI assistant for emergency response. I can help you with:\n- Emergency reporting\n- Resource allocation\n- Volunteer coordination\n- Disaster management tips\n\nHow can I assist you further?`,
+
+        console.log('🤖 Gemini request:', message);
+
+        // 🔥 ACTUAL GEMINI CALL
+        const response = await ai.models.generateContent({
+            model: "gemini-3-flash-preview",  // safer working model
+            contents: message,
+        });
+
+        const reply = response.text;
+
+        res.json({
+            reply,
             timestamp: new Date().toISOString()
         });
-        
+
     } catch (err) {
         console.error('Gemini error:', err);
         res.status(500).json({ error: err.message });
     }
 });
 
+
 module.exports = router;
+
+
+
+

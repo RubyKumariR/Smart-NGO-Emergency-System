@@ -176,4 +176,149 @@ router.post('/:taskId/complete', authMiddleware, async (req, res) => {
     }
 });
 
+
+
+
+// Get detailed volunteer statistics for NGO dashboard
+router.get('/volunteer-stats', authMiddleware, async (req, res) => {
+    try {
+        // Only NGOs can access this
+        const requestingUser = await User.findById(req.user.id);
+        if (requestingUser.role !== 'ngo') {
+            return res.status(403).json({ error: 'Access denied. Only NGOs can view volunteer stats.' });
+        }
+        
+        // Get all volunteers
+        const volunteers = await User.find({ role: 'volunteer' }).select('-password');
+        
+        // Get statistics for each volunteer
+        const volunteerStats = await Promise.all(volunteers.map(async (volunteer) => {
+            // Get all tasks for this volunteer
+            const tasks = await Task.find({ assignedTo: volunteer._id });
+            
+            // Calculate stats
+            const assignedTasks = tasks.filter(t => t.status === 'pending_confirmation').length;
+            const acceptedTasks = tasks.filter(t => t.status === 'accepted').length;
+            const reachedTasks = tasks.filter(t => t.status === 'reached').length;
+            const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
+            const completedTasks = tasks.filter(t => t.status === 'completed').length;
+            const rejectedTasks = tasks.filter(t => t.status === 'rejected').length;
+            
+            // Calculate completion rate
+            const totalAssigned = assignedTasks + acceptedTasks + reachedTasks + inProgressTasks + completedTasks;
+            const completionRate = totalAssigned > 0 ? Math.round((completedTasks / totalAssigned) * 100) : 0;
+            
+            // Get latest task info
+            const latestTask = tasks.sort((a, b) => b.createdAt - a.createdAt)[0];
+            
+            return {
+                volunteerId: volunteer._id,
+                name: volunteer.fullName,
+                email: volunteer.email,
+                phone: volunteer.phoneNumber,
+                location: volunteer.location,
+                skills: volunteer.skills || [],
+                availability: volunteer.availability,
+                rating: volunteer.rating || 0,
+                totalTasksCompleted: volunteer.totalTasksCompleted || 0,
+                status: volunteer.status || 'active',
+                stats: {
+                    assigned: assignedTasks,
+                    accepted: acceptedTasks,
+                    reached: reachedTasks,
+                    inProgress: inProgressTasks,
+                    completed: completedTasks,
+                    rejected: rejectedTasks,
+                    completionRate: completionRate
+                },
+                latestTask: latestTask ? {
+                    title: latestTask.title,
+                    status: latestTask.status,
+                    assignedAt: latestTask.assignedAt,
+                    acceptedAt: latestTask.acceptedAt,
+                    reachedAt: latestTask.reachedAt,
+                    completedAt: latestTask.completedAt
+                } : null
+            };
+        }));
+        
+        // Calculate overall statistics
+        const overallStats = {
+            totalVolunteers: volunteers.length,
+            activeVolunteers: volunteers.filter(v => v.status === 'active').length,
+            busyVolunteers: volunteers.filter(v => v.status === 'busy').length,
+            totalTasksAssigned: volunteerStats.reduce((sum, v) => sum + v.stats.assigned, 0),
+            totalTasksAccepted: volunteerStats.reduce((sum, v) => sum + v.stats.accepted, 0),
+            totalTasksCompleted: volunteerStats.reduce((sum, v) => sum + v.stats.completed, 0),
+            totalTasksRejected: volunteerStats.reduce((sum, v) => sum + v.stats.rejected, 0),
+            averageCompletionRate: Math.round(volunteerStats.reduce((sum, v) => sum + v.stats.completionRate, 0) / (volunteerStats.length || 1))
+        };
+        
+        res.json({
+            success: true,
+            volunteers: volunteerStats,
+            overallStats: overallStats
+        });
+        
+    } catch (error) {
+        console.error('Error fetching volunteer stats:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+
+// Mark task as reached location
+router.post('/:taskId/reached', authMiddleware, async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.taskId);
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        // Check if task is assigned to this volunteer
+        if (task.assignedTo.toString() !== req.user.id) {
+            return res.status(403).json({ error: 'Task not assigned to you' });
+        }
+        
+        // Check if task is in correct state
+        if (task.status !== 'accepted') {
+            return res.status(400).json({ error: 'Task must be accepted first' });
+        }
+        
+        // Update task status
+        task.status = 'reached';
+        task.reachedAt = new Date();
+        await task.save();
+        
+        console.log(`📍 Volunteer reached location for task: ${task.title}`);
+        
+        res.json({ success: true, message: 'Location reached!' });
+        
+    } catch (error) {
+        console.error('Reached error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Add completion notes endpoint
+router.post('/:taskId/notes', authMiddleware, async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.taskId);
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        if (task.assignedTo.toString() !== req.user.id) {
+            return res.status(403).json({ error: 'Task not assigned to you' });
+        }
+        
+        task.completion_notes = req.body.completion_notes;
+        await task.save();
+        
+        res.json({ success: true, message: 'Notes added!' });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 module.exports = router;
