@@ -8,7 +8,8 @@ const aiRoutes = require('./aiRoutes');
 const documentRoutes = require('./documentRoutes');
 const notificationRoutes = require('./notificationRoutes');
 const whatsappWebhook = require('./whatsappWebhook');
-const taskAssignmentRoutes = require('./taskAssignmentRoutes');  // ✅ ADD THIS LINE
+const taskAssignmentRoutes = require('./taskAssignmentRoutes');
+const ocrRoutes = require('./ocrRoutes');  // ✅ ADD THIS LINE - OCR Scanner
 
 router.use('/auth', authRoutes);
 router.use('/tasks', taskRoutes);
@@ -17,7 +18,8 @@ router.use('/ai', aiRoutes);
 router.use('/documents', documentRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/whatsapp', whatsappWebhook);
-router.use('/task-assignment', taskAssignmentRoutes);  // ✅ ADD THIS LINE
+router.use('/task-assignment', taskAssignmentRoutes);
+router.use('/ocr', ocrRoutes);  // ✅ ADD THIS LINE - OCR routes
 
 router.get('/health', (req, res) => {
     res.json({ 
@@ -32,6 +34,7 @@ router.get('/health', (req, res) => {
             notifications: '/api/notifications',
             whatsapp: '/api/whatsapp/webhook',
             'task-assignment': '/api/task-assignment/my-tasks',
+            ocr: '/api/ocr/scan',  // ✅ ADD THIS LINE
             health: '/api/health'
         }
     });

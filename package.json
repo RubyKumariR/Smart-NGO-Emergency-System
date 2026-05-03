@@ -1,4 +1,10 @@
 {
+  "name": "smart-ngo-backend",
+  "version": "1.0.0",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js"
+  },
   "dependencies": {
     "@getbrevo/brevo": "^5.0.4",
     "@google/genai": "^1.51.0",
@@ -24,6 +30,7 @@
     "node": "^24.15.0",
     "nodemailer": "^8.0.7",
     "nodemon": "^3.1.14",
+    "pdfjs-dist": "^5.7.284",
     "resend": "^6.12.2",
     "tesseract.js": "^7.0.0",
     "twilio": "^6.0.0",

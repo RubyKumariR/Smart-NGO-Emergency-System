@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const taskSchema = new mongoose.Schema({
-    caseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Case', required: true },
+    caseId: { type: mongoose.Schema.Types.ObjectId, ref: 'Case' }, // ✅ REMOVED 'required: true' to fix validation error
     title: { type: String, required: true },
     description: { type: String, default: '' },
     skills_required: [{ type: String }],

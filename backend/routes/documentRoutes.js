@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const fs = require('fs');
-const User = require('../models/User');
+const User = require('../models/user');
 const authMiddleware = require('../middleware/authMiddleware');
 
 // Add this at the top of documentRoutes.js

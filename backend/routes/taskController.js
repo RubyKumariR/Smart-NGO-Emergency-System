@@ -1,5 +1,5 @@
 const Case = require('../models/Case');
-const User = require('../models/User');
+const User = require('../models/user');
 const { findBestMatch, findMatchingVolunteers } = require('../utils/skillMatcher');
 const { sendTaskAssignmentEmail } = require('../services/emailService');
 const { sendTaskAssignmentSMS } = require('../services/smsService');

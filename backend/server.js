@@ -9,8 +9,8 @@ const fs = require('fs');
 // Import routes
 const apiRoutes = require('./routes');
 const aiRoutes = require('./routes/aiRoutes');
-// Add this line - Import AI Task Routes
 const aiTaskRoutes = require('./routes/aiTaskRoutes');
+const ocrRoutes = require('./routes/ocrRoutes');  // ✅ ADD THIS LINE
 
 const app = express();
 
@@ -24,6 +24,13 @@ const uploadDir = './uploads';
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
     console.log('📁 Uploads folder created');
+}
+
+// Also create OCR upload directory
+const ocrUploadDir = './uploads/ocr';
+if (!fs.existsSync(ocrUploadDir)) {
+    fs.mkdirSync(ocrUploadDir, { recursive: true });
+    console.log('📁 OCR uploads folder created');
 }
 
 const storage = multer.diskStorage({
@@ -53,7 +60,8 @@ mongoose.connect(process.env.DB_CONNECT_STRING || 'mongodb://127.0.0.1:27017/hac
 // Mount all routes under /api
 app.use('/api', apiRoutes);  // This handles /api/auth, /api/ai, /api/tasks, etc.
 app.use('/api/ai', aiRoutes); // Additional AI routes (if needed)
-app.use('/api/ai-tasks', aiTaskRoutes); // ADD THIS - AI-powered task management routes
+app.use('/api/ai-tasks', aiTaskRoutes); // AI-powered task management routes
+app.use('/api/ocr', ocrRoutes);  // ✅ ADD THIS LINE - OCR Scanner routes
 
 // ==================== HEALTH CHECK ENDPOINT ====================
 app.get('/api/health', (req, res) => {
@@ -67,6 +75,7 @@ app.get('/api/health', (req, res) => {
             tasks: '/api/tasks',
             'ai-tasks': '/api/ai-tasks (recommendations, insights, smart-assign)',
             ai: '/api/ai',
+            ocr: '/api/ocr/scan',  // ✅ ADD THIS LINE
             cases: '/api/ai/cases',
             predict: '/api/ai/predict'
         }
@@ -83,6 +92,7 @@ app.listen(PORT, () => {
     console.log(`   - Auth: http://localhost:${PORT}/api/auth`);
     console.log(`   - Tasks: http://localhost:${PORT}/api/tasks`);
     console.log(`   - AI Tasks: http://localhost:${PORT}/api/ai-tasks`);
+    console.log(`   - OCR: http://localhost:${PORT}/api/ocr/scan`);
     console.log(`   - AI Cases: http://localhost:${PORT}/api/ai/cases`);
     console.log(`   - AI Predict: http://localhost:${PORT}/api/ai/predict`);
 });
