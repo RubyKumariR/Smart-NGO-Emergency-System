@@ -49,7 +49,7 @@ router.post('/create-from-case/:caseId', authMiddleware, async (req, res) => {
     }
 });
 
-// Auto-assign with WhatsApp - THIS IS THE CRITICAL FUNCTION
+// Auto-assign with WhatsApp - FIXED VERSION
 router.post('/:taskId/auto-assign', authMiddleware, async (req, res) => {
     try {
         const task = await Task.findById(req.params.taskId);
@@ -64,6 +64,11 @@ router.post('/:taskId/auto-assign', authMiddleware, async (req, res) => {
         const volunteer = await User.findById(req.user.id);
         if (!volunteer) {
             return res.status(404).json({ error: 'Volunteer not found' });
+        }
+        
+        // Check if volunteer has phone number
+        if (!volunteer.phoneNumber) {
+            return res.status(400).json({ error: 'Volunteer has no phone number' });
         }
         
         // Update task
@@ -92,6 +97,7 @@ Smart NGO - Helping Faster 🚀`;
 
         let whatsappSent = false;
         let messageSid = null;
+        let formattedPhone = null;
         
         // Send WhatsApp message
         try {
@@ -100,27 +106,64 @@ Smart NGO - Helping Faster 🚀`;
                 process.env.TWILIO_AUTH_TOKEN
             );
             
-            // Clean phone number
-            let phone = volunteer.phoneNumber.replace(/\D/g, '');
-            if (phone.length === 10) {
-                const to = `whatsapp:+91${phone}`;
-                console.log(`📱 Sending WhatsApp to: ${to}`);
-                
-                const msg = await client.messages.create({
-                    body: message,
-                    from: 'whatsapp:+14155238886',
-                    to: to
-                });
-                
-                whatsappSent = true;
-                messageSid = msg.sid;
-                console.log(`✅ WhatsApp sent! SID: ${messageSid}`);
+            // FIXED: Better phone number handling for Indian numbers
+            let rawPhone = volunteer.phoneNumber.replace(/\D/g, '');
+            let cleanPhone = rawPhone;
+            
+            // Handle different phone number formats
+            if (cleanPhone.length === 10) {
+                // 10-digit number (e.g., 9980493417) - add 91
+                cleanPhone = `91${cleanPhone}`;
+            } else if (cleanPhone.length === 11 && cleanPhone.startsWith('91')) {
+                // 11-digit starting with 91 (e.g., 919980035131)
+                cleanPhone = cleanPhone;
+            } else if (cleanPhone.length === 12 && cleanPhone.startsWith('91')) {
+                // 12-digit with 91 (rare case)
+                cleanPhone = cleanPhone;
+            } else if (cleanPhone.length === 13 && cleanPhone.startsWith('919')) {
+                // 13-digit with country code
+                cleanPhone = cleanPhone;
+            } else if (!cleanPhone.startsWith('91') && cleanPhone.length > 10) {
+                // If it has country code other than 91, keep as is but ensure + prefix
+                cleanPhone = cleanPhone;
             } else {
-                console.log(`❌ Invalid phone: ${phone} (length: ${phone.length})`);
+                // Default: add 91 prefix
+                cleanPhone = `91${cleanPhone}`;
             }
             
+            // Ensure the number starts with 91 for India
+            if (!cleanPhone.startsWith('91')) {
+                cleanPhone = `91${cleanPhone}`;
+            }
+            
+            // Format for WhatsApp (must be in international format with +)
+            formattedPhone = `whatsapp:+${cleanPhone}`;
+            
+            console.log('=== WHATSAPP SEND DEBUG ===');
+            console.log(`Volunteer: ${volunteer.fullName}`);
+            console.log(`Original phone: ${volunteer.phoneNumber}`);
+            console.log(`Raw cleaned: ${rawPhone}`);
+            console.log(`Final cleaned: ${cleanPhone}`);
+            console.log(`WhatsApp formatted: ${formattedPhone}`);
+            console.log(`Message length: ${message.length} chars`);
+            
+            const msg = await client.messages.create({
+                body: message,
+                from: process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886',
+                to: formattedPhone
+            });
+            
+            whatsappSent = true;
+            messageSid = msg.sid;
+            console.log(`✅ WhatsApp sent successfully!`);
+            console.log(`✅ SID: ${messageSid}`);
+            console.log(`✅ Status: ${msg.status}`);
+            
         } catch (twilioError) {
-            console.error('❌ Twilio Error:', twilioError.message);
+            console.error('❌ Twilio Error Details:');
+            console.error(`Message: ${twilioError.message}`);
+            console.error(`Code: ${twilioError.code}`);
+            console.error(`Status: ${twilioError.status}`);
             whatsappSent = false;
         }
         
@@ -129,7 +172,9 @@ Smart NGO - Helping Faster 🚀`;
             message: 'Task assigned successfully',
             whatsappSent: whatsappSent,
             messageSid: messageSid,
-            volunteerPhone: volunteer.phoneNumber
+            volunteerName: volunteer.fullName,
+            volunteerPhone: volunteer.phoneNumber,
+            formattedPhone: formattedPhone
         });
         
     } catch (error) {
@@ -157,6 +202,39 @@ router.post('/:taskId/accept', authMiddleware, async (req, res) => {
     }
 });
 
+// Mark task as reached location
+router.post('/:taskId/reached', authMiddleware, async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.taskId);
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        // Check if task is assigned to this volunteer
+        if (task.assignedTo.toString() !== req.user.id) {
+            return res.status(403).json({ error: 'Task not assigned to you' });
+        }
+        
+        // Check if task is in correct state
+        if (task.status !== 'accepted') {
+            return res.status(400).json({ error: 'Task must be accepted first' });
+        }
+        
+        // Update task status
+        task.status = 'reached';
+        task.reachedAt = new Date();
+        await task.save();
+        
+        console.log(`📍 Volunteer reached location for task: ${task.title}`);
+        
+        res.json({ success: true, message: 'Location reached!' });
+        
+    } catch (error) {
+        console.error('Reached error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
 // Complete task
 router.post('/:taskId/complete', authMiddleware, async (req, res) => {
     try {
@@ -176,8 +254,27 @@ router.post('/:taskId/complete', authMiddleware, async (req, res) => {
     }
 });
 
-
-
+// Add completion notes endpoint
+router.post('/:taskId/notes', authMiddleware, async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.taskId);
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        if (task.assignedTo.toString() !== req.user.id) {
+            return res.status(403).json({ error: 'Task not assigned to you' });
+        }
+        
+        task.completion_notes = req.body.completion_notes;
+        await task.save();
+        
+        res.json({ success: true, message: 'Notes added!' });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // Get detailed volunteer statistics for NGO dashboard
 router.get('/volunteer-stats', authMiddleware, async (req, res) => {
@@ -266,59 +363,52 @@ router.get('/volunteer-stats', authMiddleware, async (req, res) => {
     }
 });
 
-
-// Mark task as reached location
-router.post('/:taskId/reached', authMiddleware, async (req, res) => {
+// Test WhatsApp endpoint (for debugging)
+router.post('/test-whatsapp', async (req, res) => {
     try {
-        const task = await Task.findById(req.params.taskId);
-        if (!task) {
-            return res.status(404).json({ error: 'Task not found' });
+        const { phoneNumber, message } = req.body;
+        
+        if (!phoneNumber || !message) {
+            return res.status(400).json({ error: 'Phone number and message required' });
         }
         
-        // Check if task is assigned to this volunteer
-        if (task.assignedTo.toString() !== req.user.id) {
-            return res.status(403).json({ error: 'Task not assigned to you' });
+        const client = twilio(
+            process.env.TWILIO_ACCOUNT_SID,
+            process.env.TWILIO_AUTH_TOKEN
+        );
+        
+        // Format phone number
+        let rawPhone = phoneNumber.replace(/\D/g, '');
+        let cleanPhone = rawPhone;
+        
+        if (cleanPhone.length === 10) {
+            cleanPhone = `91${cleanPhone}`;
+        }
+        if (!cleanPhone.startsWith('91')) {
+            cleanPhone = `91${cleanPhone}`;
         }
         
-        // Check if task is in correct state
-        if (task.status !== 'accepted') {
-            return res.status(400).json({ error: 'Task must be accepted first' });
-        }
+        const to = `whatsapp:+${cleanPhone}`;
         
-        // Update task status
-        task.status = 'reached';
-        task.reachedAt = new Date();
-        await task.save();
+        console.log(`Test send to: ${to}`);
         
-        console.log(`📍 Volunteer reached location for task: ${task.title}`);
+        const msg = await client.messages.create({
+            body: message,
+            from: process.env.TWILIO_WHATSAPP_NUMBER || 'whatsapp:+14155238886',
+            to: to
+        });
         
-        res.json({ success: true, message: 'Location reached!' });
+        res.json({ 
+            success: true, 
+            messageSid: msg.sid,
+            to: to,
+            status: msg.status
+        });
         
     } catch (error) {
-        console.error('Reached error:', error);
+        console.error('Test WhatsApp error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Add completion notes endpoint
-router.post('/:taskId/notes', authMiddleware, async (req, res) => {
-    try {
-        const task = await Task.findById(req.params.taskId);
-        if (!task) {
-            return res.status(404).json({ error: 'Task not found' });
-        }
-        
-        if (task.assignedTo.toString() !== req.user.id) {
-            return res.status(403).json({ error: 'Task not assigned to you' });
-        }
-        
-        task.completion_notes = req.body.completion_notes;
-        await task.save();
-        
-        res.json({ success: true, message: 'Notes added!' });
-        
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
 module.exports = router;
