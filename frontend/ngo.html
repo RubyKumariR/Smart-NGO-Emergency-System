@@ -186,6 +186,7 @@ body::before {
   <a href="create-need.html" class="nav-item">➕<span class="tooltip">Create Need</span></a>
   <a href="map.html" class="nav-item">🗺️<span class="tooltip">Map</span></a>
   <a href="manage-volunteers.html" class="nav-item">🤝<span class="tooltip">Volunteers</span></a>
+  <a href="volunteer-stats.html" class="nav-item">📊<span class="tooltip">Stats</span></a>
   <a href="profile.html" class="nav-item">👤<span class="tooltip">Profile</span></a>
   <div class="sidebar-spacer"></div>
   <div class="logout-btn" onclick="logout()" title="Logout">🚪</div>
@@ -486,9 +487,9 @@ async function initDashboard() {
 }
 
 // ========================================
-// GEMINI AI CHATBOT - DIRECT API INTEGRATION
+// GEMINI AI CHATBOT - BACKEND API VERSION
 // ========================================
-const GEMINI_API_KEY = 'AIzaSyCurEz2dJ_wFxNIaxK8tpOx6HLvPWF4wNE';
+
 let chatOpen = false;
 let chatHistory = [];
 const CHAT_KEY = 'ngo_chat_history';
@@ -517,23 +518,36 @@ function appendMsg(text, role) {
   const wrap = document.getElementById('chatMessages');
   const div = document.createElement('div');
   div.className = 'msg ' + role;
+
   const av = document.createElement('div');
   av.className = 'msg-avatar';
   av.innerText = role === 'bot' ? '🤖' : '🧑';
+
   const bub = document.createElement('div');
   bub.className = 'msg-bubble';
   bub.innerText = text;
+
   div.appendChild(av);
   div.appendChild(bub);
   wrap.appendChild(div);
   wrap.scrollTop = wrap.scrollHeight;
+
   return div;
 }
 
-function showTyping() { document.getElementById('typingIndicator').classList.add('show'); }
-function hideTyping() { document.getElementById('typingIndicator').classList.remove('show'); }
+function showTyping() {
+  document.getElementById('typingIndicator').classList.add('show');
+}
 
-function saveHistory(messages) { try { localStorage.setItem(CHAT_KEY, JSON.stringify(messages)); } catch(e) {} }
+function hideTyping() {
+  document.getElementById('typingIndicator').classList.remove('show');
+}
+
+function saveHistory(messages) {
+  try {
+    localStorage.setItem(CHAT_KEY, JSON.stringify(messages));
+  } catch (e) {}
+}
 
 function restoreHistory() {
   try {
@@ -542,40 +556,32 @@ function restoreHistory() {
       document.getElementById('chatMessages').innerHTML = '';
       stored.forEach(m => appendMsg(m.text, m.role));
     }
-  } catch(e) {}
+  } catch (e) {}
 }
 
-async function callGeminiAPI(message) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`;
-  
-  const requestBody = {
-    contents: [{
-      parts: [{ text: `You are a helpful NGO assistant for SmartNGO. Provide concise, helpful responses about emergency management, resource allocation, volunteer coordination, and disaster relief. Keep responses friendly and practical.\n\nUser: ${message}` }]
-    }]
-  };
-
+//
+// ✅ THIS IS THE ONLY IMPORTANT CHANGE
+//
+async function callBackendAPI(message) {
   try {
-    const response = await fetch(url, {
+    const response = await fetch('http://localhost:5000/api/ai/gemini', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody)
+      body: JSON.stringify({ message })
     });
 
+    const data = await response.json();
+
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Gemini API Error:', errorData);
-      throw new Error(`API Error: ${response.status}`);
+      console.error('Backend error:', data);
+      return "⚠️ Server error. Try again.";
     }
 
-    const data = await response.json();
-    if (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts[0]) {
-      return data.candidates[0].content.parts[0].text;
-    } else {
-      return "I'm here to help with NGO management! Could you please rephrase your question?";
-    }
+    return data.reply || "No response from AI.";
+
   } catch (error) {
-    console.error('Error calling Gemini API:', error);
-    return "⚠️ I'm having trouble connecting right now. Please try again in a moment.";
+    console.error('Fetch error:', error);
+    return "⚠️ Cannot connect to server.";
   }
 }
 
@@ -589,21 +595,37 @@ async function sendMessage() {
   document.getElementById('chips').style.display = 'none';
 
   appendMsg(text, 'user');
-  chatHistory.push({ role: 'user', text: text });
+  chatHistory.push({ role: 'user', text });
+
   showTyping();
 
-  const reply = await callGeminiAPI(text);
+  // ✅ CALL BACKEND INSTEAD OF GEMINI DIRECTLY
+  const reply = await callBackendAPI(text);
+
   hideTyping();
+
   appendMsg(reply, 'bot');
   chatHistory.push({ role: 'bot', text: reply });
 
-  const flat = chatHistory.map(m => ({ text: m.text, role: m.role }));
-  saveHistory(flat);
+  saveHistory(chatHistory);
 }
 
-function sendChip(text) { document.getElementById('chatInput').value = text; sendMessage(); }
-function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
-function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 120) + 'px'; }
+function sendChip(text) {
+  document.getElementById('chatInput').value = text;
+  sendMessage();
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendMessage();
+  }
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
 
 // Start the dashboard
 initDashboard();

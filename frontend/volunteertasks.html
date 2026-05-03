@@ -76,7 +76,6 @@ body::before {
 .task-status { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600; }
 .task-status.pending_confirmation { background: #fef3c7; color: #d97706; }
 .task-status.accepted { background: #dbeafe; color: #3b82f6; }
-.task-status.in-progress { background: #f3e8ff; color: #9333ea; }
 .task-status.reached { background: #dcfce7; color: #16a34a; }
 .task-status.completed { background: #dcfce7; color: #16a34a; }
 .task-title { font-size: 16px; font-weight: 700; margin-bottom: 10px; color: var(--text); }
@@ -136,17 +135,19 @@ body::before {
   </div>
 
   <div class="stats-bar">
-    <div class="stat-card"><div class="stat-value" id="assignedCount">0</div><div class="stat-label">Assigned Tasks</div></div>
+    <div class="stat-card"><div class="stat-value" id="pendingCount">0</div><div class="stat-label">Pending</div></div>
     <div class="stat-card"><div class="stat-value" id="acceptedCount">0</div><div class="stat-label">Accepted</div></div>
+    <div class="stat-card"><div class="stat-value" id="reachedCount">0</div><div class="stat-label">Reached</div></div>
     <div class="stat-card"><div class="stat-value" id="completedCount">0</div><div class="stat-label">Completed</div></div>
-    <div class="stat-card"><div class="stat-value" id="availableCount">0</div><div class="stat-label">Available Tasks</div></div>
+    <div class="stat-card"><div class="stat-value" id="availableCount">0</div><div class="stat-label">Available</div></div>
   </div>
 
   <div class="filter-buttons">
-    <button class="filter-btn active" onclick="showMyTasks()">📋 My Assigned Tasks</button>
-    <button class="filter-btn" onclick="showAvailableTasks()">🎯 Available Tasks</button>
-    <button class="filter-btn" onclick="showAcceptedTasks()">✅ Accepted Tasks</button>
+    <button class="filter-btn active" onclick="showPendingTasks()">📋 Pending</button>
+    <button class="filter-btn" onclick="showAcceptedTasks()">✅ Accepted</button>
+    <button class="filter-btn" onclick="showReachedTasks()">📍 Reached</button>
     <button class="filter-btn" onclick="showCompletedTasks()">🏆 Completed</button>
+    <button class="filter-btn" onclick="showAvailableTasks()">🎯 Available</button>
     <button class="filter-btn" onclick="showLeaderboard()">🏆 Leaderboard</button>
   </div>
 
@@ -160,8 +161,10 @@ body::before {
 <script>
 const API_BASE = 'http://localhost:5000/api';
 let token = localStorage.getItem('token');
-let currentView = 'my-tasks';
+let currentView = 'pending';
 let processingIds = new Set();
+let allTasks = [];
+let allCases = [];
 
 if (!token) { showToast('Please login first', 'error'); setTimeout(() => window.location.href = 'login.html', 1500); }
 
@@ -200,21 +203,44 @@ async function fetchAllTasks() {
         const response = await fetch(`${API_BASE}/task-assignment/my-tasks`, {
             headers: { 'Authorization': `Bearer ${token}` }
         });
+        if (response.status === 401) {
+            localStorage.clear();
+            showToast('Session expired', 'error');
+            setTimeout(() => window.location.href = 'login.html', 1500);
+            return [];
+        }
         if (!response.ok) throw new Error('Failed to fetch tasks');
         const data = await response.json();
-        return data.tasks || [];
+        allTasks = data.tasks || [];
+        return allTasks;
     } catch (error) {
         console.error('Error fetching tasks:', error);
         return [];
     }
 }
 
-// Show My Assigned Tasks (pending confirmation)
-async function showMyTasks() {
-    currentView = 'my-tasks';
+// Fetch available cases
+async function fetchAvailableCases() {
+    try {
+        const response = await fetch(`${API_BASE}/ai/cases`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!response.ok) throw new Error('Failed to fetch cases');
+        const cases = await response.json();
+        allCases = cases.filter(c => c.status === 'open' || !c.status);
+        return allCases;
+    } catch (error) {
+        console.error('Error fetching cases:', error);
+        return [];
+    }
+}
+
+// Show Pending Tasks
+async function showPendingTasks() {
+    currentView = 'pending';
     document.getElementById('leaderboardContainer').style.display = 'none';
     document.getElementById('tasksContainer').style.display = 'grid';
-    updateActiveFilter('my-tasks');
+    updateActiveFilter('pending');
     showLoading();
     
     try {
@@ -224,29 +250,6 @@ async function showMyTasks() {
         updateStats(tasks);
     } catch (error) {
         document.getElementById('tasksContainer').innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Error loading tasks</p></div>';
-    }
-}
-
-// Show Available Tasks (from cases - REAL DATA)
-async function showAvailableTasks() {
-    currentView = 'available';
-    document.getElementById('leaderboardContainer').style.display = 'none';
-    document.getElementById('tasksContainer').style.display = 'grid';
-    updateActiveFilter('available');
-    showLoading();
-    
-    try {
-        const response = await fetch(`${API_BASE}/ai/cases`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (!response.ok) throw new Error('Failed to fetch cases');
-        const cases = await response.json();
-        // Show only open cases (not assigned/completed)
-        const openCases = cases.filter(c => c.status === 'open' || !c.status);
-        renderAvailableTasks(openCases);
-        document.getElementById('availableCount').textContent = openCases.length;
-    } catch (error) {
-        document.getElementById('tasksContainer').innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Error loading available tasks</p></div>';
     }
 }
 
@@ -268,6 +271,24 @@ async function showAcceptedTasks() {
     }
 }
 
+// Show Reached Tasks
+async function showReachedTasks() {
+    currentView = 'reached';
+    document.getElementById('leaderboardContainer').style.display = 'none';
+    document.getElementById('tasksContainer').style.display = 'grid';
+    updateActiveFilter('reached');
+    showLoading();
+    
+    try {
+        const tasks = await fetchAllTasks();
+        const reachedTasks = tasks.filter(t => t.status === 'reached');
+        renderTasks(reachedTasks, 'reached');
+        updateStats(tasks);
+    } catch (error) {
+        document.getElementById('tasksContainer').innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>No tasks reached</p></div>';
+    }
+}
+
 // Show Completed Tasks
 async function showCompletedTasks() {
     currentView = 'completed';
@@ -286,15 +307,33 @@ async function showCompletedTasks() {
     }
 }
 
+// Show Available Tasks
+async function showAvailableTasks() {
+    currentView = 'available';
+    document.getElementById('leaderboardContainer').style.display = 'none';
+    document.getElementById('tasksContainer').style.display = 'grid';
+    updateActiveFilter('available');
+    showLoading();
+    
+    try {
+        const cases = await fetchAvailableCases();
+        renderAvailableTasks(cases);
+        document.getElementById('availableCount').textContent = cases.length;
+    } catch (error) {
+        document.getElementById('tasksContainer').innerHTML = '<div class="empty-state"><div class="icon">❌</div><p>Error loading available tasks</p></div>';
+    }
+}
+
 // Render tasks based on status
 function renderTasks(tasks, type) {
     const container = document.getElementById('tasksContainer');
     
     if (!tasks || tasks.length === 0) {
         const messages = {
-            'pending': 'No pending tasks assigned to you',
-            'accepted': 'No accepted tasks yet. Accept tasks from WhatsApp!',
-            'completed': 'No completed tasks yet'
+            'pending': 'No pending tasks',
+            'accepted': 'No accepted tasks',
+            'reached': 'No tasks reached yet',
+            'completed': 'No completed tasks'
         };
         container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>${messages[type] || 'No tasks found'}</p></div>`;
         return;
@@ -303,13 +342,21 @@ function renderTasks(tasks, type) {
     container.innerHTML = tasks.map(task => {
         let statusText = task.status === 'pending_confirmation' ? 'Pending Confirmation' : 
                          task.status === 'accepted' ? 'Accepted ✓' : 
+                         task.status === 'reached' ? 'Location Reached 📍' : 
                          task.status === 'completed' ? 'Completed ✓' : task.status;
         
         let actionButtons = '';
-        if (task.status === 'accepted') {
+        if (task.status === 'pending_confirmation') {
+            actionButtons = `
+                <button class="btn btn-primary" onclick="acceptPendingTask('${task._id}')">✅ Accept Task</button>
+                <button class="btn btn-secondary" onclick="rejectTask('${task._id}')">❌ Reject</button>
+            `;
+        } else if (task.status === 'accepted') {
             actionButtons = `<button class="btn btn-primary" onclick="markReached('${task._id}')">📍 Mark Reached</button>`;
+        } else if (task.status === 'reached') {
+            actionButtons = `<button class="btn btn-primary" onclick="markCompleted('${task._id}')">✅ Mark Complete</button>`;
         } else if (task.status === 'completed') {
-            actionButtons = `<span style="color: #16a34a; font-size: 13px;">✓ Task Completed! Great job! 🎉</span>`;
+            actionButtons = `<span style="color: #16a34a; font-size: 13px;">✓ Task Completed! 🎉</span>`;
         }
         
         return `
@@ -325,6 +372,7 @@ function renderTasks(tasks, type) {
                     <span>👥 ${(task.people_affected || 0).toLocaleString()} affected</span>
                     <span>🔥 ${task.urgency_level || 'Medium'} Priority</span>
                     ${task.acceptedAt ? `<span>📅 Accepted: ${new Date(task.acceptedAt).toLocaleString()}</span>` : ''}
+                    ${task.reachedAt ? `<span>📍 Reached: ${new Date(task.reachedAt).toLocaleString()}</span>` : ''}
                     ${task.match_score ? `<span>🎯 Match: ${task.match_score}%</span>` : ''}
                 </div>
                 ${task.skills_required && task.skills_required.length > 0 ? `
@@ -336,29 +384,24 @@ function renderTasks(tasks, type) {
     }).join('');
 }
 
-// Render Available Tasks (from cases - REAL DATA from database)
+// Render Available Tasks (from cases)
 function renderAvailableTasks(cases) {
     const container = document.getElementById('tasksContainer');
     
     if (!cases || cases.length === 0) {
-        container.innerHTML = '<div class="empty-state"><div class="icon">🎯</div><p>No available tasks at the moment</p><p style="font-size:12px; margin-top:10px;">Check back later for new emergencies!</p></div>';
+        container.innerHTML = '<div class="empty-state"><div class="icon">🎯</div><p>No available tasks at the moment</p></div>';
         return;
     }
     
     container.innerHTML = cases.map(c => {
-        // Calculate match score based on volunteer skills (if available)
-        const matchScore = c.priority_score || Math.floor(Math.random() * 100);
-        let matchClass = '';
-        let matchText = '';
-        if (matchScore >= 70) { matchClass = 'match-badge'; matchText = '🎯 High Match!'; }
-        else if (matchScore >= 50) { matchClass = 'match-badge'; matchText = '👍 Good Match'; }
-        else { matchClass = 'match-badge'; matchText = '⚠️ Potential Match'; }
+        const matchScore = c.priority_score || 50;
+        let matchText = matchScore >= 70 ? '🎯 High Priority!' : matchScore >= 50 ? '👍 Medium Priority' : '⚠️ Low Priority';
         
         return `
             <div class="task-card">
                 <div class="task-header">
                     <span class="task-type ${(c.urgency_level || 'medium').toLowerCase()}">${c.type || 'Emergency'}</span>
-                    <span class="${matchClass}">${matchText}</span>
+                    <span class="match-badge">${matchText}</span>
                 </div>
                 <div class="task-title">${escapeHtml(c.type || 'Emergency')}</div>
                 <div class="task-desc">${escapeHtml((c.summary || c.text || '').substring(0, 120))}</div>
@@ -372,68 +415,96 @@ function renderAvailableTasks(cases) {
                     <div class="task-skills">${c.skills_required.slice(0, 4).map(skill => `<span class="skill-tag">🛠️ ${escapeHtml(skill)}</span>`).join('')}</div>
                 ` : ''}
                 <div class="task-actions">
-                    <button class="btn btn-primary" onclick="acceptAvailableTask('${c._id}')" ${processingIds.has(c._id) ? 'disabled' : ''}>
-                        ✅ Accept Task
-                    </button>
+                    <button class="btn btn-primary" onclick="acceptAvailableTask('${c._id}')">✅ Accept Task</button>
                 </div>
             </div>
         `;
     }).join('');
 }
 
-// Accept available task - creates assignment and sends WhatsApp
-let processingTasks = new Set();
+// Accept pending task
+async function acceptPendingTask(taskId) {
+    if (!confirm('Accept this task? WhatsApp confirmation will be sent.')) return;
+    
+    showToast('📱 Sending WhatsApp confirmation...', 'info');
+    
+    try {
+        const response = await fetch(`${API_BASE}/task-assignment/${taskId}/accept`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('✅ Task accepted! WhatsApp confirmation sent.', 'success');
+            setTimeout(() => showPendingTasks(), 1000);
+        } else {
+            showToast('❌ Failed to accept task', 'error');
+        }
+    } catch (error) {
+        showToast('❌ Error accepting task', 'error');
+    }
+}
 
+// Reject task
+async function rejectTask(taskId) {
+    if (!confirm('Are you sure you want to reject this task?')) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/task-assignment/${taskId}/reject`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            showToast('❌ Task rejected', 'info');
+            showPendingTasks();
+        } else {
+            showToast('❌ Failed to reject task', 'error');
+        }
+    } catch (error) {
+        showToast('❌ Error rejecting task', 'error');
+    }
+}
+
+// Accept available task - creates assignment and sends WhatsApp
 async function acceptAvailableTask(caseId) {
-    if (processingTasks.has(caseId)) {
-        showToast('⏳ Already processing this task...', 'warning');
+    if (!confirm('Accept this task? You will receive a WhatsApp confirmation.')) return;
+    
+    if (processingIds.has(caseId)) {
+        showToast('⏳ Already processing...', 'warning');
         return;
     }
     
-    if (!confirm('Accept this task? You will receive a WhatsApp confirmation.')) return;
-    
-    processingTasks.add(caseId);
-    showToast('📱 Creating task and sending WhatsApp notification...', 'info');
+    processingIds.add(caseId);
+    showToast('📱 Creating task and sending WhatsApp...', 'info');
     
     try {
-        // Create task from case
         const createResponse = await fetch(`${API_BASE}/task-assignment/create-from-case/${caseId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
         });
         
-        if (!createResponse.ok) {
-            const error = await createResponse.json();
-            throw new Error(error.error || 'Failed to create task');
-        }
-        
+        if (!createResponse.ok) throw new Error('Failed to create task');
         const taskData = await createResponse.json();
         const newTaskId = taskData.task._id;
         
-        // Auto-assign (sends WhatsApp)
         const assignResponse = await fetch(`${API_BASE}/task-assignment/${newTaskId}/auto-assign`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
         });
-        
         const assignData = await assignResponse.json();
         
         if (assignData.success) {
             showToast('✅ Task accepted! WhatsApp sent to your phone.', 'success');
-            // Refresh the tasks view
-            setTimeout(() => {
-                showMyTasks();
-                showAvailableTasks();
-            }, 1000);
+            setTimeout(() => showPendingTasks(), 1500);
         } else {
-            showToast('⚠️ ' + (assignData.message || 'Task created but pending confirmation'), 'info');
-            showMyTasks();
+            showToast('⚠️ ' + (assignData.message || 'Task created'), 'info');
+            showPendingTasks();
         }
     } catch (error) {
-        console.error('Error:', error);
-        showToast('❌ Error accepting task: ' + error.message, 'error');
+        showToast('❌ Error: ' + error.message, 'error');
     } finally {
-        processingTasks.delete(caseId);
+        processingIds.delete(caseId);
     }
 }
 
@@ -441,46 +512,50 @@ async function acceptAvailableTask(caseId) {
 async function markReached(taskId) {
     if (!confirm('📍 Have you reached the emergency location?')) return;
     
+    showToast('📍 Updating location status...', 'info');
+    
     try {
         const response = await fetch(`${API_BASE}/task-assignment/${taskId}/reached`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
         });
         const data = await response.json();
         
         if (data.success) {
-            showToast('✅ Location marked as reached! Start working.', 'success');
-            showAcceptedTasks();
+            showToast('✅ Location reached! Status updated to "Reached".', 'success');
+            setTimeout(() => showReachedTasks(), 1000);
         } else {
-            showToast('❌ Failed to update status', 'error');
+            showToast('❌ Failed to update status: ' + (data.error || 'Unknown'), 'error');
         }
     } catch (error) {
-        showToast('Error updating status', 'error');
+        console.error('Error:', error);
+        showToast('❌ Error updating status', 'error');
     }
 }
 
 // Mark task as completed
 async function markCompleted(taskId) {
-    if (!confirm('🎉 Have you completed the task? Add any notes.')) return;
+    if (!confirm('🎉 Have you completed the task?')) return;
     
-    const notes = prompt('Completion notes (optional):', 'Task completed successfully');
+    const notes = prompt('Completion notes (what you did, how many people helped):', 'Task completed successfully');
+    
+    showToast('📝 Marking task as completed...', 'info');
     
     try {
         const response = await fetch(`${API_BASE}/task-assignment/${taskId}/complete`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
             body: JSON.stringify({ completion_notes: notes || 'Task completed successfully' })
         });
         const data = await response.json();
         
         if (data.success) {
             showToast('🎉 Task completed! Thank you for your service!', 'success');
-            showCompletedTasks();
+            setTimeout(() => showCompletedTasks(), 1000);
         } else {
             showToast('❌ Failed to mark completed', 'error');
         }
     } catch (error) {
-        showToast('Error updating status', 'error');
+        console.error('Error:', error);
+        showToast('❌ Error marking completed', 'error');
     }
 }
 
@@ -502,9 +577,8 @@ async function showLeaderboard() {
             const volunteers = await response.json();
             const listContainer = document.getElementById('leaderboardList');
             if (volunteers.length === 0) {
-                listContainer.innerHTML = '<li>💪 Complete tasks to appear on leaderboard!</li>';
+                listContainer.innerHTML = '<li>💪 Complete tasks to appear!</li>';
             } else {
-                // Sort by totalTasksCompleted (if available)
                 const sorted = [...volunteers].sort((a, b) => (b.totalTasksCompleted || 0) - (a.totalTasksCompleted || 0));
                 listContainer.innerHTML = sorted.slice(0, 10).map((vol, index) => `
                     <li>
@@ -521,23 +595,26 @@ async function showLeaderboard() {
 }
 
 function updateStats(tasks) {
-    const assigned = tasks.filter(t => t.status === 'pending_confirmation').length;
+    const pending = tasks.filter(t => t.status === 'pending_confirmation').length;
     const accepted = tasks.filter(t => t.status === 'accepted').length;
+    const reached = tasks.filter(t => t.status === 'reached').length;
     const completed = tasks.filter(t => t.status === 'completed').length;
     
-    document.getElementById('assignedCount').textContent = assigned;
+    document.getElementById('pendingCount').textContent = pending;
     document.getElementById('acceptedCount').textContent = accepted;
+    document.getElementById('reachedCount').textContent = reached;
     document.getElementById('completedCount').textContent = completed;
 }
 
 function updateActiveFilter(view) {
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
     const btns = document.querySelectorAll('.filter-btn');
-    if (view === 'my-tasks') btns[0]?.classList.add('active');
-    else if (view === 'available') btns[1]?.classList.add('active');
-    else if (view === 'accepted') btns[2]?.classList.add('active');
+    if (view === 'pending') btns[0]?.classList.add('active');
+    else if (view === 'accepted') btns[1]?.classList.add('active');
+    else if (view === 'reached') btns[2]?.classList.add('active');
     else if (view === 'completed') btns[3]?.classList.add('active');
-    else if (view === 'leaderboard') btns[4]?.classList.add('active');
+    else if (view === 'available') btns[4]?.classList.add('active');
+    else if (view === 'leaderboard') btns[5]?.classList.add('active');
 }
 
 function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
@@ -554,13 +631,14 @@ async function setUserAvatar() {
 async function init() {
     await checkServerHealth();
     await setUserAvatar();
-    showMyTasks();
-    // Auto-refresh every 30 seconds
-    setInterval(() => {
-        if (currentView === 'my-tasks') showMyTasks();
-        else if (currentView === 'available') showAvailableTasks();
-        else if (currentView === 'accepted') showAcceptedTasks();
-        else if (currentView === 'completed') showCompletedTasks();
+    await showPendingTasks();
+    
+    setInterval(async () => {
+        if (currentView === 'pending') await showPendingTasks();
+        else if (currentView === 'accepted') await showAcceptedTasks();
+        else if (currentView === 'reached') await showReachedTasks();
+        else if (currentView === 'completed') await showCompletedTasks();
+        else if (currentView === 'available') await showAvailableTasks();
     }, 30000);
 }
 init();
