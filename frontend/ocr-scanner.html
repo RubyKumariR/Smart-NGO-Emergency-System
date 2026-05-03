@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart NGO - OCR Scanner</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'DM Sans', Arial, sans-serif;
+            background: #ffe4e9;
+            padding: 20px;
+        }
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0; bottom: 0;
+            width: 72px;
+            background: #fff5f7;
+            border-right: 1px solid rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 0;
+            gap: 8px;
+            z-index: 100;
+        }
+        .sidebar-logo {
+            width: 42px; height: 42px;
+            background: linear-gradient(135deg, #cc0000, #ff3300);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; cursor: pointer;
+        }
+        .nav-item {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 20px;
+            color: #7c6b8f; text-decoration: none;
+            transition: all 0.2s;
+        }
+        .nav-item:hover, .nav-item.active {
+            background: rgba(204,0,0,0.08);
+            color: #cc0000;
+        }
+        .sidebar-spacer { flex: 1; }
+        .logout-btn {
+            width: 48px; height: 48px;
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-size: 18px; color: #7c6b8f;
+        }
+        .main { margin-left: 72px; }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        h1 { font-size: 26px; color: #1e1b4b; }
+        h1 span { color: #cc0000; }
+        .container { max-width: 1000px; margin: 0 auto; }
+
+        /* ── Upload area ── */
+        .upload-area {
+            border: 2px dashed #cc0000;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            background: white;
+            margin-bottom: 20px;
+            transition: background 0.2s;
+        }
+        .upload-area:hover { background: rgba(204,0,0,0.04); }
+        .upload-area.drag-over { background: rgba(204,0,0,0.08); border-style: solid; }
+        .preview-img { max-width: 100%; max-height: 300px; margin: 20px 0; border-radius: 12px; display: block; }
+
+        /* ── Status banner ── */
+        .status-banner {
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+        }
+        .status-banner.error   { background: #fff0f0; border: 1px solid #ffcccc; color: #cc0000; }
+        .status-banner.warning { background: #fffbec; border: 1px solid #ffe08a; color: #b05c00; }
+        .status-banner.success { background: #f0fff4; border: 1px solid #b2f5c8; color: #1a7a3c; }
+        .status-banner.info    { background: #f0f4ff; border: 1px solid #c3d0ff; color: #2a3dbf; }
+
+        /* ── Result cards ── */
+        .result-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 16px 0;
+            border: 1px solid #ddd;
+        }
+        .result-card h3 { color: #cc0000; margin-bottom: 15px; font-size: 16px; }
+        .result-row {
+            display: flex;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .result-row:last-child { border-bottom: none; }
+        .result-label { width: 160px; font-weight: 600; color: #444; font-size: 13px; flex-shrink: 0; }
+        .result-value { flex: 1; color: #222; font-size: 14px; }
+        .result-value.missing { color: #aaa; font-style: italic; }
+
+        .skill-tag {
+            display: inline-block;
+            background: #cc0000;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin: 3px;
+        }
+
+        /* ── Loading ── */
+        .loading { text-align: center; padding: 40px; display: none; }
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid #ddd;
+            border-top-color: #cc0000;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Debug box ── */
+        .debug-box {
+            background: #1e1e1e;
+            color: #d4f4a8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 12px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        .debug-toggle {
+            cursor: pointer;
+            font-size: 12px;
+            color: #888;
+            margin-top: 8px;
+            text-decoration: underline;
+            display: inline-block;
+        }
+
+        /* ── Buttons ── */
+        button {
+            background: #cc0000;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+        button:hover { background: #aa0000; }
+        button.secondary {
+            background: white;
+            color: #cc0000;
+            border: 1px solid #cc0000;
+        }
+        button.secondary:hover { background: rgba(204,0,0,0.06); }
+
+        /* ── Toast ── */
+        .toast {
+            position: fixed;
+            bottom: 30px; right: 30px;
+            background: #cc0000;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            z-index: 2000;
+            display: none;
+            font-weight: 500;
+        }
+        .toast.success { background: #1a7a3c; }
+
+        .avatar {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background: #cc0000;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-size: 16px; font-weight: 700;
+        }
+
+        .ocr-note {
+            background: #fff8f0;
+            border: 1px solid #ffd599;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #7a4400;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="sidebar">
+    <div class="sidebar-logo" onclick="location.href='home.html'">🚨</div>
+    <a href="ngo.html" class="nav-item">🏠</a>
+    <a href="create-need.html" class="nav-item">➕</a>
+    <a href="manage-volunteers.html" class="nav-item">🤝</a>
+    <a href="ocr-scanner.html" class="nav-item active">📷</a>
+    <a href="map.html" class="nav-item">🗺️</a>
+    <a href="profile.html" class="nav-item">👤</a>
+    <div class="sidebar-spacer"></div>
+    <div class="logout-btn" onclick="logout()">🚪</div>
+</nav>
+
+<main class="main">
+    <div class="topbar">
+        <h1>OCR <span>Document Scanner</span></h1>
+        <div class="avatar" id="userAvatar">👤</div>
+    </div>
+
+    <div class="container">
+
+        <div class="ocr-note">
+            💡 <strong>Tip:</strong> Upload a clear photo of a disaster report, notice, or relief document.
+            The AI will extract location, affected people, emergency type, urgency, and required skills.
+        </div>
+
+        <!-- Status banner -->
+        <div class="status-banner" id="statusBanner"></div>
+
+        <!-- Upload area -->
+        <div class="upload-area" id="uploadArea">
+            <div style="font-size: 48px; margin-bottom: 16px;">📄</div>
+            <h3>Click or drag &amp; drop an image (JPG, PNG)</h3>
+            <p style="color: #888; margin-top: 10px; font-size: 13px;">Upload a disaster report image — minimum 10 KB recommended</p>
+            <input type="file" id="fileInput" accept="image/*" style="display: none">
+        </div>
+
+        <!-- Image preview -->
+        <div id="preview"></div>
+
+        <!-- Loading spinner -->
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <p id="loadingMsg">🔍 AI is analyzing document...</p>
+        </div>
+
+        <!-- Results -->
+        <div id="results" style="display: none;"></div>
+
+        <!-- Debug toggle + box -->
+        <span class="debug-toggle" id="debugToggle" style="display:none" onclick="toggleDebug()">🔧 Show debug info</span>
+        <div id="debug" class="debug-box"></div>
+
+    </div>
+</main>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const API_BASE = 'http://localhost:5000/api';
+let token = localStorage.getItem('token');
+let debugVisible = false;
+
+// ── Utilities ──────────────────────────────────────────────
+function showToast(msg, type = 'info') {
+    const toast = document.getElementById('toast');
+    toast.textContent = msg;
+    toast.className = `toast ${type}`;
+    toast.style.display = 'block';
+    setTimeout(() => toast.style.display = 'none', 3500);
+}
+
+function showStatus(msg, type = 'info') {
+    const banner = document.getElementById('statusBanner');
+    banner.textContent = msg;
+    banner.className = `status-banner ${type}`;
+    banner.style.display = 'block';
+}
+
+function hideStatus() {
+    document.getElementById('statusBanner').style.display = 'none';
+}
+
+function setLoading(visible, msg = '🔍 AI is analyzing document...') {
+    document.getElementById('loading').style.display = visible ? 'block' : 'none';
+    document.getElementById('loadingMsg').textContent = msg;
+}
+
+function setDebug(text) {
+    document.getElementById('debug').textContent = text;
+    document.getElementById('debugToggle').style.display = 'inline-block';
+}
+
+function toggleDebug() {
+    debugVisible = !debugVisible;
+    document.getElementById('debug').style.display = debugVisible ? 'block' : 'none';
+    document.getElementById('debugToggle').textContent = debugVisible ? '🔧 Hide debug info' : '🔧 Show debug info';
+}
+
+function logout() {
+    localStorage.clear();
+    window.location.href = 'login.html';
+}
+
+// ── File size validator ─────────────────────────────────────
+function validateFile(file) {
+    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+    const MIN_SIZE = 5 * 1024;         // 5 KB — warn if too small
+
+    if (!file.type.startsWith('image/')) {
+        return { ok: false, error: '❌ Please upload a JPG or PNG image.' };
+    }
+    if (file.size > MAX_SIZE) {
+        return { ok: false, error: '❌ Image is too large (max 10 MB). Please compress it.' };
+    }
+    if (file.size < MIN_SIZE) {
+        // Don't block, but warn
+        return { ok: true, warning: `⚠️ File is very small (${(file.size/1024).toFixed(1)} KB). OCR may not extract text. Try a higher-quality scan.` };
+    }
+    return { ok: true };
+}
+
+// ── Convert file to base64 ──────────────────────────────────
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => resolve(e.target.result.split(',')[1]); // strip data:image/...;base64,
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// ── Main processor ──────────────────────────────────────────
+async function processFile(file) {
+    if (!file) return;
+
+    // Reset UI
+    hideStatus();
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('results').innerHTML = '';
+    document.getElementById('debug').style.display = 'none';
+    document.getElementById('debugToggle').style.display = 'none';
+
+    // Validate
+    const validation = validateFile(file);
+    if (!validation.ok) {
+        showStatus(validation.error, 'error');
+        return;
+    }
+    if (validation.warning) {
+        showStatus(validation.warning, 'warning');
+    }
+
+    // Show image preview
+    const previewReader = new FileReader();
+    previewReader.onload = e => {
+        document.getElementById('preview').innerHTML =
+            `<img src="${e.target.result}" class="preview-img" alt="Preview">`;
+    };
+    previewReader.readAsDataURL(file);
+
+    setLoading(true, '📤 Uploading document to server...');
+
+    let serverExtracted = null;
+    let serverText = '';
+    let serverOk = false;
+    let debugLines = [];
+
+    // ── Step 1: Try backend OCR ────────────────────────────
+    try {
+        const formData = new FormData();
+        formData.append('image', file);
+
+        debugLines.push(`FILE: ${file.name} | ${(file.size/1024).toFixed(1)} KB | ${file.type}`);
+
+        const response = await fetch(`${API_BASE}/ocr/scan`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body: formData
+        });
+
+        const data = await response.json();
+        debugLines.push(`SERVER STATUS: ${response.status}`);
+        debugLines.push(`SERVER SUCCESS: ${data.success}`);
+        debugLines.push(`OCR TEXT LENGTH: ${data.text?.length ?? 0}`);
+        debugLines.push(`EXTRACTED DATA: ${JSON.stringify(data.extractedData, null, 2)}`);
+        debugLines.push(`SERVER ERROR: ${data.error ?? 'none'}`);
+
+        if (response.ok && data.success) {
+            serverText = data.text || '';
+            serverExtracted = data.extractedData || {};
+            serverOk = true;
+        } else {
+            debugLines.push(`⚠️ Backend OCR failed: ${data.error || 'unknown error'}`);
+        }
+    } catch (err) {
+        debugLines.push(`❌ Network error calling backend: ${err.message}`);
+    }
+
+    // ── Step 2: If OCR text is empty, use Claude Vision directly ──
+    if (!serverText || serverText.trim().length === 0) {
+        setLoading(true, '🤖 OCR returned no text — using Claude Vision fallback...');
+        showStatus('ℹ️ Server OCR returned no text. Using AI Vision to read the image directly.', 'info');
+
+        try {
+            const base64 = await fileToBase64(file);
+            const mediaType = file.type || 'image/jpeg';
+
+            const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    model: 'claude-sonnet-4-20250514',
+                    max_tokens: 1000,
+                    messages: [{
+                        role: 'user',
+                        content: [
+                            {
+                                type: 'image',
+                                source: { type: 'base64', media_type: mediaType, data: base64 }
+                            },
+                            {
+                                type: 'text',
+                                text: `You are an emergency document analyzer. Read ALL text in this disaster/emergency document image and extract the following. Respond ONLY with a valid JSON object, no markdown, no preamble:
+{
+  "rawText": "<full text you can read from the image>",
+  "location": "<city, region, or address if present, else null>",
+  "peopleAffected": <number or null>,
+  "type": "<flood | earthquake | fire | cyclone | drought | landslide | other | null>",
+  "urgency": "<Critical | High | Medium | Low | null>",
+  "skills": ["<skill1>", "<skill2>"]
+}
+Skills should be from: Medical Aid, Search and Rescue, Food Distribution, Water Sanitation, Shelter Construction, Psychological Support, Logistics, General Volunteer.
+If the image has no readable text, set rawText to "No readable text found" and all other fields to null/empty.`
+                            }
+                        ]
+                    }]
+                })
+            });
+
+            const aiData = await aiResponse.json();
+            debugLines.push(`\nCLAUDE VISION STATUS: ${aiResponse.status}`);
+
+            const rawText = aiData.content?.map(b => b.text || '').join('') || '';
+            debugLines.push(`CLAUDE VISION RAW: ${rawText.substring(0, 300)}`);
+
+            let parsed = null;
+            try {
+                const cleaned = rawText.replace(/```json|```/g, '').trim();
+                parsed = JSON.parse(cleaned);
+            } catch (e) {
+                debugLines.push(`JSON PARSE ERROR: ${e.message}`);
+            }
+
+            if (parsed) {
+                serverText = parsed.rawText || 'Extracted via Vision';
+                serverExtracted = {
+                    location: parsed.location,
+                    peopleAffected: parsed.peopleAffected,
+                    type: parsed.type,
+                    urgency: parsed.urgency,
+                    skills: parsed.skills || []
+                };
+                serverOk = true;
+                hideStatus();
+                showStatus('✅ Claude Vision successfully read the document.', 'success');
+                debugLines.push(`VISION EXTRACTED: ${JSON.stringify(serverExtracted)}`);
+            } else {
+                showStatus('⚠️ AI could not parse the document. The image may not contain readable text.', 'warning');
+            }
+
+        } catch (err) {
+            debugLines.push(`❌ Claude Vision error: ${err.message}`);
+            showStatus('❌ Both OCR and AI Vision failed. Please try a clearer image.', 'error');
+        }
+    }
+
+    setDebug(debugLines.join('\n'));
+    setLoading(false);
+
+    // ── Step 3: Render results ─────────────────────────────
+    if (!serverOk || !serverExtracted) {
+        document.getElementById('results').innerHTML = `
+            <div class="result-card">
+                <h3>❌ No Data Extracted</h3>
+                <p style="color:#666; font-size:14px;">The document could not be read. Please try:</p>
+                <ul style="margin:12px 0 0 20px; font-size:14px; color:#555; line-height:2">
+                    <li>A clearer, higher-resolution image</li>
+                    <li>Ensure text is not blurry or too small</li>
+                    <li>JPEG or PNG format (not PDF/TIFF)</li>
+                </ul>
+            </div>`;
+        document.getElementById('results').style.display = 'block';
+        return;
+    }
+
+    const ex = serverExtracted;
+
+    function val(v) {
+        if (v === null || v === undefined || v === '') return '<span class="missing">Not detected</span>';
+        return v;
+    }
+
+    // Skills
+    let skillsHtml = '';
+    if (ex.skills && ex.skills.length > 0) {
+        skillsHtml = ex.skills.map(s => `<span class="skill-tag">🛠️ ${s}</span>`).join('');
+    } else {
+        skillsHtml = '<span class="missing">No specific skills detected</span>';
+    }
+
+    // Urgency badge color
+    const urgencyColors = { Critical: '#cc0000', High: '#e05c00', Medium: '#b09000', Low: '#2a7a3c' };
+    const urgencyBadge = ex.urgency
+        ? `<span style="background:${urgencyColors[ex.urgency] || '#888'}; color:white; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:700;">${ex.urgency}</span>`
+        : '<span class="missing">Not detected</span>';
+
+    const resultsHtml = `
+        <div class="result-card">
+            <h3>📝 Raw Text Extracted</h3>
+            <div style="background:#f5f5f5; padding:15px; border-radius:8px; max-height:180px; overflow-y:auto; font-size:13px; line-height:1.6; white-space:pre-wrap; color:#333;">
+                ${serverText && serverText !== 'No readable text found'
+                    ? serverText
+                    : '<span style="color:#aaa; font-style:italic;">No text could be extracted from the image.</span>'}
+            </div>
+        </div>
+        <div class="result-card">
+            <h3>🤖 AI Extracted Emergency Data</h3>
+            <div class="result-row">
+                <div class="result-label">📍 Location</div>
+                <div class="result-value">${val(ex.location)}</div>
+            </div>
+            <div class="result-row">
+                <div class="result-label">👥 People Affected</div>
+                <div class="result-value">${ex.peopleAffected ? Number(ex.peopleAffected).toLocaleString() : '<span class="missing">Not detected</span>'}</div>
+            </div>
+            <div class="result-row">
+                <div class="result-label">🚨 Emergency Type</div>
+                <div class="result-value">${val(ex.type)}</div>
+            </div>
+            <div class="result-row">
+                <div class="result-label">⚠️ Urgency Level</div>
+                <div class="result-value">${urgencyBadge}</div>
+            </div>
+            <div class="result-row">
+                <div class="result-label">🛠️ Skills Required</div>
+                <div class="result-value">${skillsHtml}</div>
+            </div>
+        </div>
+        <div style="margin-top: 8px;">
+            <button onclick="createEmergency()">📋 Create Emergency from Scanned Data</button>
+            <button class="secondary" onclick="resetScanner()">🔄 Scan Another Document</button>
+        </div>
+    `;
+
+    window.extractedData = ex;
+    document.getElementById('results').innerHTML = resultsHtml;
+    document.getElementById('results').style.display = 'block';
+    showToast('✅ Document scanned successfully!', 'success');
+}
+
+// ── Create emergency ────────────────────────────────────────
+async function createEmergency() {
+    const data = window.extractedData;
+    if (!data) {
+        showToast('No data to submit. Please scan a document first.', '');
+        return;
+    }
+    if (!data.location) {
+        showToast('⚠️ No location detected. Fill it in manually on the create page.', '');
+        // Still navigate — let user fill manually
+    }
+
+    const text = `${data.type || 'Emergency'} emergency in ${data.location || 'Unknown location'}\n${data.peopleAffected || 0} people affected\nUrgency: ${data.urgency || 'Medium'}\nSkills needed: ${(data.skills || ['General Volunteer']).join(', ')}`;
+
+    try {
+        const response = await fetch(`${API_BASE}/ai/predict`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                text,
+                skills: (data.skills || []).join(', '),
+                people: data.peopleAffected || 0,
+                address: data.location || ''
+            })
+        });
+
+        if (response.ok) {
+            showToast('✅ Emergency created!', 'success');
+            setTimeout(() => window.location.href = 'create-need.html', 1800);
+        } else {
+            const err = await response.json().catch(() => ({}));
+            showToast('❌ Failed: ' + (err.error || 'Server error'), '');
+        }
+    } catch (error) {
+        showToast('❌ Network error. Check server connection.', '');
+    }
+}
+
+// ── Reset ───────────────────────────────────────────────────
+function resetScanner() {
+    document.getElementById('preview').innerHTML = '';
+    document.getElementById('results').innerHTML = '';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('debug').style.display = 'none';
+    document.getElementById('debugToggle').style.display = 'none';
+    hideStatus();
+    window.extractedData = null;
+    document.getElementById('fileInput').value = '';
+    debugVisible = false;
+}
+
+// ── Upload handlers ─────────────────────────────────────────
+const uploadArea = document.getElementById('uploadArea');
+const fileInput  = document.getElementById('fileInput');
+
+uploadArea.onclick = () => fileInput.click();
+
+fileInput.onchange = e => {
+    if (e.target.files && e.target.files[0]) processFile(e.target.files[0]);
+};
+
+uploadArea.addEventListener('dragover', e => {
+    e.preventDefault();
+    uploadArea.classList.add('drag-over');
+});
+uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
+uploadArea.addEventListener('drop', e => {
+    e.preventDefault();
+    uploadArea.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) processFile(file);
+});
+
+// ── Load avatar ─────────────────────────────────────────────
+fetch(`${API_BASE}/auth/profile`, {
+    headers: { 'Authorization': `Bearer ${token}` }
+})
+.then(r => r.json())
+.then(d => {
+    if (d.fullName) document.getElementById('userAvatar').innerText = d.fullName.charAt(0).toUpperCase();
+})
+.catch(() => {});
+</script>
+</body>
+</html>
