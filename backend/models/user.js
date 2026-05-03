@@ -61,10 +61,30 @@ const userSchema = new mongoose.Schema({
   availability: {
     type: String,
     default: null
+  },
+
+  // Additional fields for volunteer tracking
+  status: {
+    type: String,
+    enum: ['active', 'busy', 'inactive'],
+    default: 'active'
+  },
+
+  rating: {
+    type: Number,
+    default: 0
+  },
+
+  totalTasksCompleted: {
+    type: Number,
+    default: 0
   }
 
 }, {
   timestamps: true
 });
 
-module.exports = mongoose.model('User', userSchema);
+// FIXED: Prevent OverwriteModelError by checking if model already exists
+const User = mongoose.models.User || mongoose.model('User', userSchema);
+
+module.exports = User;
