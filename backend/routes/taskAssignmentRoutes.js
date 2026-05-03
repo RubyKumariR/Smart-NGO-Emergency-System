@@ -45,6 +45,7 @@ router.post('/create-from-case/:caseId', authMiddleware, async (req, res) => {
         await task.save();
         res.json({ success: true, task });
     } catch (error) {
+        console.error('Create from case error:', error);
         res.status(500).json({ error: error.message });
     }
 });
@@ -138,11 +139,13 @@ Smart NGO - Helping Faster 🚀`;
     }
 });
 
-// Accept task
+// Accept pending task
 router.post('/:taskId/accept', authMiddleware, async (req, res) => {
     try {
         const task = await Task.findById(req.params.taskId);
-        if (!task) return res.status(404).json({ error: 'Task not found' });
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
         if (task.assignedTo.toString() !== req.user.id) {
             return res.status(403).json({ error: 'Not assigned to you' });
         }
@@ -151,33 +154,139 @@ router.post('/:taskId/accept', authMiddleware, async (req, res) => {
         task.acceptedAt = new Date();
         await task.save();
         
+        // Update volunteer status
+        await User.findByIdAndUpdate(req.user.id, { status: 'busy' });
+        
+        console.log(`✅ Volunteer ${req.user.id} accepted task: ${task._id}`);
+        
         res.json({ success: true, message: 'Task accepted' });
     } catch (error) {
+        console.error('Accept error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
-// Complete task
-router.post('/:taskId/complete', authMiddleware, async (req, res) => {
+// Reject task
+router.post('/:taskId/reject', authMiddleware, async (req, res) => {
     try {
         const task = await Task.findById(req.params.taskId);
-        if (!task) return res.status(404).json({ error: 'Task not found' });
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
         if (task.assignedTo.toString() !== req.user.id) {
             return res.status(403).json({ error: 'Not assigned to you' });
         }
         
-        task.status = 'completed';
-        task.completedAt = new Date();
+        task.status = 'rejected';
+        task.assignedTo = null;
         await task.save();
         
-        res.json({ success: true, message: 'Task completed!' });
+        console.log(`❌ Volunteer ${req.user.id} rejected task: ${task._id}`);
+        
+        res.json({ success: true, message: 'Task rejected' });
     } catch (error) {
+        console.error('Reject error:', error);
         res.status(500).json({ error: error.message });
     }
 });
 
+// ✅ FIXED: Mark as reached location
+router.post('/:taskId/reached', authMiddleware, async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.taskId);
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        // Check if task is assigned to this volunteer
+        if (task.assignedTo.toString() !== req.user.id) {
+            return res.status(403).json({ error: 'Task not assigned to you' });
+        }
+        
+        // Check if task is in correct state
+        if (task.status !== 'accepted') {
+            return res.status(400).json({ error: `Task must be accepted first. Current status: ${task.status}` });
+        }
+        
+        // Update task status
+        task.status = 'reached';
+        task.reachedAt = new Date();
+        await task.save();
+        
+        console.log(`📍 Volunteer ${req.user.id} reached location for task: ${task._id}`);
+        
+        res.json({ success: true, message: 'Location reached!', task });
+        
+    } catch (error) {
+        console.error('Reached error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
+// ✅ FIXED: Mark task as completed
+router.post('/:taskId/complete', authMiddleware, async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.taskId);
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        // Check if task is assigned to this volunteer
+        if (task.assignedTo.toString() !== req.user.id) {
+            return res.status(403).json({ error: 'Task not assigned to you' });
+        }
+        
+        // Check if task is in correct state
+        if (task.status !== 'reached' && task.status !== 'accepted') {
+            return res.status(400).json({ error: `Task must be reached first. Current status: ${task.status}` });
+        }
+        
+        // Update task status
+        task.status = 'completed';
+        task.completedAt = new Date();
+        task.completion_notes = req.body.completion_notes || 'Task completed successfully';
+        await task.save();
+        
+        // Update volunteer stats
+        await User.findByIdAndUpdate(req.user.id, { 
+            $inc: { totalTasksCompleted: 1 },
+            status: 'active'
+        });
+        
+        console.log(`🎉 Volunteer ${req.user.id} completed task: ${task._id}`);
+        
+        res.json({ success: true, message: 'Task completed!', task });
+        
+    } catch (error) {
+        console.error('Complete error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
+// Add completion notes
+router.post('/:taskId/notes', authMiddleware, async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.taskId);
+        if (!task) {
+            return res.status(404).json({ error: 'Task not found' });
+        }
+        
+        if (task.assignedTo.toString() !== req.user.id) {
+            return res.status(403).json({ error: 'Task not assigned to you' });
+        }
+        
+        task.completion_notes = req.body.completion_notes;
+        await task.save();
+        
+        console.log(`📝 Notes added to task ${task._id}`);
+        
+        res.json({ success: true, message: 'Notes added!' });
+        
+    } catch (error) {
+        console.error('Notes error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
 
 // Get detailed volunteer statistics for NGO dashboard
 router.get('/volunteer-stats', authMiddleware, async (req, res) => {
@@ -266,59 +375,4 @@ router.get('/volunteer-stats', authMiddleware, async (req, res) => {
     }
 });
 
-
-// Mark task as reached location
-router.post('/:taskId/reached', authMiddleware, async (req, res) => {
-    try {
-        const task = await Task.findById(req.params.taskId);
-        if (!task) {
-            return res.status(404).json({ error: 'Task not found' });
-        }
-        
-        // Check if task is assigned to this volunteer
-        if (task.assignedTo.toString() !== req.user.id) {
-            return res.status(403).json({ error: 'Task not assigned to you' });
-        }
-        
-        // Check if task is in correct state
-        if (task.status !== 'accepted') {
-            return res.status(400).json({ error: 'Task must be accepted first' });
-        }
-        
-        // Update task status
-        task.status = 'reached';
-        task.reachedAt = new Date();
-        await task.save();
-        
-        console.log(`📍 Volunteer reached location for task: ${task.title}`);
-        
-        res.json({ success: true, message: 'Location reached!' });
-        
-    } catch (error) {
-        console.error('Reached error:', error);
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Add completion notes endpoint
-router.post('/:taskId/notes', authMiddleware, async (req, res) => {
-    try {
-        const task = await Task.findById(req.params.taskId);
-        if (!task) {
-            return res.status(404).json({ error: 'Task not found' });
-        }
-        
-        if (task.assignedTo.toString() !== req.user.id) {
-            return res.status(403).json({ error: 'Task not assigned to you' });
-        }
-        
-        task.completion_notes = req.body.completion_notes;
-        await task.save();
-        
-        res.json({ success: true, message: 'Notes added!' });
-        
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
 module.exports = router;
