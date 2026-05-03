@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Case = require('../models/Case');
-const User = require('../models/User');
+const User = require('../models/user');
 const authMiddleware = require('../middleware/authMiddleware');
 const AITaskMatcher = require('../services/aiTaskMatcher');
 

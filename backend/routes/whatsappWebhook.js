@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Task = require('../models/Task');
-const User = require('../models/User');
+const User = require('../models/user');
 const twilio = require('twilio');
 
 // ✅ IMPORTANT: Add body-parser middleware for Twilio webhook
