@@ -165,6 +165,7 @@ let currentView = 'pending';
 let processingIds = new Set();
 let allTasks = [];
 let allCases = [];
+let refreshInterval = null;
 
 if (!token) { showToast('Please login first', 'error'); setTimeout(() => window.location.href = 'login.html', 1500); }
 
@@ -212,6 +213,7 @@ async function fetchAllTasks() {
         if (!response.ok) throw new Error('Failed to fetch tasks');
         const data = await response.json();
         allTasks = data.tasks || [];
+        console.log(`📋 Fetched ${allTasks.length} tasks from database`);
         return allTasks;
     } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -228,11 +230,31 @@ async function fetchAvailableCases() {
         if (!response.ok) throw new Error('Failed to fetch cases');
         const cases = await response.json();
         allCases = cases.filter(c => c.status === 'open' || !c.status);
+        console.log(`📋 Fetched ${allCases.length} available cases`);
         return allCases;
     } catch (error) {
         console.error('Error fetching cases:', error);
         return [];
     }
+}
+
+// Force refresh all data
+async function refreshAllData() {
+    console.log('🔄 Refreshing all data...');
+    await fetchAllTasks();
+    if (currentView === 'available') {
+        await fetchAvailableCases();
+    }
+    await refreshCurrentView();
+}
+
+// Refresh current view based on active tab
+async function refreshCurrentView() {
+    if (currentView === 'pending') await showPendingTasks();
+    else if (currentView === 'accepted') await showAcceptedTasks();
+    else if (currentView === 'reached') await showReachedTasks();
+    else if (currentView === 'completed') await showCompletedTasks();
+    else if (currentView === 'available') await showAvailableTasks();
 }
 
 // Show Pending Tasks
@@ -246,6 +268,7 @@ async function showPendingTasks() {
     try {
         const tasks = await fetchAllTasks();
         const pendingTasks = tasks.filter(t => t.status === 'pending_confirmation');
+        console.log(`📋 Pending tasks: ${pendingTasks.length}`);
         renderTasks(pendingTasks, 'pending');
         updateStats(tasks);
     } catch (error) {
@@ -264,6 +287,7 @@ async function showAcceptedTasks() {
     try {
         const tasks = await fetchAllTasks();
         const acceptedTasks = tasks.filter(t => t.status === 'accepted');
+        console.log(`📋 Accepted tasks: ${acceptedTasks.length}`);
         renderTasks(acceptedTasks, 'accepted');
         updateStats(tasks);
     } catch (error) {
@@ -282,6 +306,7 @@ async function showReachedTasks() {
     try {
         const tasks = await fetchAllTasks();
         const reachedTasks = tasks.filter(t => t.status === 'reached');
+        console.log(`📋 Reached tasks: ${reachedTasks.length}`);
         renderTasks(reachedTasks, 'reached');
         updateStats(tasks);
     } catch (error) {
@@ -300,6 +325,7 @@ async function showCompletedTasks() {
     try {
         const tasks = await fetchAllTasks();
         const completedTasks = tasks.filter(t => t.status === 'completed');
+        console.log(`📋 Completed tasks: ${completedTasks.length}`);
         renderTasks(completedTasks, 'completed');
         updateStats(tasks);
     } catch (error) {
@@ -437,7 +463,10 @@ async function acceptPendingTask(taskId) {
         
         if (data.success) {
             showToast('✅ Task accepted! WhatsApp confirmation sent.', 'success');
-            setTimeout(() => showPendingTasks(), 1000);
+            // Refresh all data after a short delay
+            setTimeout(async () => {
+                await refreshAllData();
+            }, 1500);
         } else {
             showToast('❌ Failed to accept task', 'error');
         }
@@ -459,7 +488,9 @@ async function rejectTask(taskId) {
         
         if (data.success) {
             showToast('❌ Task rejected', 'info');
-            showPendingTasks();
+            setTimeout(async () => {
+                await refreshAllData();
+            }, 1000);
         } else {
             showToast('❌ Failed to reject task', 'error');
         }
@@ -496,10 +527,13 @@ async function acceptAvailableTask(caseId) {
         
         if (assignData.success) {
             showToast('✅ Task accepted! WhatsApp sent to your phone.', 'success');
-            setTimeout(() => showPendingTasks(), 1500);
+            // Refresh after a delay to allow database update
+            setTimeout(async () => {
+                await refreshAllData();
+            }, 2000);
         } else {
             showToast('⚠️ ' + (assignData.message || 'Task created'), 'info');
-            showPendingTasks();
+            await refreshAllData();
         }
     } catch (error) {
         showToast('❌ Error: ' + error.message, 'error');
@@ -522,7 +556,9 @@ async function markReached(taskId) {
         
         if (data.success) {
             showToast('✅ Location reached! Status updated to "Reached".', 'success');
-            setTimeout(() => showReachedTasks(), 1000);
+            setTimeout(async () => {
+                await refreshAllData();
+            }, 1000);
         } else {
             showToast('❌ Failed to update status: ' + (data.error || 'Unknown'), 'error');
         }
@@ -549,7 +585,9 @@ async function markCompleted(taskId) {
         
         if (data.success) {
             showToast('🎉 Task completed! Thank you for your service!', 'success');
-            setTimeout(() => showCompletedTasks(), 1000);
+            setTimeout(async () => {
+                await refreshAllData();
+            }, 1000);
         } else {
             showToast('❌ Failed to mark completed', 'error');
         }
@@ -633,13 +671,12 @@ async function init() {
     await setUserAvatar();
     await showPendingTasks();
     
+    // Set up auto-refresh every 15 seconds (more frequent for real-time updates)
     setInterval(async () => {
-        if (currentView === 'pending') await showPendingTasks();
-        else if (currentView === 'accepted') await showAcceptedTasks();
-        else if (currentView === 'reached') await showReachedTasks();
-        else if (currentView === 'completed') await showCompletedTasks();
-        else if (currentView === 'available') await showAvailableTasks();
-    }, 30000);
+        if (document.getElementById('statusLed').classList.contains('online')) {
+            await refreshAllData();
+        }
+    }, 15000);
 }
 init();
 </script>
