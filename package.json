@@ -1,4 +1,10 @@
 {
+  "name": "smart-ngo-backend",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "@getbrevo/brevo": "^5.0.4",
     "@google/genai": "^1.51.0",
